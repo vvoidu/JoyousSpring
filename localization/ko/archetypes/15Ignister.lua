@@ -363,7 +363,7 @@ return {
                 },
             },
             j_joy_ignis_allied = {
-                name = "{C:joy_link}Allied Code Talker @Ignister",
+                name = "{C:joy_link}어코드 토커＠이그니스터",
                 text = {
                     {
                         "{C:joy_link}링크{} 조커 한 장 마다",
@@ -394,7 +394,7 @@ return {
                     },
                 },
                 joy_summon_conditions = {
-                    "{C:joy_normal}사이버스족{} {C:attentoin}1{}장",
+                    "{C:joy_normal}사이버스족{} {C:attention}1{}장",
                 },
             },
             j_joy_ignis_templar = {
@@ -468,4 +468,3 @@ return {
         },
     },
 }
-

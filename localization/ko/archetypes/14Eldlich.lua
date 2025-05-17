@@ -132,7 +132,7 @@ return {
                     },
                     {
                         "플레이한 핸드에 {C:attention}엘드릭시르{} 포함 시",
-                        "{C:attentoin}묘지{}에 {C:joy_effect}\"황금경 엘드리치\"{} {C:attention}#1#{}장을 생성합니다",
+                        "{C:attention}묘지{}에 {C:joy_effect}\"황금경 엘드리치\"{} {C:attention}#1#{}장을 생성합니다",
                     },
                     {
                         "소환된 이 카드가 {C:attention}묘지{}로 갈 경우",

@@ -81,143 +81,162 @@ return {
                 },
             },
             j_joy_wizard = {
-                name = "{C:joy_effect}Cyberse Wizard",
+                name = "{C:joy_effect}사이버스 위저드",
                 text = {
                     {
-                        "{C:chips}+#1#{} Chips for each {C:joy_normal}Cyberse{}",
-                        "{C:inactive}(Currently {C:chips}+#2#{} {C:inactive}Chips)",
+                        "{C:joy_normal}사이버스족{} {C:attention}조커{} 한 장 마다",
+                        "칩 {C:chips}+#1#{}개를 획득합니다",
+                        "{C:inactive}(현재 {C:chips}+#2#{} {C:inactive}칩)",
                     },
                     {
-                        "Free if you own a {C:joy_normal}Cyberse{}",
+                        "{C:joy_normal}사이버스족{} 보유시 무료",
                     },
                 },
             },
             j_joy_formud = {
-                name = "{C:joy_effect}Formud Skipper",
+                name = "{C:joy_effect}포맷 스킵퍼",
                 text = {
                     {
-                        "Treated as any {C:attention}material{} for a {C:joy_link}Link",
+                        "{C:joy_link}링크{} 소환의 임의의",
+                        "{C:attention}소재{}를 대체할수 있습니다",
                     },
                     {
-                        "Creates {C:attention}#1#{} {C:joy_normal}Main Deck{} {C:red}Rare{} {C:joy_normal}Cyberse",
-                        "when used as {C:attention}material{} for a {C:joy_normal}Cyberse",
-                        "{C:inactive}(Must have room)",
+                        "{C:joy_normal}사이버스족{} 몬스터의 {C:attention}소재{}로 사용되면",
+                        "무작위한 {C:joy_normal}메인 덱 {C:red}레어 {C:joy_normal}사이버스족",
+                        "카드 {C:attention}#1#{}장을 생성합니다",
+                        "{C:inactive}(자리가 있어야 합니다)",
                     },
                 },
             },
             j_joy_procession = {
-                name = "{C:joy_effect}Procession of the Tea Jar",
+                name = "{C:joy_effect}동요 차항아리",
                 text = {
                     {
-                        "Each face-down {C:attention}Joker{} gives {X:mult,C:white}X#1#{} Mult",
+                        "각 뒷면 표시 {C:attention}조커{}가",
+                        "{X:mult,C:white}X#1#{} 배수를 부여합니다",
                     },
                     {
-                        "{C:attention}Flips{} all {C:attention}Jokers{} face-down when {C:attention}Blind{} is selected",
-                        "{C:inactive}(Except \"Procession of the Tea Jar\"){}",
+                        "{C:attention}블라인드{} 선택시 모든 {C:attention}조커{}를",
+                        "뒷면으로 {C:attention}뒤집습니다{}",
+                        "{C:inactive}(\"동요 차항아리\" 제외){}",
                     },
                 },
             },
             j_joy_darkcat = {
-                name = "{C:joy_effect}Dark Cat with White Tail",
+                name = "{C:joy_effect}흰꼬리의 검은 고양이",
                 text = {
                     {
-                        "{C:mult}+#1#{} Mult",
+                        "{C:mult}+#1#{} 배수",
                     },
                     {
-                        "{C:joy_effect}FLIP{}: Adds {C:attention}#2#{} {C:dark_edition}Negative{} {C:attention}Lucky{} {C:attention}2{}s to your deck",
+                        "{C:joy_effect}리버스{}: {C:dark_edition}네거티브{} {C:attention}행운{} {C:attention}2{}",
+                        "{C:attention}#1#{}장을 덱에 추가합니다",
                     },
                 },
             },
             j_joy_dekoichi = {
-                name = "{C:joy_effect}Dekoichi the Battlechanted Locomotive",
+                name = "{C:joy_effect}마장기관차 데코이치",
                 text = {
                     {
-                        "{C:mult}+#1#{} Mult,",
-                        "{C:mult}+#2#{} for each {C:joy_normal}Normal{} {C:attention}Joker{}",
-                        "{C:inactive}(Currently {C:mult}+#3#{}{C:inactive} Mult)",
+                        "{C:mult}+#1#{} 배수,",
+                        "보유한 {C:joy_normal}일반{} {C:attention}몬스터{} 한 장 마다",
+                        "{C:mult}+#2#{} 배수를 획득합니다",
+                        "{C:inactive}(현재 {C:mult}+#3#{}{C:inactive} 배수)",
                     },
                     {
-                        "{C:joy_effect}FLIP{}: {C:attention}+#4#{} hand size this round,",
-                        "{C:attention}+#5#{} for each {C:joy_normal}Normal{} {C:attention}Joker{} then",
-                        "creates {C:attention}#6#{} {C:dark_edition}Negative{} {C:joy_normal}\"Bokoichi the Freightening Car\"{}",
+                        "{C:joy_effect}리버스{}: 이 라운드 동안 핸드 크기가 {C:attention}+#4#{}장 증가하며,",
+                        "보유한 {C:joy_normal}일반{} {C:attention}몬스터{}마다 {C:attention}+#5#{}장 추가로 증가합니다",
+                        "그 후 {C:dark_edition}네거티브{} {C:joy_normal}\"마화물차량 보코이치\"{}를 {C:attention}#6#{}장 생성합니다",
                     },
                 },
             },
             j_joy_bokoichi = {
-                name = "{C:joy_normal}Bokoichi the Freightening Car",
+                name = "{C:joy_normal}마화물차량 보코이치",
                 text = {
                     {
-                        "{E:1}A freight car that is exclusively for Dekoichi. It can transport{}",
-                        "{E:1}anything, but most cargo arrives broken.{}",
+                        "{E:1}데코이치 전용의 화물차량.",
+                        "{E:1}어떤 물건이든 운반할 수 있지만",
+                        "{E:1}대부분은 도착시에 부서져 있다.",
                     },
                 },
             },
             j_joy_desertapir = {
-                name = "{C:joy_effect}Desertapir",
+                name = "{C:joy_effect}사막 맥",
                 text = {
                     {
-                        "{C:money}+$#1#{} at end of round",
+                        "라운드 종료 시 {C:money}+$#1#{}",
                     },
                     {
-                        "{C:joy_effect}FLIP{}: Flips {C:attention}#2#{} random {C:attention}Jokers{} face-up",
+                        "{C:joy_effect}리버스{}: 무작위한 {C:attention}조커{}",
+                        "{C:attention}#2#{}장을 앞면으로 {C:attention}뒤집습니다",
                     },
                 },
             },
             j_joy_searchlight = {
-                name = "{C:joy_effect}Searchlightman",
+                name = "{C:joy_effect}서치라이트맨",
                 text = {
                     {
-                        "{C:mult}+#1#{} Mult,",
-                        "gains {C:mult}+#2#{} Mult for each {C:attention}Joker{} {C:attention}flipped{} face-up",
-                        "{s:0.9,C:inactive}(Gains even while face-down)",
-                        "{C:inactive}(Currently {C:mult}+#3# {C:inactive}Mult)",
+                        "{C:mult}+#1#{} 배수",
+                        "{C:attention}조커{}가 앞면으로 {C:attention}뒤집힐{} 때 마다",
+                        "배수 획득량이 {C:mult}+#2#{} 증가합니다",
+                        "{s:0.9,C:inactive}(이 카드가 뒷면이여도 증가합니다)",
+                        "{C:inactive}(현재 {C:mult}+#3# {C:inactive}배수)",
                     },
                     {
-                        "{C:joy_effect}FLIP{}: {C:attention}Flips{} all {C:attention}Jokers{} face-up",
+                        "{C:joy_effect}리버스{}: 모든 {C:attention}조커{}를",
+                        "앞면으로 {C:attention}뒤집습니다{}",
                     },
                     {
-                        "{C:green}#4# in #5#{} chance to {C:attention}flip{} when {C:attention}Blind{} is selected",
+                        "{C:attention}블라인드{} 선택 시",
+                        "{C:green}#4#/#5#{}의 확률로 {C:attention}뒤집힙니다{}",
                     },
                 },
             },
             j_joy_sternmystic = {
-                name = "{C:joy_effect}The Stern Mystic",
+                name = "{C:joy_effect}엄격한 노마술사",
                 text = {
                     {
-                        "{C:chips}+#1#{} Chips,",
-                        "gains {C:chips}+#2#{} Chips for each playing card {C:attention}flipped{}",
-                        "{s:0.9,C:inactive}(Gains even while face-down)",
-                        "{C:inactive}(Currently {C:chips}+#3# {C:inactive}Chips)",
+                        "칩 {C:chips}+#1#{} 개",
+                        "{C:attention}플레잉 카드{}가 {C:attention}뒤집힐{} 때 마다",
+                        "칩 획득량이 {C:chips}+#2#{} 증가합니다",
+                        "{s:0.9,C:inactive}(이 카드가 뒷면이여도 증가합니다)",
+                        "{C:inactive}(현재 칩 {C:chips}+#3# {C:inactive}개)",
                     },
                     {
-                        "{C:joy_effect}FLIP{}: {C:attention}Flips{} all cards in hand",
+                        "{C:joy_effect}리버스{}: 손패의 모든",
+                        "{C:attention}카드{}를 {C:attention}뒤집습니다{}",
                     },
                     {
-                        "{C:green}#4# in #5#{} chance to {C:attention}flip{} when {C:attention}Blind{} is selected",
+                        "{C:attention}블라인드{} 선택 시",
+                        "{C:green}#4#/#5#{}의 확률로 {C:attention}뒤집힙니다{}",
                     },
                 },
             },
             j_joy_mof = {
-                name = "{C:joy_effect}Magician of Faith",
+                name = "{C:joy_effect}성스러운 마술사",
                 text = {
                     {
-                        "{C:chips}+#1#{} Chips for each {C:joy_spell}Field Spell{} in the {C:attention}GY{}",
-                        "{C:inactive}(Currently {C:chips}+#2#{}{C:inactive} Chips)",
+                        "{C:attention}묘지{}의 {C:joy_spell}필드 마법{} 한 장마다",
+                        "칩 {C:chips}+#1#{}개를 획득합니다",
+                        "{C:inactive}(현재 칩 {C:chips}+#2#{}{C:inactive} 개)",
                     },
                     {
-                        "{C:joy_effect}FLIP{}: Creates {C:attention}#3#{} {C:dark_edition}Negative{} copy of a {C:joy_spell}Field Spell{} in the {C:attention}GY{}",
+                        "{C:joy_effect}리버스{}: {C:attention}묘지{}의 무작위한 {C:joy_spell}필드 마법{}을",
+                        "복사해 {C:attention}#3#{}장 생성하며 {C:dark_edition}네거티브{}를 부여합니다",
                     },
                 },
             },
             j_joy_mask = {
-                name = "{C:joy_effect}Mask of Darkness",
+                name = "{C:joy_effect}암흑의 가면",
                 text = {
                     {
-                        "{C:mult}+#1#{} Mult for each {C:joy_trap}Trap{} in the {C:attention}GY{}",
-                        "{C:inactive}(Currently {C:mult}+#2#{}{C:inactive} Mult)",
+                        "{C:attention}묘지{}의 {C:joy_spell}함정{} 한 장마다",
+                        "{C:mult}+#1#{} 배수를 획득합니다",
+                        "{C:inactive}(현재 {C:mult}+#2#{}{C:inactive} 배수)",
                     },
                     {
-                        "{C:joy_effect}FLIP{}: {C:attention}Revives #3#{} {C:joy_trap}Trap{}",
+                        "{C:joy_effect}리버스{}: {C:joy_trap}함정{} 카드",
+                        "{C:attention}#3#{}장을 {C:attention}소생{}시킵니다",
                     },
                 },
             },

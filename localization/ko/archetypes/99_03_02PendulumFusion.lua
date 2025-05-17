@@ -2,22 +2,23 @@ return {
     descriptions = {
         Joker = {
             j_joy_couverture = {
-                name = "{C:joy_pendulum_fusion}Patissciel Couverture",
+                name = "{C:joy_pendulum_fusion}파티시엘 쿠베르",
                 joy_consumable = {
-                    "Create {C:attention}#1#{} {C:red}Rare{} {C:joy_pendulum}Pendulum{}",
-                    "{C:inactive}(Must have room)"
+                    "무작위한 {C:red}레어{} {C:joy_pendulum}펜듈럼{} 카드",
+                    "{C:attention}#1#{}장을 생성합니다",
+                    "{C:inactive}(자리가 있어야 합니다)",
                 },
                 text = {
                     {
-                        "Adds {C:attention}#2#{} {C:joy_pendulum_fusion}\"Patissciel Couverture\"{}",
-                        "to the {C:joy_spell}Extra Deck{} if this card is consumed",
-                        "{C:inactive}(Must have room)",
+                        "소모품으로 사용 시 {C:joy_spell}엑스트라 덱{}에",
+                        "{C:joy_pendulum_fusion}\"파티시엘 쿠베르\"{} {C:attention}#2#{}장을 생성합니다",
+                        "{C:inactive}(자리가 있어야 합니다)",
                     },
                 },
                 joy_summon_conditions = {
-                    "{C:attention}2{} {C:joy_pendulum}Pendulum{}"
-                }
+                    "{C:joy_pendulum}펜듈럼{} 조커 {C:attention}2{}장",
+                },
             },
-        }
+        },
     },
 }

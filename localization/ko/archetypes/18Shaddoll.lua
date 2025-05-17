@@ -88,7 +88,8 @@ return {
                     {
                         "{C:joy_effect}리버스{}: {C:money}+$#1#{},",
                         "{C:joy_normal}\"섀도르\"{} {C:attention}#2#{}장을 {C:attention}소생{}시킨 후",
-                        "{C:attention}묘지{}에 무작위한 {C:joy_normal}\"섀도르\"{} {C:attention}#3#{}장을 생성합니다",
+                        "{C:attention}묘지{}에 무작위한 {C:joy_normal}\"섀도르\"{}",
+                        "{C:attention}#3#{}장을 생성합니다",
                     },
                     {
                         "{C:joy_fusion}융합{} 소환의 {C:attention}소재{}로 사용될 시",
@@ -124,7 +125,7 @@ return {
                         "{C:attention}묘지{}에 무작위한 {C:joy_normal}\"섀도르\"{} {C:attention}#3#{}장을 생성합니다",
                     },
                     {
-                        "{C:joy_fusion}융합{} 소환의 아무런 {C:attention}소재{}를 대체할수 있습니다",
+                        "{C:joy_fusion}융합{} 소환에 필요한 임의의 {C:attention}소재{}를 대체할수 있습니다",
                     },
                     {
                         "{C:joy_fusion}융합{} 소환의 {C:attention}소재{}로 사용될 시",
@@ -185,17 +186,20 @@ return {
                         "{C:inactive}(이 효과는 뒷면일 경우에도 발동합니다)",
                     },
                     {
-                        "{C:joy_effect}리버스{}: Add {C:attention}#1#{} {C:joy_normal}\"섀도르\"{} to the {C:joy_spell}Extra Deck",
+                        "{C:attention}소재{}로 사용될시 {C:joy_spell}엑스트라 덱{}에",
+                        "무작위한 {C:joy_normal}\"섀도르\" {C:attention}#1#{}장을 생성합니다",
                         "{C:inactive}(공간이 있어야 합니다)",
                     },
                     {
                         "이 카드를 {C:attention}소재{}로 사용해 {C:joy_fusion}융합{} 소환된",
                         "카드는 아래의 효과를 얻습니다:",
-                        "{s:0.9,C:attention}묘지{s:0.9}의 {s:0.9,C:joy_normal}\"섀도르\"{s:0.9} 또는 {s:0.9,C:joy_normal}마법사족{s:0.9} 카드 한 장 마다 {s:0.9,C:mult}+#2#{s:0.9} 배수를 획득합니다",
+                        "{s:0.9,C:attention}묘지{s:0.9}의 {s:0.9,C:joy_normal}\"섀도르\"{s:0.9} 또는 {s:0.9,C:joy_normal}마법사족{s:0.9}",
+                        "{s:0.9}카드 한 장 마다 {s:0.9,C:mult}+#2#{s:0.9} 배수를 획득합니다",
                     },
                 },
                 joy_transfer_ability = {
-                    "{C:attention}묘지{}의 {C:joy_normal}\"섀도르\"{} 또는 {C:joy_normal}마법사족{} 카드 한 장 마다 {}+#1#{} 배수를 획득합니다",
+                    "{C:attention}묘지{}의 {C:joy_normal}\"섀도르\"{} 또는 {C:joy_normal}마법사족{}",
+                    "카드 한 장 마다 {}+#1#{} 배수를 획득합니다",
                     "{C:inactive}(현재 {C:mult}+#2#{} {C:inactive}배수)",
                 },
             },
@@ -207,7 +211,8 @@ return {
                         "{C:inactive}(이 효과는 뒷면일 경우에도 발동합니다)",
                     },
                     {
-                        "{C:joy_effect}리버스{}: Create {C:attention}#1#{} {C:joy_normal}Main Deck \"섀도르\"{}",
+                        "{C:joy_effect}리버스{}: 무작위한 {C:joy_normal}메인덱 \"섀도르\"{}",
+                        "{C:attention}#1#{}장을 생성합니다",
                         "{C:inactive}(공간이 있어야 합니다)",
                     },
                     {
@@ -234,34 +239,41 @@ return {
                         "{C:attention}#1#{}장을 {C:attention}묘지{}에 생성합니다",
                     },
                     {
-                        "A {C:joy_fusion}Fusion{} summoned using this card as {C:attention}material{} gains this ability:",
-                        "{s:0.9}Send {s:0.9,C:attention}#2#{} {s:0.9,C:joy_normal}Main Deck \"섀도르\"{s:0.9} to the {s:0.9,C:attention}GY{s:0.9} when {s:0.9,C:attention}Blind{s:0.9} is selected",
+                        "이 카드를 {C:attention}소재{}로 사용해 {C:joy_fusion}융합{} 소환된",
+                        "카드는 아래의 효과를 얻습니다:",
+                        "{s:0.9,C:attention}블라인드{s:0.9}를 선택할 시 {s:0.9,C:attention}묘지{s:0.9}에 무작위한",
+                        "{s:0.9,C:joy_normal}메인 덱 \"섀도르\" {s:0.9,C:attention}#1#{s:0.9}장을 생성합니다",
                     },
                 },
                 joy_transfer_ability = {
-                    "Sends {C:attention}#1#{} {C:joy_normal}Main Deck \"Shaddoll\"{} to the {C:attention}GY{} when {C:attention}Blind{} is selected",
+                    "{C:attention}블라인드{}를 선택할 시 {C:attention}묘지{}에 무작위한",
+                    "{C:joy_normal}메인 덱 \"섀도르\"{} {C:attention}#1#{}장을 생성합니다",
                 },
             },
             j_joy_shaddoll_anoya = {
                 name = "{C:joy_fusion}엘섀도르 아노마릴리스",
                 text = {
                     {
-                        "{C:chips}+#1#{} Chips for each {C:joy_normal}\"섀도르\"{} in the {C:attention}GY",
-                        "{C:inactive}(현재 {C:chips}+#2#{} {C:inactive}Chips)",
+                        "{C:attention}묘지{}의 {C:joy_normal}\"섀도르\"{} 한 장 마다",
+                        "칩 {C:chips}+#1#{}개를 획득합니다",
+                        "{C:inactive}(현재 칩 {C:chips}+#2#{} {C:inactive}개)",
                     },
                     {
-                        "Add {C:attention}#3#{} {C:joy_normal}\"섀도르\"{} to the {C:joy_spell}Extra Deck",
-                        "when used as {C:attention}material",
+                        "{C:attention}소재{}로 사용될시 {C:joy_spell}엑스트라 덱{}에",
+                        "무작위한 {C:joy_normal}\"섀도르\" {C:attention}#3#{}장을 생성합니다",
                         "{C:inactive}(공간이 있어야 합니다)",
                     },
                     {
-                        "A {C:joy_fusion}Fusion{} summoned using this card as {C:attention}material{} gains this ability:",
-                        "{s:0.9,C:chips}+#1#{s:0.9} Chips for each {s:0.9,C:joy_normal}\"섀도르\"{s:0.9} in the {s:0.9,C:attention}GY",
+                        "이 카드를 {C:attention}소재{}로 사용해 {C:joy_fusion}융합{} 소환된",
+                        "카드는 아래의 효과를 얻습니다:",
+                        "{s:0.9,C:attention}묘지{s:0.9}의 {s:0.9,C:joy_normal}\"섀도르\"{s:0.9} 한 장 마다",
+                        "{s:0.9}칩 {s:0.9,C:chips}+#1#{s:0.9}개를 획득합니다",
                     },
                 },
                 joy_transfer_ability = {
-                    "{C:chips}+#1#{} Chips for each {C:joy_normal}\"Shaddoll\"{} in the {C:attention}GY",
-                    "{C:inactive}(Currently {C:chips}+#2#{} {C:inactive}Chips)",
+                    "{C:attention}묘지{}의 {C:joy_normal}\"섀도르\"{} 한 장 마다",
+                    "칩 {C:chips}+#1#{}개를 획득합니다",
+                    "{C:inactive}(현재 칩 {C:chips}+#2#{} {C:inactive}개)",
                 },
                 joy_summon_conditions = {
                     "{C:joy_normal}마법사족{} {C:attention}조커 1{}장 +",
@@ -272,187 +284,212 @@ return {
                 name = "{C:joy_fusion}엘섀도르 아프카로네",
                 text = {
                     {
-                        "{C:joy_normal}\"섀도르\"{} {C:joy_fusion}Fusions{} can't be debuffed or {C:attention}flipped{} face-down",
+                        "{C:joy_normal}\"섀도르\"{} {C:joy_fusion}융합{} 카드가",
+                        "뒷면으로 {C:attention}뒤집히거나{} 디버프될수 없습니다",
                     },
                     {
-                        "Add {C:attention}#1#{} {C:joy_normal}\"섀도르\"{} to the {C:joy_spell}Extra Deck",
-                        "when used as {C:attention}material",
+                        "{C:attention}소재{}로 사용될시 {C:joy_spell}엑스트라 덱{}에",
+                        "무작위한 {C:joy_normal}\"섀도르\" {C:attention}#1#{}장을 생성합니다",
                         "{C:inactive}(공간이 있어야 합니다)",
                     },
                     {
-                        "A {C:joy_fusion}Fusion{} summoned using this card as {C:attention}material{} gains this ability:",
-                        "{s:0.9,C:joy_normal}\"섀도르\"{} {s:0.9,C:joy_fusion}Fusions{s:0.9} can't be debuffed or {s:0.9,C:attention}flipped{s:0.9} face-down",
+                        "이 카드를 {C:attention}소재{}로 사용해 {C:joy_fusion}융합{} 소환된",
+                        "카드는 아래의 효과를 얻습니다:",
+                        "{s:0.9,C:joy_normal}\"섀도르\" {s:0.9,C:joy_fusion}융합{} 카드가",
+                        "{s:0.9}뒷면으로 {s:0.9,C:attention}뒤집히거나{s:0.9} 디버프될수 없습니다",
                     },
                 },
                 joy_transfer_ability = {
-                    "{C:joy_normal}\"Shaddoll\"{} {C:joy_fusion}Fusions{} can't be debuffed or {C:attention}flipped{} face-down",
+                    "{C:joy_normal}\"섀도르\"{} {C:joy_fusion}융합{} 카드가",
+                    "뒷면으로 {C:attention}뒤집히거나{} 디버프될수 없습니다",
                 },
                 joy_summon_conditions = {
-                    "{C:attention}2{} {C:joy_normal}Spellcasters{}",
-                    "with different {C:attention}attributes{}",
+                    "{C:attention}속성{}이 다른",
+                    "{C:joy_normal}마법사족{} {C:attention}2{}장",
                 },
             },
             j_joy_shaddoll_winda = {
                 name = "{C:joy_fusion}엘섀도르 미도라시",
                 text = {
                     {
-                        "{X:mult,C:white}X#1#{} 배수 for each {C:joy_normal}\"섀도르\"{}, face-down {C:attention}Joker{} or empty {C:attention}Joker{} slot",
+                        "비어있는 {C:attention}조커{} 슬롯, 뒷면 {C:attention}조커{}, 혹은 {C:joy_normal}\"섀도르\"{}",
+                        "한 장마다 {X:mult,C:white}X#1#{} 배수를 획득합니다",
                         "{C:inactive}(현재 {X:mult,C:white}X#2#{} {C:inactive}배수)",
                     },
                     {
-                        "Add {C:attention}#3#{} {C:joy_normal}\"섀도르\"{} to the {C:joy_spell}Extra Deck",
-                        "when used as {C:attention}material",
+                        "{C:attention}소재{}로 사용될시 {C:joy_spell}엑스트라 덱{}에",
+                        "무작위한 {C:joy_normal}\"섀도르\" {C:attention}#1#{}장을 생성합니다",
                         "{C:inactive}(공간이 있어야 합니다)",
                     },
                     {
-                        "A {C:joy_fusion}Fusion{} summoned using this card as {C:attention}material{} gains this ability:",
-                        "{s:0.9,X:mult,C:white}X#1#{s:0.9} 배수 for each {s:0.9,C:joy_normal}\"섀도르\"{s:0.9}, face-down {s:0.9,C:attention}Joker{s:0.9} or empty {s:0.9,C:attention}Joker{s:0.9} slot",
+                        "이 카드를 {C:attention}소재{}로 사용해 {C:joy_fusion}융합{} 소환된",
+                        "카드는 아래의 효과를 얻습니다:",
+                        "{s:0.9}비어있는 {C:attention}조커{} 슬롯, 뒷면 {C:attention}조커{}, 혹은 {C:joy_normal}\"섀도르\"{}",
+                        "{s:0.9}한 장마다 {X:mult,C:white}X#1#{} 배수를 획득합니다",
                     },
                 },
                 joy_transfer_ability = {
-                    "{X:mult,C:white}X#1#{} Mult for each {C:joy_normal}\"Shaddoll\"{}, face-down {C:attention}Joker{} or empty {C:attention}Joker{} slot",
-                    "{C:inactive}(Currently {X:mult,C:white}X#2#{} {C:inactive}Mult)",
+                    "비어있는 {C:attention}조커{} 슬롯, 뒷면 {C:attention}조커{}, 혹은 {C:joy_normal}\"섀도르\"{}",
+                    "한 장마다 {X:mult,C:white}X#1#{} 배수를 획득합니다",
+                    "{C:inactive}(현재 {X:mult,C:white}X#2#{} {C:inactive}배수)",
                 },
                 joy_summon_conditions = {
-                    "{C:attention}1{} {C:joy_normal}Spellcaster{} +",
-                    "{C:attention}1{} {C:joy_dark}DARK{} {C:attention}Joker{}",
+                    "{C:joy_normal}마법사족{} {C:attention}1{}장 +",
+                    "{C:joy_dark}어둠속성{} {C:attention}조커{} {C:attention}1{}장",
                 },
             },
             j_joy_shaddoll_elconstruct = {
                 name = "{C:joy_fusion}엘섀도르 네피림",
                 text = {
                     {
-                        "Send {C:attention}#1# {C:joy_normal}\"섀도르\"{} to the {C:attention}GY{} when {C:attention}Blind{} is selected",
+                        "{C:attention}블라인드{}를 선택할 시 {C:attention}묘지{}에 무작위한",
+                        "{C:joy_normal}\"섀도르\"{} {C:attention}#1#{}장을 생성합니다",
                     },
                     {
-                        "Add {C:attention}#2#{} {C:joy_normal}\"섀도르\"{} to the {C:joy_spell}Extra Deck",
-                        "when used as {C:attention}material",
+                        "{C:attention}소재{}로 사용될시 {C:joy_spell}엑스트라 덱{}에",
+                        "무작위한 {C:joy_normal}\"섀도르\" {C:attention}#2#{}장을 생성합니다",
                         "{C:inactive}(공간이 있어야 합니다)",
                     },
                     {
-                        "A {C:joy_fusion}Fusion{} summoned using this card as {C:attention}material{} gains this ability:",
-                        "{s:0.9}Send {s:0.9,C:attention}#1# {s:0.9,C:joy_normal}\"섀도르\"{s:0.9} to the {s:0.9,C:attention}GY{s:0.9} when {s:0.9,C:attention}Blind{s:0.9} is selected",
+                        "이 카드를 {C:attention}소재{}로 사용해 {C:joy_fusion}융합{} 소환된",
+                        "카드는 아래의 효과를 얻습니다:",
+                        "{s:0.9,C:attention}블라인드{s:0.9}를 선택할 시 {s:0.9,C:attention}묘지{s:0.9}에 무작위한",
+                        "{s:0.9,C:joy_normal}\"섀도르\"{s:0.9} {s:0.9,C:attention}#1#{s:0.9}장을 생성합니다",
                     },
                 },
                 joy_transfer_ability = {
-                    "Sends {C:attention}#1# {C:joy_normal}\"Shaddoll\"{} to the {C:attention}GY{} when {C:attention}Blind{} is selected",
+                    "{C:attention}블라인드{}를 선택할 시 {C:attention}묘지{}에 무작위한",
+                    "{C:joy_normal}\"섀도르\"{} {C:attention}#1#{}장을 생성합니다",
                 },
                 joy_summon_conditions = {
-                    "{C:attention}1{} {C:joy_normal}Spellcaster{} +",
-                    "{C:attention}1{} {C:joy_light}LIGHT{} {C:attention}Joker{}",
+                    "{C:joy_normal}마법사족{} {C:attention}1{}장 +",
+                    "{C:joy_dark}빛속성{} {C:attention}조커{} {C:attention}1{}장",
                 },
             },
             j_joy_shaddoll_grysta = {
                 name = "{C:joy_fusion}엘섀도르 에그리스타",
                 text = {
                     {
-                        "{X:chips,C:white}X#1#{} Chips for each {C:joy_normal}\"섀도르\"{} in the {C:attention}GY",
-                        "{C:inactive}(현재 {X:chips,C:white}X#2#{} {C:inactive}Chips)",
+                        "{C:attention}묘지{}의 {C:joy_normal}\"섀도르\"{} 한 장 마다",
+                        "칩 {X:chips,C:white}X#1#{}개를 획득합니다",
+                        "{C:inactive}(현재 칩 {X:chips,C:white}X#2#{}{C:inactive}개)",
                     },
                     {
-                        "Add {C:attention}#3#{} {C:joy_normal}\"섀도르\"{} to the {C:joy_spell}Extra Deck",
-                        "when used as {C:attention}material",
+                        "{C:attention}소재{}로 사용될시 {C:joy_spell}엑스트라 덱{}에",
+                        "무작위한 {C:joy_normal}\"섀도르\" {C:attention}#2#{}장을 생성합니다",
                         "{C:inactive}(공간이 있어야 합니다)",
                     },
                     {
-                        "A {C:joy_fusion}Fusion{} summoned using this card as {C:attention}material{} gains this ability:",
-                        "{s:0.9,X:chips,C:white}X#1#{s:0.9} Chips for each {s:0.9,C:joy_normal}\"섀도르\"{s:0.9} in the {s:0.9,C:attention}GY",
+                        "이 카드를 {C:attention}소재{}로 사용해 {C:joy_fusion}융합{} 소환된",
+                        "카드는 아래의 효과를 얻습니다:",
+                        "{s:0.9,C:attention}묘지{s:0.9}의 {s:0.9,C:joy_normal}\"섀도르\"{s:0.9} 한 장 마다",
+                        "{s:0.9}칩 {s:0.9,X:chips,C:white}X#1#{s:0.9}개를 획득합니다",
                     },
                 },
                 joy_transfer_ability = {
-                    "Gains {X:chips,C:white}X#1#{} Chips for each {C:joy_normal}\"Shaddoll\"{} in the {C:attention}GY",
-                    "{C:inactive}(Currently {X:chips,C:white}X#2#{} {C:inactive}Chips)",
+                    "{C:attention}묘지{}의 {C:joy_normal}\"섀도르\"{} 한 장 마다",
+                    "칩 {X:chips,C:white}X#1#{}개를 획득합니다",
+                    "{C:inactive}(현재 칩 {X:chips,C:white}X#2#{} {C:inactive}개)",
                 },
                 joy_summon_conditions = {
-                    "{C:attention}1{} {C:joy_normal}Spellcaster{} +",
-                    "{C:attention}1{} {C:joy_fire}FIRE{} {C:attention}Joker{}",
+                    "{C:joy_normal}마법사족{} {C:attention}1{}장 +",
+                    "{C:joy_dark}화염속성{} {C:attention}조커{} {C:attention}1{}장",
                 },
             },
             j_joy_shaddoll_shekh = {
                 name = "{C:joy_fusion}엘섀도르 셰키나가",
                 text = {
                     {
-                        "Disables effect of every {C:attention}Boss Blind",
+                        "{C:attention}보스 블라인드{}의 효과를 비활성화 시킵니다",
                     },
                     {
-                        "Add {C:attention}#1#{} {C:joy_normal}\"섀도르\"{} to the {C:joy_spell}Extra Deck",
-                        "when used as {C:attention}material",
+                        "{C:attention}소재{}로 사용될시 {C:joy_spell}엑스트라 덱{}에",
+                        "무작위한 {C:joy_normal}\"섀도르\" {C:attention}#2#{}장을 생성합니다",
                         "{C:inactive}(공간이 있어야 합니다)",
                     },
                     {
-                        "A {C:joy_fusion}Fusion{} summoned using this card as {C:attention}material{} gains this ability:",
-                        "{s:0.9}Disables effect of every {s:0.9,C:attention}Boss Blind",
+                        "이 카드를 {C:attention}소재{}로 사용해 {C:joy_fusion}융합{} 소환된",
+                        "카드는 아래의 효과를 얻습니다:",
+                        "{s:0.9,C:attention}보스 블라인드{s:0.9}의 효과를 비활성화 시킵니다",
                     },
                 },
                 joy_transfer_ability = {
-                    "Disables effect of every {C:attention}Boss Blind",
+                    "{C:attention}보스 블라인드{}의 효과를 비활성화 시킵니다",
                 },
                 joy_summon_conditions = {
-                    "{C:attention}1{} {C:joy_normal}Spellcaster{} +",
-                    "{C:attention}1{} {C:joy_earth}EARTH{} {C:attention}Joker{}",
+                    "{C:joy_normal}마법사족{} {C:attention}1{}장 +",
+                    "{C:joy_dark}땅속성{} {C:attention}조커{} {C:attention}1{}장",
                 },
             },
             j_joy_shaddoll_wendigo = {
                 name = "{C:joy_fusion}엘섀도르 웬디고",
                 text = {
                     {
-                        "{C:joy_normal}\"섀도르\"{} {C:joy_effect}Flip{} {C:attention}Jokers{} don't {C:attention}flip{} face-down and keep their {C:joy_effect}리버스{} abilities",
+                        "{C:joy_normal}\"섀도르\"{} {C:joy_effect}리버스{} {C:attention}조커{}가 뒷면으로",
+                        "{C:attention}뒤집히지 않고{} {C:joy_effect}리버스{} 효과를 발동시킵니다",
                     },
                     {
-                        "Add {C:attention}#1#{} {C:joy_normal}\"섀도르\"{} to the {C:joy_spell}Extra Deck",
-                        "when used as {C:attention}material",
+                        "{C:attention}소재{}로 사용될시 {C:joy_spell}엑스트라 덱{}에",
+                        "무작위한 {C:joy_normal}\"섀도르\" {C:attention}#1#{}장을 생성합니다",
                         "{C:inactive}(공간이 있어야 합니다)",
                     },
                     {
-                        "A {C:joy_fusion}Fusion{} summoned using this card as {C:attention}material{} gains this ability:",
-                        "{s:0.9,C:joy_normal}\"섀도르\"{} {s:0.9,C:joy_effect}Flip{} {s:0.9,C:attention}Jokers{s:0.9} don't {s:0.9,C:attention}flip{s:0.9} face-down and keep their {s:0.9,C:joy_effect}리버스{s:0.9} abilities",
+                        "이 카드를 {C:attention}소재{}로 사용해 {C:joy_fusion}융합{} 소환된",
+                        "카드는 아래의 효과를 얻습니다:",
+                        "{s:0.9,C:joy_normal}\"섀도르\"{s:0.9} {s:0.9,C:joy_effect}리버스{s:0.9} {s:0.9,C:attention}조커{s:0.9}가",
+                        "뒷면으로 {s:0.9,C:attention}뒤집히지 않고{s:0.9} {s:0.9,C:joy_effect}리버스{s:0.9} 효과를 발동시킵니다",
                     },
                 },
                 joy_transfer_ability = {
-                    "{C:joy_normal}\"Shaddoll\"{} {C:joy_effect}Flip{} {C:attention}Jokers{} don't {C:attention}flip{} face-down on their own",
-                    "and their {C:joy_effect}FLIP{} abilities activate when {C:attention}Blind{} is selected",
+                    "{C:joy_normal}\"섀도르\"{} {C:joy_effect}리버스{} {C:attention}조커{}가 뒷면으로",
+                    "{C:attention}뒤집히지 않고{} {C:joy_effect}리버스{} 효과를 발동시킵니다",
                 },
                 joy_summon_conditions = {
-                    "{C:attention}1{} {C:joy_normal}Spellcaster{} +",
-                    "{C:attention}1{} {C:joy_wind}WIND{} {C:attention}Joker{}",
+                    "{C:joy_normal}마법사족{} {C:attention}1{}장 +",
+                    "{C:joy_dark}바람속성{} {C:attention}조커{} {C:attention}1{}장",
                 },
             },
             j_joy_shaddoll_construct = {
                 name = "{C:joy_link}섀도르 네피림",
                 text = {
                     {
-                        "Can be treated as any {C:attention}material{} for a {C:joy_fusion}Fusion",
+                        "{C:joy_fusion}융합{} 소환에 필요한 임의의",
+                        "{C:attention}소재{}를 대체할수 있습니다",
                     },
                     {
-                        "Add {C:attention}#1#{} {C:joy_normal}\"섀도르\"{} to the {C:joy_spell}Extra Deck",
-                        "when used as {C:attention}material",
+                        "{C:attention}소재{}로 사용될시 {C:joy_spell}엑스트라 덱{}에",
+                        "무작위한 {C:joy_normal}\"섀도르\" {C:attention}#1#{}장을 생성합니다",
                         "{C:inactive}(공간이 있어야 합니다)",
                     },
                     {
-                        "A {C:joy_fusion}Fusion{} summoned using this card as {C:attention}material{} gains this ability:",
-                        "{s:0.9}Can be treated as any {s:0.9,C:attention}material{s:0.9} for a {s:0.9,C:joy_fusion}Fusion",
+                        "이 카드를 {C:attention}소재{}로 사용해 {C:joy_fusion}융합{} 소환된",
+                        "카드는 아래의 효과를 얻습니다:",
+                        "{s:0.9,C:joy_fusion}융합{s:0.9} 소환에 필요한 임의의",
+                        "{s:0.9,C:attention}소재{s:0.9}를 대체할수 있습니다",
                     },
                 },
                 joy_transfer_ability = {
-                    "Can be treated as any {C:attention}material{} for a {C:joy_fusion}Fusion",
+                    "{C:joy_fusion}융합{} 소환에 필요한 임의의",
+                    "{C:attention}소재{}를 대체할수 있습니다",
                 },
                 joy_summon_conditions = {
-                    "{C:attention}2{} {C:joy_effect}Flip{} or",
-                    "face-down {C:attention}Jokers",
+                    "뒷면 또는 {C:attention}2{} {C:joy_effect}리버스{}",
+                    "{C:attention}조커{} {C:attention}2{}장",
                 },
             },
             j_joy_shaddoll_prison = {
                 name = "{C:joy_spell}영뢰의 저주",
                 text = {
                     {
-                        "Each time a {C:joy_normal}\"섀도르\"{}, {C:joy_normal}Spellcaster{} or {C:joy_effect}Flip{} {C:attention}Joker",
-                        "is sent to the {C:attention}GY{}, add {C:attention}#1#{} {C:joy_token}Counter{} to this card",
+                        "{C:joy_normal}\"섀도르\"{}, {C:joy_normal}마법사족{} 또는 {C:joy_effect}리버스{} {C:attention}조커{}가",
+                        "{C:attention}묘지{}에 보내지면, 이 카드에 {C:joy_token}카운터{} {C:attention}#1#{}개를 놓습니다",
                     },
                     {
-                        "{C:chips}+#2#{} Chips for each {C:joy_token}Counter{}",
+                        "이 카드의 {C:joy_token}카운터{} 하나 마다 칩 {C:chips}+#2#{}개를 획득합니다",
                     },
                     {
-                        "Remove {C:attention}#3#{} {C:joy_token}Counters{} to {C:attention}revive #4#{} {C:joy_fusion}Fusion",
+                        "이 카드에서 {C:joy_token}카운터{} {C:attention}#3#{}개를 제거해",
+                        "{C:joy_fusion}융합{} 조커 {C:attention}#4#{}장을 {C:attention}소생{}시킬수 있습니다",
                     },
                 },
             },

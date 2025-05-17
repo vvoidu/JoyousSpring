@@ -2,7 +2,7 @@ return {
     descriptions = {
         Joker = {
             j_joy_invoked_aleister = {
-                name = "{C:joy_effect}Aleister the Invoker",
+                name = "{C:joy_effect}소환사 알레이스터",
                 text = {
                     {
                         "You can {C:attention}tribute #1#{} other {C:attention}Joker",
@@ -20,7 +20,7 @@ return {
                 },
             },
             j_joy_invoked_madness = {
-                name = "{C:joy_link}Aleister the Invoker of Madness",
+                name = "{C:joy_link}폭주소환사 알레이스터",
                 text = {
                     {
                         "You can {C:attention}tribute #1#{} other {C:attention}Joker",
@@ -47,7 +47,7 @@ return {
                 },
             },
             j_joy_invoked_caliga = {
-                name = "{C:joy_fusion}Invoked Caliga",
+                name = "{C:joy_fusion}소환수 칼리굴라",
                 text = {
                     {
                         "You can {C:attention}tribute #1#{} other {C:attention}Joker",
@@ -74,7 +74,7 @@ return {
                 },
             },
             j_joy_invoked_raidjin = {
-                name = "{C:joy_fusion}Invoked Raidjin",
+                name = "{C:joy_fusion}소환수 라이딘",
                 text = {
                     {
                         "You can {C:attention}tribute #1#{} other {C:attention}Joker",
@@ -103,7 +103,7 @@ return {
                 },
             },
             j_joy_invoked_cocytus = {
-                name = "{C:joy_fusion}Invoked Cocytus",
+                name = "{C:joy_fusion}소환수 코키토스",
                 text = {
                     {
                         "You can {C:attention}tribute #1#{} other {C:attention}Joker",
@@ -123,7 +123,7 @@ return {
                 },
             },
             j_joy_invoked_purgatorio = {
-                name = "{C:joy_fusion}Invoked Purgatrio",
+                name = "{C:joy_fusion}소환수 푸르가트리오",
                 text = {
                     {
                         "You can {C:attention}tribute #1#{} other {C:attention}Joker",
@@ -163,7 +163,7 @@ return {
                 },
             },
             j_joy_invoked_mechaba = {
-                name = "{C:joy_fusion}Invoked Mechaba",
+                name = "{C:joy_fusion}소환수 메르카바",
                 text = {
                     {
                         "You can {C:attention}tribute #1#{} other {C:attention}Joker",
@@ -213,7 +213,7 @@ return {
                 },
             },
             j_joy_invoked_elysium = {
-                name = "{C:joy_fusion}Invoked Elysium",
+                name = "{C:joy_fusion}소환수 엘리시온",
                 text = {
                     {
                         "You can {C:attention}tribute #1#{} other {C:attention}Joker",
@@ -234,21 +234,22 @@ return {
                 },
             },
             j_joy_invoked_meltdown = {
-                name = "{C:joy_spell}Magical Meltdown",
+                name = "{C:joy_spell}폭주마법진",
                 text = {
                     {
-                        "You can {C:attention}tribute #1#{} {C:joy_fusion}Fusions{} to create {C:attention}#2#{} {C:joy_effect}\"Aleister the Invoker\"",
+                        "{C:joy_fusion}융합{} 몬스터 {C:attention}#1#{}장을 {C:attention}릴리즈{}해",
+                        "{C:joy_effect}\"소환사 알레이스터\"{} {C:attention}#1#{}장을 생성할수 있습니다",
                     },
                     {
-                        "Gains {X:mult,C:white}X#3#{} 배수 for each {C:joy_fusion}fusion{} summoned this run",
+                        "이 런에서 {C:fusion}융합{} 소환한 횟수 만큼",
+                        "{X:mult,C:white}X#3#{} 배수를 획득합니다",
                         "{C:inactive}(현재{} {X:mult,C:white}X#4#{} {C:inactive}배수){}",
                     },
                     {
-                        "{C:joy_fusion}Fusions{} can't be flipped or debuffed",
+                        "{C:joy_fusion}융합{} 몬스터가 뒤집히거나 디버프될수 없습니다",
                     },
                 },
             },
         },
     },
 }
-

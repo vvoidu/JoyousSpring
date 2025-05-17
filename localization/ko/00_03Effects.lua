@@ -10,7 +10,7 @@ return {
             k_joy_flip = "뒤집기!",
             k_joy_set = "세트!",
             k_joy_revive = "소생!",
-            k_joy_mill = "덩핌!",
+            k_joy_mill = "덤핑!",
             k_joy_add = "추가!",
             k_joy_return = "돌아감!",
         },

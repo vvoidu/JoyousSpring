@@ -2,168 +2,185 @@ return {
     descriptions = {
         Joker = {
             j_joy_foucault = {
-                name = "{C:joy_pendulum_normal}Foucault's Cannon",
+                name = "{C:joy_pendulum_normal}후코의 마포석",
                 joy_consumable = {
-                    "Create as many {C:planet}Earth Planet{} cards as possible",
-                    "{C:inactive}(Must have room)"
+                    "가능한 만큼 {C:planet}지구 행성{} 카드를 생성합니다",
+                    "{C:inactive}(자리가 있어야 합니다)",
                 },
                 text = {
                     {
-                        "{E:1}A mechanized life form, roving through space-time. But the{}",
-                        "{E:1}mysterious thing is that its memory i... m...stly gone. W...at is{}",
-                        "{E:1}t...e reason? D..... refuse t... b.... interfered w...h?{}",
+                        "{E:1}몽환의 공간을 방황하는 기계 장치의 생명체였을 것이다.",
+                        "{E:1}최고의 수수께끼는 과거의 기록이 거의 남아 있지 않다..는 것이다.",
+                        "{E:1}그 이유...인지...간섭...거부일까...?...삭제...",
                     },
-                }
+                },
             },
             j_joy_eccentrick = {
-                name = "{C:joy_pendulum_effect}Archfiend Eccentrick",
+                name = "{C:joy_pendulum}익센트릭 데몬",
                 joy_consumable = {
-                    "Destroys up to {C:attention}#1#{} selected cards",
+                    "선택한 카드 최대",
+                    "{C:attention}#1#{}장을 파괴합니다{}",
                 },
                 text = {
                     {
-                        "{C:mult}+#2#{} Mult for every destroyed playing card this run",
-                        "{C:inactive}(Currently{} {C:mult}+#3#{} {C:inactive}Mult){}",
+                        "이 런동안 파괴된 플레잉 카드",
+                        "마다 {C:mult}+#2#{} 배수를 획득합니다",
+                        "{C:inactive}(현재{} {C:mult}+#3#{} {C:inactive}배수){}",
                     },
                 },
             },
             j_joy_pendulumoon = {
-                name = "{C:joy_pendulum_effect}PenduLuMoon",
+                name = "{C:joy_pendulum_effect}펜듈럼라문",
                 joy_consumable = {
-                    "{C:attention}Revive #1#{} {C:joy_pendulum}Pendulum{} as {C:dark_edition}Negative",
+                    "무작위한 {C:joy_pendulum{}펜듈럼{} 카드 {C:attention}#1#{}장을",
+                    "{C:dark_edition}네거티브{}를 부여해 {C:attention}소생{}시킵니다",
                 },
                 text = {
                     {
-                        "Sends {C:attention}#2#{} {C:joy_pendulum}Pendulum{} to the {C:attention}GY{}",
-                        "when {C:attention}Blind{} is selected",
+                        "{C:attention}블라인드{} 선택 시 {C:attention}묘지{}에",
+                        "무작위한 {C:joy_pendulum}펜듈럼{} {C:attention}#2#{}장을 생성합니다",
                     },
                     {
-                        "Cannot be {C:attention}revived{}",
+                        "이 카드는 {C:attention}소생{}될수 없습니다",
                     },
                 },
             },
             j_joy_pandora = {
-                name = "{C:joy_pendulum_effect}Pandora's Jewelry Box",
+                name = "{C:joy_pendulum_effect}판도라의 보구함",
                 joy_consumable = {
-                    "Give a random {C:joy_pendulum}Pendulum{} a random {C:dark_edition}Edition{}"
+                    "무작위한 {C:joy_pendulum}펜듈럼{} 카드에",
+                    "무작위한 {C:dark_edition}에디션{}을 부여합니다",
                 },
                 text = {
                     {
-                        "{C:blue}+#1#{} Hands when {C:attention}Blind{} is selected",
-                        "if you have no cards in the {C:joy_spell}Extra Deck{}",
+                        "{C:joy_spell}엑스트라 덱{}에 카드가 없을 시",
+                        "{C:attention}블라인드{} 선택 시 핸드 수를 {C:blue}+#1#{} 얻습니다",
                     },
-                }
+                },
             },
             j_joy_anchamoufrite = {
-                name = "{C:joy_pendulum_effect}Anchamoufrite",
+                name = "{C:joy_pendulum_effect}앤카모플라이트",
                 joy_consumable = {
-                    "During a {C:attention}Blind{}, draw {C:attention}#1#{} extra cards"
+                    "{C:attention}블라인드{} 도중",
+                    "{C:attention}#1#{}장의 카드를 뽑습니다",
                 },
                 text = {
                     {
-                        "{C:attention}+#2#{} hand size when {C:attention}Blind{} is selected",
-                        "if you have no cards in the {C:joy_spell}Extra Deck{}",
+                        "{C:joy_spell}엑스트라 덱{}에 카드가 없을 시",
+                        "{C:attention}블라인드{} 선택 시 핸드 수를 {C:blue}+#2#{} 얻습니다",
                     },
-                }
+                },
             },
             j_joy_zany = {
-                name = "{C:joy_pendulum_effect}Zany Zebra",
+                name = "{C:joy_pendulum_effect}괴짜 얼룩말",
                 joy_consumable = {
-                    "If you own {C:attention}#1# Jokers{} or less (after use),",
-                    "permanently lose {C:red}#2#{} {C:attention}Joker{} slot and",
-                    "give all {C:attention}Jokers{} {C:dark_edition}Polychrome{}"
+                    "보유한 조커가 {C:attention}#1#{}장 이하일 경우 (사용 후)",
+                    "{C:attention}조커{} 슬롯을 영구히 {C:red}#2#{}개 잃지만",
+                    "모든 {C:attention}조커{}에 {C:dark_edition}폴리크롬{}을 부여합니다",
                 },
                 text = {
                     {
-                        "{X:mult,C:white}X#3#{} Mult if you own {C:attention}#1# Jokers{} or less",
+                        "보유한 조커가 {C:attention}#1#{}장 이하일 경우",
+                        "{X:mult,C:white}X#3#{} 배수를 획득합니다",
                     },
-                }
+                },
             },
             j_joy_pendulumucho = {
-                name = "{C:joy_pendulum_effect}Pendulumucho",
+                name = "{C:joy_pendulum_effect}펜듈럼무쵸",
                 joy_consumable = {
-                    "{C:attention}Revive #1#{} {C:joy_pendulum}Pendulum{}",
+                    "무작위한 {C:joy_pendulum}펜듈럼{} 카드",
+                    "{C:attention}#1#{}장을 {C:attention}소생{}시킵니다",
                 },
                 text = {
                     {
-                        "{C:attention}Revives #2#{} {C:joy_pendulum}Pendulum{} when obtained",
+                        "소환 시 무작위한 {C:joy_pendulum}펜듈럼{} 카드",
+                        "{C:attention}#2#{}장을 {C:attention}소생{}시킵니다",
                     },
                     {
-                        "Cannot be {C:attention}revived{}",
+                        "이 카드는 {C:attention}소생{}될수 없습니다",
                     },
-                }
+                },
             },
             j_joy_moissa = {
-                name = "{C:joy_pendulum_effect}Moissa Knight, the Comet General",
+                name = "{C:joy_pendulum_effect}예성의 장－원모어 더 나이트",
                 joy_consumable = {
-                    "Add {C:attention}#1#{} {C:joy_pendulum}Pendulum{} to the shop"
+                    "상점에 {C:joy_pendulum}펜듈럼{} 카드",
+                    "{C:attention}#1#{}장을 추가합니다",
                 },
                 text = {
                     {
-                        "Gains {C:chips}+#2#{} Chips for each {C:joy_pendulum}Pendulum{} bought",
-                        "{C:inactive}(Currently {C:chips}+#3#{}{C:inactive} Chips)",
+                        "{C:joy_pendulum}펜듈럼{} 카드를 구매할 때마다",
+                        "이 카드의 칩 획득량이 {C:chips}+#2#{}개 증가합니다",
+                        "{C:inactive}(현재 칩 {C:chips}+#3#{}{C:inactive} 개)",
                     },
-                }
+                },
             },
             j_joy_pmcaptor = {
-                name = "{C:joy_pendulum_effect}P.M. Captor",
+                name = "{C:joy_pendulum_effect}P·M 캡처",
                 joy_consumable = {
-                    "{C:attention}Revive #1#{} {C:joy_pendulum}Pendulum{}",
-                    "{C:inactive}(Except \"P.M. Captor\"){}"
+                    "무작위한 {C:joy_pendulum}펜듈럼{} 카드",
+                    "{C:attention}#1#{}장을 {C:attention}소생{}시킵니다",
+                    "{C:inactive}(\"P·M 캡처\" 제외){}",
                 },
                 text = {
                     {
-                        "{C:joy_normal}Zombies{} cannot be debuffed",
-                        "Non-{C:joy_trap}Trap{} {C:joy_normal}Zombies{} cannot be {C:attention}flipped{}",
+                        "{C:joy_normal}언데드족{} 카드는 디버프 될수 없습니다",
+                        "{C:joy_trap}함정{}이 아닌 {C:joy_normal}언데드족{}은 {C:attention}뒤집힐수{} 없습니다",
                     },
-                }
+                },
             },
             j_joy_metrognome = {
-                name = "{C:joy_pendulum_effect}Metrognome",
+                name = "{C:joy_pendulum_effect}메트론노움",
                 joy_consumable = {
-                    "Create {C:attention}#1#{} {C:joy_pendulum}Pendulum{} of the most owned rarity",
-                    "{C:inactive}(Must have room) (Random if multiple)"
+                    "가장 많이 보유한 등급의 {C:joy_pendulum}펜듈럼{}",
+                    "카드 {C:attention}#1#{}장을 무작위로 생성합니다",
+                    "{C:inactive}(자리가 있어야 합니다)",
+                    "{C:inactive}(비길경우 무작위 등급을 고릅니다)",
                 },
                 text = {
                     {
-                        "Each {C:joy_pendulum}Pendulum{} that shares the",
-                        "most owned rarity gives {C:mult}+#2#{} Mult",
+                        "가장 많이 보유한 등급의 {C:joy_pendulum}펜듈럼{}",
+                        "카드들이 {C:mult}+#2#{} 배수를 부여합니다",
                     },
-                }
+                },
             },
             j_joy_bozu = {
-                name = "{C:joy_pendulum_effect}Rain Bozu",
+                name = "{C:joy_pendulum_effect}레인 보즈",
                 joy_consumable = {
-                    "A random {C:joy_normal}Monster{} {C:attention}Joker{} gains",
-                    "this card's current Chips and Mult"
+                    "무작위한 {C:joy_normal}몬스터{} {C:attention}조커{}가",
+                    "이 카드의 현재 배수와 칩을 얻습니다",
                 },
                 text = {
                     {
-                        "Gains {C:chips}+#1#{} Chips for each card in the {C:joy_spell}Extra Deck{}",
-                        "and {C:mult}+#2#{} Mult for each empty {C:joy_spell}Extra Deck{} slot",
-                        "when {C:attention}Blind{} is selected",
-                        "{C:inactive}(Currently {C:chips}+#3#{}{C:inactive} Chips and {C:mult}+#4#{} {C:inactive}Mult)",
+                        "{C:attention}블라인드{} 선택 시",
+                        "{C:joy_spell}엑스트라 덱{}의 카드 한 장 마다",
+                        "이 카드의 칩 획득량이 {C:chips}+#1#{} 증가하고",
+                        "{C:joy_spell}엑스트라 덱{}의 비어있는 슬롯 하나마다",
+                        "이 카드의 배수 획득량이 {C:mult}+#2#{} 증가합니다",
+                        "{C:inactive}(현재 칩 {C:chips}+#3#{}{C:inactive}개, {C:mult}+#4#{} {C:inactive}배수)",
                     },
                 },
                 joy_transfer_ability = {
-                    "{C:chips}+#1#{} Chips {C:mult}+#2#{} Mult",
-                }
+                    "칩 {C:chips}+#1#{}개",
+                    "{C:mult}+#2#{} 배수",
+                },
             },
             j_joy_disablaster = {
-                name = "{C:joy_pendulum_effect}Disablaster the Negation Fortress",
+                name = "{C:joy_pendulum_effect}무공포탑－디세이블래스터",
                 joy_consumable = {
-                    "{C:money}+$#1#{} for each time this card's {C:attention}Joker{} ability",
-                    "increased scored Mult",
-                    "{C:inactive}(Currently {C:money}+$#2#{}{C:inactive})"
+                    "이 카드의 효과가 발동한 횟수만큼",
+                    "{C:money}+$#1#{}를 얻습니다",
+                    "{C:inactive}(현재 {C:money}+$#2#{}{C:inactive})",
                 },
                 text = {
                     {
-                        "{X:mult,C:white}X#3#{} Mult if no card is played in this {C:attention}column{}",
-                        "{C:inactive}(Lowers the higher the column)",
-                        "{C:inactive}(Currently in {C:attention}column #4#{}{C:inactive})",
+                        "이 카드의 {C:attention}열{}에 카드를 내지 않을경우",
+                        "{X:mult,C:white}X#3#{} 배수를 획득합니다",
+                        "{C:inactive}(열이 높을수록 배수 획득량은 감소합니다)",
+                        "{C:inactive}(현재 {C:attention}#4#번째 열{}{C:inactive})",
                     },
-                }
+                },
             },
-        }
+        },
     },
 }

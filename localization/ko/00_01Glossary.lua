@@ -108,7 +108,7 @@ return {
             joy_tooltip_trap = {
                 name = "함정 조커",
                 text = {
-                    "소환 시 혹은 라운드의",
+                    "소환 시 혹은 라운드",
                     "종료 시 {C:attention}뒤집힙니다{}",
                 },
             },
@@ -175,7 +175,7 @@ return {
             joy_glossary_fieldspell = {
                 name = "",
                 text = {
-                    "{C:joy_spell,s:1.3}필드 마법{}: 얻을시 {C:joy_spell}필드 존{}으로 가지만 ({C:joy_spell}엑스트라 덱{} 버튼을 눌러 확인) 평범한 {C:attention}조커{}로 취급됩니다",
+                    "{C:joy_spell,s:1.3}필드 마법{}: 얻을시 {C:joy_spell}필드 존{}으로 가지만 평범한 {C:attention}조커{}로 취급됩니다",
                 },
             },
             joy_glossary_extradeck = {

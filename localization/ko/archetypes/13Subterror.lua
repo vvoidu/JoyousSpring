@@ -121,10 +121,11 @@ return {
                     {
                         "{C:attention}묘지{}의 {C:joy_normal}\"서브테러\"{} 혹은 {C:joy_normal}물족{}",
                         "한 장 마다 칩 {C:chips}+#1#{}개를 획득합니다",
-                        "{C:inactive}(현재{} 칩 {C:chips}+#2#{} {C:inactive}개){}",
+                        "{C:inactive}(현재 칩{} {C:chips}+#2#{} {C:inactive}개){}",
                     },
                     {
-                        "{C:joy_effect}리버스{}: Send {C:attention}#3#{} {C:joy_normal}\"Subterror\"{} to the {C:attention}GY{}",
+                        "{C:joy_effect}리버스{}: {C:attention}묘지{}에 무작위 {C:joy_normal}\"서브테러\"{}",
+                        "카드 {C:attention}#3#{}장을 생성합니다",
                     },
                     {
                         "소환 시 뒷면으로 {C:attention}뒤집힙니다{}",
@@ -246,4 +247,3 @@ return {
         },
     },
 }
-

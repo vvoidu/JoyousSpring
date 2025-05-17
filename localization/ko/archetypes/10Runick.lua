@@ -44,10 +44,10 @@ return {
                 name = "{C:joy_fusion}루닉의 이빨 게리",
                 text = {
                     {
-                        "소환 시 {C:attention}묘지{}에 {C:joy_spell}\"루닉의 샘\"{}이 있을경우",
-                        "{C:joy_spell}\"루닉의 샘\"{}을 {C:attention}#1#{}장 생성하며",
-                        "무작위한 {C:joy_normal}\"루닉\"{} {C:attention}#2#{}장을",
-                        "{C:joy_spell}엑스트라 덱{}에 생성합니다",
+                        "소환 시 무작위한 {C:joy_normal}\"루닉\"{} {C:attention}#2#{}장을",
+                        "{C:joy_spell}엑스트라 덱{}에 생성하며",
+                        "{C:attention}묘지{}에 {C:joy_spell}\"루닉의 샘\"{}이 있을경우",
+                        "{C:joy_spell}\"루닉의 샘\"{}을 {C:attention}#1#{}장 생성합니다",
                         "{C:inactive}(자리가 있어야 합니다){}",
                     },
                     {

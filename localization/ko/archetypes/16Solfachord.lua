@@ -257,4 +257,9 @@ return {
             },
         },
     },
+    misc = {
+        dictionary = {
+            k_joy_archetype_solfa = "도레미코드",
+        },
+    },
 }

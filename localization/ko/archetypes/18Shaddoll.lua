@@ -404,7 +404,7 @@ return {
                     },
                     {
                         "{C:attention}소재{}로 사용될시 {C:joy_spell}엑스트라 덱{}에",
-                        "무작위한 {C:joy_normal}\"섀도르\" {C:attention}#2#{}장을 생성합니다",
+                        "무작위한 {C:joy_normal}\"섀도르\" {C:attention}#1#{}장을 생성합니다",
                         "{C:inactive}(공간이 있어야 합니다)",
                     },
                     {

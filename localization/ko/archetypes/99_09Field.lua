@@ -76,7 +76,7 @@ return {
                 text = {
                     {
                         "{C:attention}보스 블라인드{} 도중",
-                        "모든 {C:attention}조커{}가 {X:mult,C:white}X#1#{}배수를 부여하고",
+                        "모든 {C:attention}조커{}가 {X:mult,C:white}X#1#{} 배수를 부여하고",
                         "디버프되거나 {C:attention}뒤집힐수{} 없습니다",
                     },
                     {

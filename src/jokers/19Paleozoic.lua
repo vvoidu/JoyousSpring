@@ -25,7 +25,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Paleozoic" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -43,7 +42,7 @@ SMODS.Joker({
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
-            if context.joker_main and JoyousSpring.is_flip_active(card) then
+            if context.joker_main then
                 return {
                     mult = card.ability.extra.current_mult
                 }
@@ -53,7 +52,7 @@ SMODS.Joker({
             for i = 1, card.ability.extra.revives do
                 local has_cambro = next(SMODS.find_card("j_joy_paleo_cambro")) and true or false
                 JoyousSpring.revive_pseudorandom({ { is_trap = true, monster_archetypes = { "Paleozoic" } } },
-                    pseudoseed("j_joy_paleo_canadia"), not has_cambro, has_cambro and "e_negative" or nil)
+                    'j_joy_paleo_canadia', not has_cambro, has_cambro and "e_negative" or nil)
             end
         end
         if context.joy_card_flipped and context.joy_card_flipped.ability.set == "Joker" then
@@ -63,11 +62,20 @@ SMODS.Joker({
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not JoyousSpring.is_perma_debuffed(card) then
             if not from_debuff and JoyousSpring.should_trap_flip(card) then
-                card:flip(card)
+                JoyousSpring.flip(card, card)
             end
             SMODS.debuff_card(card, "prevent_debuff", "j_joy_paleo_canadia")
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "current_mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+        }
+    end
 })
 
 -- Paleozoic Dinomischus
@@ -90,7 +98,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Paleozoic" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -107,7 +114,7 @@ SMODS.Joker({
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
-            if JoyousSpring.is_flip_active(card) and not context.blueprint_card and context.end_of_round and context.game_over == false and context.main_eval then
+            if JoyousSpring.is_flip_active(card) and not context.blueprint_card and context.joy_post_round_eval then
                 JoyousSpring.banish(card, "blind_selected")
                 local choices = JoyousSpring.get_materials_owned({ { is_trap = true } })
                 local choices_exclude = {}
@@ -118,7 +125,7 @@ SMODS.Joker({
                     end
                 end
 
-                local to_banish = pseudorandom_element(choices_exclude, pseudoseed("j_joy_paleo_dino"))
+                local to_banish = pseudorandom_element(choices_exclude, 'j_joy_paleo_dino')
                 if to_banish then
                     JoyousSpring.banish(to_banish, "blind_selected")
                 end
@@ -128,14 +135,14 @@ SMODS.Joker({
             for i = 1, card.ability.extra.revives do
                 local has_cambro = next(SMODS.find_card("j_joy_paleo_cambro")) and true or false
                 JoyousSpring.revive_pseudorandom({ { is_trap = true, monster_archetypes = { "Paleozoic" } } },
-                    pseudoseed("j_joy_paleo_dino"), not has_cambro, has_cambro and "e_negative" or nil)
+                    'j_joy_paleo_dino', not has_cambro, has_cambro and "e_negative" or nil)
             end
         end
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not JoyousSpring.is_perma_debuffed(card) then
             if not from_debuff and JoyousSpring.should_trap_flip(card) then
-                card:flip(card)
+                JoyousSpring.flip(card, card)
             end
             SMODS.debuff_card(card, "prevent_debuff", "j_joy_paleo_dino")
         end
@@ -161,7 +168,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Paleozoic" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -188,18 +194,30 @@ SMODS.Joker({
             for i = 1, card.ability.extra.revives do
                 local has_cambro = next(SMODS.find_card("j_joy_paleo_cambro")) and true or false
                 JoyousSpring.revive_pseudorandom({ { is_trap = true, monster_archetypes = { "Paleozoic" } } },
-                    pseudoseed("j_joy_paleo_eldonia"), not has_cambro, has_cambro and "e_negative" or nil)
+                    'j_joy_paleo_eldonia', not has_cambro, has_cambro and "e_negative" or nil)
             end
         end
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not JoyousSpring.is_perma_debuffed(card) then
             if not from_debuff and JoyousSpring.should_trap_flip(card) then
-                card:flip(card)
+                JoyousSpring.flip(card, card)
             end
             SMODS.debuff_card(card, "prevent_debuff", "j_joy_paleo_eldonia")
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "chips", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.CHIPS },
+            calc_function = function(card)
+                card.joker_display_values.chips = JoyousSpring.is_flip_active(card) and card.ability.extra.chips or 0
+            end
+        }
+    end
 })
 
 -- Paleozoic Hallucigenia
@@ -221,7 +239,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Paleozoic" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -248,18 +265,30 @@ SMODS.Joker({
             for i = 1, card.ability.extra.revives do
                 local has_cambro = next(SMODS.find_card("j_joy_paleo_cambro")) and true or false
                 JoyousSpring.revive_pseudorandom({ { is_trap = true, monster_archetypes = { "Paleozoic" } } },
-                    pseudoseed("j_joy_paleo_hallu"), not has_cambro, has_cambro and "e_negative" or nil)
+                    'j_joy_paleo_hallu', not has_cambro, has_cambro and "e_negative" or nil)
             end
         end
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not JoyousSpring.is_perma_debuffed(card) then
             if not from_debuff and JoyousSpring.should_trap_flip(card) then
-                card:flip(card)
+                JoyousSpring.flip(card, card)
             end
             SMODS.debuff_card(card, "prevent_debuff", "j_joy_paleo_hallu")
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            calc_function = function(card)
+                card.joker_display_values.mult = JoyousSpring.is_flip_active(card) and card.ability.extra.mult or 0
+            end
+        }
+    end
 })
 
 -- Paleozoic Leanchoilia
@@ -281,7 +310,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Paleozoic" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -309,7 +337,7 @@ SMODS.Joker({
             for i = 1, card.ability.extra.revives do
                 local has_cambro = next(SMODS.find_card("j_joy_paleo_cambro")) and true or false
                 JoyousSpring.revive_pseudorandom({ { is_trap = true, monster_archetypes = { "Paleozoic" } } },
-                    pseudoseed("j_joy_paleo_lean"), not has_cambro, has_cambro and "e_negative" or nil)
+                    'j_joy_paleo_lean', not has_cambro, has_cambro and "e_negative" or nil)
             end
         end
         if context.joy_card_flipped and context.joy_card_flipped.ability.set == "Joker" then
@@ -319,11 +347,20 @@ SMODS.Joker({
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not JoyousSpring.is_perma_debuffed(card) then
             if not from_debuff and JoyousSpring.should_trap_flip(card) then
-                card:flip(card)
+                JoyousSpring.flip(card, card)
             end
             SMODS.debuff_card(card, "prevent_debuff", "j_joy_paleo_lean")
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "current_chips", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.CHIPS },
+        }
+    end
 })
 
 -- Paleozoic Marrella
@@ -345,7 +382,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Paleozoic" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -365,19 +401,17 @@ SMODS.Joker({
             for i = 1, card.ability.extra.revives do
                 local has_cambro = next(SMODS.find_card("j_joy_paleo_cambro")) and true or false
                 JoyousSpring.revive_pseudorandom({ { is_trap = true, monster_archetypes = { "Paleozoic" } } },
-                    pseudoseed("j_joy_paleo_marrella"), not has_cambro, has_cambro and "e_negative" or nil)
+                    'j_joy_paleo_marrella', not has_cambro, has_cambro and "e_negative" or nil)
             end
-            local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Paleozoic" }, is_main_deck = true } })
-
-            for i = 1, card.ability.extra.mills do
-                JoyousSpring.send_to_graveyard(pseudorandom_element(choices, pseudoseed("j_joy_paleo_marrella")))
-            end
+            JoyousSpring.send_to_graveyard_pseudorandom(
+                { { monster_archetypes = { "Paleozoic" }, is_main_deck = true } },
+                card.config.center.key, card.ability.extra.mills)
         end
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not JoyousSpring.is_perma_debuffed(card) then
             if not from_debuff and JoyousSpring.should_trap_flip(card) then
-                card:flip(card)
+                JoyousSpring.flip(card, card)
             end
             SMODS.debuff_card(card, "prevent_debuff", "j_joy_paleo_marrella")
         end
@@ -403,7 +437,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Paleozoic" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -429,7 +462,7 @@ SMODS.Joker({
             for i = 1, card.ability.extra.revives do
                 local has_cambro = next(SMODS.find_card("j_joy_paleo_cambro")) and true or false
                 JoyousSpring.revive_pseudorandom({ { is_trap = true, monster_archetypes = { "Paleozoic" } } },
-                    pseudoseed("j_joy_paleo_oleno"), not has_cambro, has_cambro and "e_negative" or nil)
+                    'j_joy_paleo_oleno', not has_cambro, has_cambro and "e_negative" or nil)
             end
             if not card.ability.extra.activated then
                 card.ability.extra.activated = true
@@ -441,7 +474,7 @@ SMODS.Joker({
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not JoyousSpring.is_perma_debuffed(card) then
             if not from_debuff and JoyousSpring.should_trap_flip(card) then
-                card:flip(card)
+                JoyousSpring.flip(card, card)
             end
             SMODS.debuff_card(card, "prevent_debuff", "j_joy_paleo_oleno")
         end
@@ -474,7 +507,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Paleozoic" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -499,7 +531,7 @@ SMODS.Joker({
             for i = 1, card.ability.extra.revives do
                 local has_cambro = next(SMODS.find_card("j_joy_paleo_cambro")) and true or false
                 JoyousSpring.revive_pseudorandom({ { is_trap = true, monster_archetypes = { "Paleozoic" } } },
-                    pseudoseed("j_joy_paleo_pikaia"), not has_cambro, has_cambro and "e_negative" or nil)
+                    'j_joy_paleo_pikaia', not has_cambro, has_cambro and "e_negative" or nil)
             end
             if not card.ability.extra.activated then
                 card.ability.extra.activated = true
@@ -510,7 +542,7 @@ SMODS.Joker({
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not JoyousSpring.is_perma_debuffed(card) then
             if not from_debuff and JoyousSpring.should_trap_flip(card) then
-                card:flip(card)
+                JoyousSpring.flip(card, card)
             end
             SMODS.debuff_card(card, "prevent_debuff", "j_joy_paleo_pikaia")
         end
@@ -542,7 +574,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Paleozoic" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -572,7 +603,7 @@ SMODS.Joker({
             for i = 1, card.ability.extra.adds do
                 local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Paleozoic" }, summon_type = "XYZ" } })
                 for i = 1, card.ability.extra.adds do
-                    local key_to_add, _ = pseudorandom_element(choices, pseudoseed("j_joy_paleo_cambro"))
+                    local key_to_add, _ = pseudorandom_element(choices, 'j_joy_paleo_cambro')
                     if key_to_add and #JoyousSpring.extra_deck_area.cards < JoyousSpring.extra_deck_area.config.card_limit then
                         JoyousSpring.add_to_extra_deck(key_to_add)
                     end
@@ -602,7 +633,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Paleozoic" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     update = JoyousSpring.update_counter,
     config = {
@@ -652,6 +682,18 @@ SMODS.Joker({
         if not card.debuff then
             SMODS.debuff_card(card, "prevent_debuff", "j_joy_paleo_anomalo")
         end
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.ability.extra", ref_value = "current_xmult", retrigger_type = "exp" }
+                    }
+                }
+            },
+        }
     end
 })
 
@@ -676,7 +718,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Paleozoic" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     update = JoyousSpring.update_counter,
     config = {
@@ -709,12 +750,12 @@ SMODS.Joker({
                 end
 
                 JoyousSpring.create_pseudorandom({ { is_main_deck = true, monster_archetypes = { "Paleozoic" } } },
-                    pseudoseed("j_joy_paleo_opa"), true)
+                    'j_joy_paleo_opa', true)
             end
             if context.setting_blind and context.main_eval then
                 for _, joker in ipairs(G.jokers.cards) do
                     if JoyousSpring.is_trap_monster(joker) and joker.facing == "back" then
-                        joker:flip()
+                        JoyousSpring.flip(joker, card)
                     end
                 end
             end
@@ -724,6 +765,9 @@ SMODS.Joker({
         if not card.debuff then
             SMODS.debuff_card(card, "prevent_debuff", "j_joy_paleo_opa")
         end
+    end,
+    joy_can_detach = function(self, card)
+        return #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit
     end
 })
 

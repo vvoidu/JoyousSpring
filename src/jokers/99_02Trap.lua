@@ -13,7 +13,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.chips } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -39,9 +38,18 @@ SMODS.Joker({
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not from_debuff and JoyousSpring.should_trap_flip(card) then
-            card:flip(card)
+            JoyousSpring.flip(card, card)
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "chips", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.CHIPS },
+        }
+    end
 })
 
 -- Statue of Anguish Pattern
@@ -57,7 +65,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.money } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -79,7 +86,7 @@ SMODS.Joker({
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not from_debuff and JoyousSpring.should_trap_flip(card) then
-            card:flip(card)
+            JoyousSpring.flip(card, card)
         end
         if not card.debuff then
             for _, joker in ipairs(G.jokers.cards) do
@@ -114,7 +121,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.chips, card.ability.extra.chips * JoyousSpring.count_materials_owned({ { is_trap = true } }) } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -138,9 +144,22 @@ SMODS.Joker({
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not from_debuff and JoyousSpring.should_trap_flip(card) then
-            card:flip(card)
+            JoyousSpring.flip(card, card)
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "chips", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.CHIPS },
+            calc_function = function(card)
+                card.joker_display_values.chips = card.ability.extra.chips *
+                    JoyousSpring.count_materials_owned({ { is_trap = true } })
+            end
+        }
+    end
 })
 
 -- Tiki Soul
@@ -156,7 +175,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.mult, card.ability.extra.mult * JoyousSpring.count_materials_owned({ { is_trap = true } }) } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -180,9 +198,22 @@ SMODS.Joker({
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not from_debuff and JoyousSpring.should_trap_flip(card) then
-            card:flip(card)
+            JoyousSpring.flip(card, card)
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            calc_function = function(card)
+                card.joker_display_values.mult = card.ability.extra.mult *
+                    JoyousSpring.count_materials_owned({ { is_trap = true } })
+            end
+        }
+    end
 })
 
 -- Zoma the Spirit
@@ -198,7 +229,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.percent * 100, card.ability.extra.current_percent * 100 } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -228,9 +258,23 @@ SMODS.Joker({
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not from_debuff and JoyousSpring.should_trap_flip(card) then
-            card:flip(card)
+            JoyousSpring.flip(card, card)
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            reminder_text = {
+                { text = "(" },
+                { ref_table = "card.joker_display_values", ref_value = "percent", colour = G.C.RED },
+                { text = "%",                              colour = G.C.RED },
+                { text = ")" },
+            },
+            calc_function = function(card)
+                card.joker_display_values.percent = card.ability.extra.current_percent * 100
+            end
+        }
+    end
 })
 
 -- Zoma the Earthbound Spirit
@@ -246,7 +290,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.mult, card.ability.extra.current_mult, card.ability.extra.percent * 100, card.ability.extra.current_percent * 100 } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -283,11 +326,30 @@ SMODS.Joker({
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not from_debuff and JoyousSpring.should_trap_flip(card) then
-            card:flip(card)
+            JoyousSpring.flip(card, card)
         end
     end,
     in_pool = function(self, args)
-        return G.GAME.joy_zoma_sold
+        return G.GAME.joy_zoma_sold or (args and args.source and args.source == "JoyousSpring" or false)
+    end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "current_mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            reminder_text = {
+                { text = "(" },
+                { ref_table = "card.joker_display_values", ref_value = "percent", colour = G.C.RED },
+                { text = "%",                              colour = G.C.RED },
+                { text = ")" },
+            },
+            calc_function = function(card)
+                card.joker_display_values.percent = card.ability.extra.current_percent * 100
+            end
+        }
     end
 })
 
@@ -299,7 +361,7 @@ SMODS.Joker({
     rarity = 1,
     discovered = true,
     blueprint_compat = false,
-    eternal_compat = true,
+    eternal_compat = false,
     cost = 5,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
@@ -307,7 +369,6 @@ SMODS.Joker({
         end
         return { vars = { card.ability.extra.xmult } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -326,10 +387,10 @@ SMODS.Joker({
                     xmult = card.ability.extra.xmult
                 }
             end
-            if context.joy_activate_effect and context.joy_activated_card == card and not card.ability.eternal and G.GAME.blind.in_blind and G.STATE == G.STATES.SELECTING_HAND then
+            if context.joy_activate_effect and context.joy_activated_card == card and not SMODS.is_eternal(card, card) and G.GAME.blind.in_blind and G.STATE == G.STATES.SELECTING_HAND then
                 local tributes = {}
                 for _, joker in ipairs(G.jokers.cards) do
-                    if not joker.ability.eternal then
+                    if not SMODS.is_eternal(joker, card) then
                         table.insert(tributes, joker)
                     end
                 end
@@ -346,13 +407,28 @@ SMODS.Joker({
         JoyousSpring.calculate_flip_effect(card, context)
     end,
     joy_can_activate = function(card)
-        return not card.ability.eternal and G.GAME.blind.in_blind and G.STATE == G.STATES.SELECTING_HAND
+        return not SMODS.is_eternal(card, card) and G.GAME.blind.in_blind and G.STATE == G.STATES.SELECTING_HAND
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not from_debuff and JoyousSpring.should_trap_flip(card) then
-            card:flip(card)
+            JoyousSpring.flip(card, card)
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xmult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                card.joker_display_values.xmult = #G.jokers.cards >= 10 and card.ability.extra.xmult or 1
+            end
+        }
+    end
 })
 
 -- Embodiment of Apophis
@@ -368,7 +444,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.mult } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -392,9 +467,18 @@ SMODS.Joker({
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not from_debuff and JoyousSpring.should_trap_flip(card) then
-            card:flip(card)
+            JoyousSpring.flip(card, card)
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+        }
+    end
 })
 
 -- Angel Statue - Azurune
@@ -410,7 +494,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.xmult, 1 + card.ability.extra.xmult * JoyousSpring.get_summoned_count() } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -434,9 +517,24 @@ SMODS.Joker({
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not from_debuff and JoyousSpring.should_trap_flip(card) then
-            card:flip(card)
+            JoyousSpring.flip(card, card)
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xmult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                card.joker_display_values.xmult = 1 + card.ability.extra.xmult * JoyousSpring.get_summoned_count()
+            end
+        }
+    end
 })
 
 -- Crusadia Krawler
@@ -452,7 +550,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.xmult } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -477,7 +574,18 @@ SMODS.Joker({
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not from_debuff and JoyousSpring.should_trap_flip(card) then
-            card:flip(card)
+            JoyousSpring.flip(card, card)
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            mod_function = function(card, mod_joker)
+                return {
+                    x_mult = JoyousSpring.is_summon_type(card, "LINK") and
+                        mod_joker.ability.extra.xmult ^ JokerDisplay.calculate_joker_triggers(mod_joker) or nil
+                }
+            end
+        }
+    end
 })

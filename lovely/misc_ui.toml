@@ -3,39 +3,51 @@ version = "0.1.0"
 dump_lua = true
 priority = 0
 
-# Change mod's tab colours
+# Add Hanafuda enhancements to poker hand screen
 [[patches]]
 [patches.pattern]
-target = '=[SMODS _ "src/ui.lua"]'
-pattern = "tabs = mod_tabs"
-position = 'before'
-match_indent = true
+target = "functions/UI_definitions.lua"
+pattern = '''local card = Card(0,0, 0.5*G.CARD_W, 0.5*G.CARD_H, G.P_CARDS[v[1]], G.P_CENTERS[v.enhancement or 'c_base'])'''
+position = "after"
 payload = '''
-colour = mod.id == "JoyousSpring" and G.C.JOY and darken(G.C.JOY.MOD, 0.2) or G.C.BOOSTER,
+if v.joy_hanafuda then
+    G.E_MANAGER:add_event(Event({
+        blockable = false,
+        func = (function()
+            card.children.center:set_sprite_pos(JoyousSpring.hanafuda_cards[v.joy_hanafuda].pos)
+            return true
+        end)
+    }))
+end
 '''
+match_indent = true
 
+# Add Hanafuda sorting
 [[patches]]
 [patches.pattern]
-target = '=[SMODS _ "src/ui.lua"]'
-pattern = 'back_func = "mods_button",'
-position = 'before'
-match_indent = true
-payload = '''
-bg_colour = mod.id == "JoyousSpring" and G.C.JOY and {G.C.JOY.MOD[1], G.C.JOY.MOD[2], G.C.JOY.MOD[3], 0.6} or nil,
-colour = mod.id == "JoyousSpring" and G.C.JOY and G.C.JOY.XYZ or nil,
-back_colour = mod.id == "JoyousSpring" and G.C.JOY and darken(G.C.JOY.MOD, 0.3) or nil,
+target = "functions/UI_definitions.lua"
+pattern = '''
+{n=G.UIT.T, config={text = localize('k_suit'), scale = text_scale*0.7, colour = G.C.UI.TEXT_LIGHT}}
+}}
 '''
+position = "after"
+payload = '''
+,JoyousSpring.create_hanafuda_month_sort_UIBox(),
+JoyousSpring.create_hanafuda_type_sort_UIBox()
+'''
+match_indent = true
 
+# Add controller UI
 [[patches]]
-[patches.regex]
-target = '=[SMODS _ "src/ui.lua"]'
-pattern = 'local t =  create_UIBox_generic_options.*'
-position = 'at'
-match_indent = true
-payload = '''
-local t =  create_UIBox_generic_options({
-bg_colour = G.ACTIVE_MOD_UI and G.ACTIVE_MOD_UI.id == "JoyousSpring" and G.C.JOY and {G.C.JOY.MOD[1], G.C.JOY.MOD[2], G.C.JOY.MOD[3], 0.6} or nil,
-colour = G.ACTIVE_MOD_UI and G.ACTIVE_MOD_UI.id == "JoyousSpring" and G.C.JOY and G.C.JOY.XYZ or nil,
-back_colour = G.ACTIVE_MOD_UI and G.ACTIVE_MOD_UI.id == "JoyousSpring" and G.C.JOY and darken(G.C.JOY.MOD, 0.3) or nil,
-back_func = (args and args.back_func) or G.ACTIVE_MOD_UI and "openModUI_"..G.ACTIVE_MOD_UI.id or 'your_collection', snap_back = args.snap_back, infotip = args.infotip, contents = {
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '''
+--The card UI can have BUY, REDEEM, USE, and SELL buttons depending on the context of the card
 '''
+position = "after"
+payload = '''
+if JoyousSpring.is_monster_card(card) then
+    return JoyousSpring.card_focus_ui(card, base_background)
+end
+'''
+match_indent = true

@@ -13,7 +13,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.creates, card.ability.extra.adds } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -39,7 +38,7 @@ SMODS.Joker({
     },
     use = function(self, card, area, copier)
         for i = 1, card.ability.extra.creates do
-            JoyousSpring.create_pseudorandom({ { is_pendulum = true, rarity = 3 } }, pseudoseed("j_joy_couverture"), true)
+            JoyousSpring.create_pseudorandom({ { is_pendulum = true, rarity = 3 } }, 'j_joy_couverture', true)
         end
         if #JoyousSpring.extra_deck_area.cards < JoyousSpring.extra_deck_area.config.card_limit then
             JoyousSpring.add_to_extra_deck("j_joy_couverture")
@@ -47,6 +46,6 @@ SMODS.Joker({
     end,
     can_use = function(self, card)
         return JoyousSpring.is_summoned(card) and
-            (#G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit + (card.edition and card.edition.negative and 0 or 1))
+            (#G.jokers.cards + G.GAME.joker_buffer + JoyousSpring.get_card_limit(card) <= G.jokers.config.card_limit)
     end,
 })

@@ -25,12 +25,7 @@ SMODS.current_mod.custom_ui = function(modNodes)
         local card = Card(G.joy_desc_area.T.x + G.joy_desc_area.T.w / 2, G.joy_desc_area.T.y,
             G.CARD_W, G.CARD_H, G.P_CARDS.empty,
             G.P_CENTERS[key])
-        card.children.back = Sprite(card.T.x, card.T.y, card.T.w, card.T.h, G.ASSET_ATLAS["joy_Back"], { x = 0, y = 0 })
-        card.children.back.states.hover = card.states.hover
-        card.children.back.states.click = card.states.click
-        card.children.back.states.drag = card.states.drag
-        card.children.back.states.collide.can = false
-        card.children.back:set_role({ major = card, role_type = 'Glued', draw_major = card })
+        JoyousSpring.set_back_sprite(nil, card)
         G.joy_desc_area:emplace(card)
         card:flip()
         G.E_MANAGER:add_event(Event({
@@ -130,83 +125,84 @@ SMODS.current_mod.extra_tabs = function()
                 }
             end
         },
-        {
-            label = localize("k_joy_glossary"),
-            tab_definition_function = function()
-                local modNodes = {}
+        -- TODO: Remake these
+        -- {
+        --     label = localize("k_joy_glossary"),
+        --     tab_definition_function = function()
+        --         local modNodes = {}
 
-                for _, key in ipairs({ "joy_glossary_monster", "joy_glossary_gy", "joy_glossary_revive", "joy_glossary_banish", "joy_glossary_transform", "joy_glossary_facedown", "joy_glossary_maindeck", "joy_glossary_pendulum", "joy_glossary_fieldspell" }) do
-                    modNodes[#modNodes + 1] = {}
-                    local loc_vars = { scale = 1.2 }
-                    localize { type = 'descriptions', key = key, set = 'Other', nodes = modNodes[#modNodes], vars = loc_vars.vars, scale = loc_vars.scale, text_colour = loc_vars.text_colour, shadow = loc_vars.shadow }
-                    modNodes[#modNodes] = desc_from_rows(modNodes[#modNodes])
-                    modNodes[#modNodes].config.colour = loc_vars.background_colour or modNodes[#modNodes].config.colour
-                end
+        --         for _, key in ipairs({ "joy_glossary_monster", "joy_glossary_gy", "joy_glossary_revive", "joy_glossary_banish", "joy_glossary_transform", "joy_glossary_facedown", "joy_glossary_maindeck", "joy_glossary_pendulum", "joy_glossary_fieldspell" }) do
+        --             modNodes[#modNodes + 1] = {}
+        --             local loc_vars = { scale = 1.2 }
+        --             localize { type = 'descriptions', key = key, set = 'Other', nodes = modNodes[#modNodes], vars = loc_vars.vars, scale = loc_vars.scale, text_colour = loc_vars.text_colour, shadow = loc_vars.shadow }
+        --             modNodes[#modNodes] = desc_from_rows(modNodes[#modNodes])
+        --             modNodes[#modNodes].config.colour = loc_vars.background_colour or modNodes[#modNodes].config.colour
+        --         end
 
-                return {
-                    n = G.UIT.ROOT,
-                    config = {
-                        emboss = 0.05,
-                        minh = 6,
-                        r = 0.1,
-                        minw = 6,
-                        align = "tm",
-                        padding = 0.2,
-                        colour = G.C.BLACK
-                    },
-                    nodes = modNodes
-                }
-            end
-        },
-        {
-            label = localize("k_joy_summon_glosary"),
-            tab_definition_function = function()
-                local modNodes = {}
+        --         return {
+        --             n = G.UIT.ROOT,
+        --             config = {
+        --                 emboss = 0.05,
+        --                 minh = 6,
+        --                 r = 0.1,
+        --                 minw = 6,
+        --                 align = "tm",
+        --                 padding = 0.2,
+        --                 colour = G.C.BLACK
+        --             },
+        --             nodes = modNodes
+        --         }
+        --     end
+        -- },
+        -- {
+        --     label = localize("k_joy_summon_glosary"),
+        --     tab_definition_function = function()
+        --         local modNodes = {}
 
-                for _, key in ipairs({ "joy_glossary_extradeck", "joy_glossary_material", "joy_glossary_detach", "joy_glossary_ritual" }) do
-                    modNodes[#modNodes + 1] = {}
-                    local loc_vars = { scale = 1.2 }
-                    localize { type = 'descriptions', key = key, set = 'Other', nodes = modNodes[#modNodes], vars = loc_vars.vars, scale = loc_vars.scale, text_colour = loc_vars.text_colour, shadow = loc_vars.shadow }
-                    modNodes[#modNodes] = desc_from_rows(modNodes[#modNodes])
-                    modNodes[#modNodes].config.colour = loc_vars.background_colour or modNodes[#modNodes].config.colour
-                end
+        --         for _, key in ipairs({ "joy_glossary_extradeck", "joy_glossary_material", "joy_glossary_detach", "joy_glossary_ritual" }) do
+        --             modNodes[#modNodes + 1] = {}
+        --             local loc_vars = { scale = 1.2 }
+        --             localize { type = 'descriptions', key = key, set = 'Other', nodes = modNodes[#modNodes], vars = loc_vars.vars, scale = loc_vars.scale, text_colour = loc_vars.text_colour, shadow = loc_vars.shadow }
+        --             modNodes[#modNodes] = desc_from_rows(modNodes[#modNodes])
+        --             modNodes[#modNodes].config.colour = loc_vars.background_colour or modNodes[#modNodes].config.colour
+        --         end
 
-                G.joy_glossary_area = CardArea(
-                    G.ROOM.T.x + 0.2 * G.ROOM.T.w / 2, G.ROOM.T.h,
-                    4.25 * G.CARD_W,
-                    0.95 * G.CARD_H,
-                    { card_limit = 5, type = 'title', highlight_limit = 0, collection = true }
-                )
+        --         G.joy_glossary_area = CardArea(
+        --             G.ROOM.T.x + 0.2 * G.ROOM.T.w / 2, G.ROOM.T.h,
+        --             4.25 * G.CARD_W,
+        --             0.95 * G.CARD_H,
+        --             { card_limit = 5, type = 'title', highlight_limit = 0, collection = true }
+        --         )
 
-                for i, key in ipairs({ "j_joy_garura", "j_joy_psy_omega", "j_joy_spright_gigantic", "j_joy_apollousa", "j_joy_sauravis" }) do
-                    local card = Card(G.joy_desc_area.T.x + G.joy_desc_area.T.w / 2, G.joy_desc_area.T.y,
-                        G.CARD_W, G.CARD_H, G.P_CARDS.empty,
-                        G.P_CENTERS[key])
+        --         for i, key in ipairs({ "j_joy_garura", "j_joy_psy_omega", "j_joy_spright_gigantic", "j_joy_apollousa", "j_joy_sauravis" }) do
+        --             local card = Card(G.joy_desc_area.T.x + G.joy_desc_area.T.w / 2, G.joy_desc_area.T.y,
+        --                 G.CARD_W, G.CARD_H, G.P_CARDS.empty,
+        --                 G.P_CENTERS[key])
 
-                    G.joy_glossary_area:emplace(card)
-                end
-                modNodes[#modNodes + 1] = {
-                    n = G.UIT.R,
-                    config = { align = "cm", padding = 0.07, no_fill = true },
-                    nodes = {
-                        { n = G.UIT.O, config = { object = G.joy_glossary_area } }
-                    }
-                }
-                return {
-                    n = G.UIT.ROOT,
-                    config = {
-                        emboss = 0.05,
-                        minh = 6,
-                        r = 0.1,
-                        minw = 6,
-                        align = "tm",
-                        padding = 0.2,
-                        colour = G.C.BLACK
-                    },
-                    nodes = modNodes
-                }
-            end
-        },
+        --             G.joy_glossary_area:emplace(card)
+        --         end
+        --         modNodes[#modNodes + 1] = {
+        --             n = G.UIT.R,
+        --             config = { align = "cm", padding = 0.07, no_fill = true },
+        --             nodes = {
+        --                 { n = G.UIT.O, config = { object = G.joy_glossary_area } }
+        --             }
+        --         }
+        --         return {
+        --             n = G.UIT.ROOT,
+        --             config = {
+        --                 emboss = 0.05,
+        --                 minh = 6,
+        --                 r = 0.1,
+        --                 minw = 6,
+        --                 align = "tm",
+        --                 padding = 0.2,
+        --                 colour = G.C.BLACK
+        --             },
+        --             nodes = modNodes
+        --         }
+        --     end
+        -- },
     }
 end
 
@@ -218,7 +214,18 @@ SMODS.current_mod.ui_config = {
     collection_option_cycle_colour = darken(G.C.JOY.MOD, 0.2),
 }
 
-SMODS.current_mod.config_tab = function()
+local main_tab = function()
+    G.E_MANAGER:add_event(Event({
+        blocking = false,
+        blockable = false,
+        func = function()
+            if G.OVERLAY_MENU then
+                G.OVERLAY_MENU:recalculate()
+            end
+            return true
+        end
+    }))
+
     return {
         n = G.UIT.ROOT,
         config = { r = 0.1, minw = 8, align = "tm", padding = 0.2, colour = G.C.BLACK },
@@ -229,11 +236,11 @@ SMODS.current_mod.config_tab = function()
                 nodes = {
                     {
                         n = G.UIT.C,
-                        config = { align = "cm" },
+                        config = { align = "cr" },
                         nodes = {
                             {
                                 n = G.UIT.R,
-                                config = { align = "cm", padding = 0.01 },
+                                config = { align = "cr", padding = 0.01 },
                                 nodes = {
                                     create_toggle({
                                         label = localize('k_joy_only_ygo_cards'),
@@ -244,7 +251,7 @@ SMODS.current_mod.config_tab = function()
                             },
                             {
                                 n = G.UIT.R,
-                                config = { align = "cm", padding = 0.01 },
+                                config = { align = "cr", padding = 0.01 },
                                 nodes = {
                                     create_toggle({
                                         label = localize('k_joy_extra_ygo_booster'),
@@ -255,7 +262,7 @@ SMODS.current_mod.config_tab = function()
                             },
                             {
                                 n = G.UIT.R,
-                                config = { align = "cm", padding = 0.01 },
+                                config = { align = "cr", padding = 0.01 },
                                 nodes = {
                                     create_toggle({
                                         label = localize('k_joy_disable_tooltips'),
@@ -266,7 +273,7 @@ SMODS.current_mod.config_tab = function()
                             },
                             {
                                 n = G.UIT.R,
-                                config = { align = "cm", padding = 0.01 },
+                                config = { align = "cr", padding = 0.01 },
                                 nodes = {
                                     create_toggle({
                                         label = localize('k_joy_disable_booster_tag'),
@@ -277,7 +284,7 @@ SMODS.current_mod.config_tab = function()
                             },
                             {
                                 n = G.UIT.R,
-                                config = { align = "cm", padding = 0.01 },
+                                config = { align = "cr", padding = 0.01 },
                                 nodes = {
                                     create_toggle({
                                         label = localize('k_joy_instant_poker_hand'),
@@ -288,7 +295,7 @@ SMODS.current_mod.config_tab = function()
                             },
                             {
                                 n = G.UIT.R,
-                                config = { align = "cm", padding = 0.01 },
+                                config = { align = "cr", padding = 0.01 },
                                 nodes = {
                                     create_toggle({
                                         label = localize('k_joy_disable_main_menu'),
@@ -299,7 +306,7 @@ SMODS.current_mod.config_tab = function()
                             },
                             {
                                 n = G.UIT.R,
-                                config = { align = "cm", padding = 0.01 },
+                                config = { align = "cr", padding = 0.01 },
                                 nodes = {
                                     create_toggle({
                                         label = localize('k_joy_disable_glow'),
@@ -308,10 +315,132 @@ SMODS.current_mod.config_tab = function()
                                     })
                                 }
                             },
+                            {
+                                n = G.UIT.R,
+                                config = { align = "cr", padding = 0.01 },
+                                nodes = {
+                                    create_toggle({
+                                        label = localize('k_joy_disable_side_deck'),
+                                        ref_table = JoyousSpring.config,
+                                        ref_value = 'disable_side_deck'
+                                    })
+                                }
+                            },
                         }
                     },
                 }
             },
+        }
+    }
+end
+
+JoyousSpring.alt_arts = {
+    "j_joy_dmaid_house",
+    "j_joy_etwin_kisikil",
+    "j_joy_etwin_lilla",
+    "j_joy_dogma_ecclesia",
+    "j_joy_yokai_ash",
+    "j_joy_yokai_belle",
+    "j_joy_lab_lady",
+    "j_joy_eld_eldlich",
+    "j_joy_shaddoll_winda",
+    "j_joy_shaddoll_elconstruct",
+    "j_joy_invoked_aleister",
+    "j_joy_invoked_mechaba",
+    "j_joy_apollousa",
+    "j_joy_ipmasq"
+}
+
+local art_callback = function()
+    for _, card in pairs(G.I.CARD) do
+        if card.config and card.config.center and card.config.center.joy_alt_pos then
+            card:set_sprites(card.config.center)
+        end
+    end
+end
+
+local art_tab = function()
+    G.E_MANAGER:add_event(Event({
+        blocking = false,
+        blockable = false,
+        func = function()
+            if G.OVERLAY_MENU then
+                G.OVERLAY_MENU:recalculate()
+            end
+            return true
+        end
+    }))
+
+    local columns = {}
+
+    for i, key in ipairs(JoyousSpring.alt_arts) do
+        if i % 6 == 1 then
+            columns[#columns + 1] = {
+                n = G.UIT.C,
+                config = { align = "cr" },
+                nodes = {
+                }
+            }
+        end
+        columns[#columns].nodes[#columns[#columns].nodes + 1] = {
+            n = G.UIT.R,
+            config = { align = "cr", padding = 0.01 },
+            nodes = {
+                create_toggle({
+                    label = localize { type = "name_text", set = "Joker", key = key },
+                    ref_table = JoyousSpring.config.alt_art,
+                    ref_value = key,
+                    callback = art_callback
+                })
+            }
+        }
+    end
+
+    return {
+        n = G.UIT.ROOT,
+        config = { r = 0.1, minw = 8, align = "tm", padding = 0.2, colour = G.C.BLACK },
+        nodes = {
+            {
+                n = G.UIT.R,
+                config = { padding = 0.2, align = "cm" },
+                nodes = {
+                    {
+                        n = G.UIT.T,
+                        config = { text = localize("k_joy_enable_alts"), colour = G.C.UI.TEXT_LIGHT, scale = 0.55, shadow = true },
+                    },
+                },
+            },
+            {
+                n = G.UIT.R,
+                config = { padding = 0.2 },
+                nodes = columns
+            },
+        }
+    }
+end
+
+SMODS.current_mod.config_tab = function()
+    return {
+        n = G.UIT.ROOT,
+        config = { r = 0.1, minw = 8, align = "tm", padding = 0.2, colour = G.C.BLACK },
+        nodes = {
+            create_tabs({
+                snap_to_nav = true,
+                colour = darken(G.C.JOY.MOD, 0.2),
+                scale = 0.8,
+                tabs = {
+                    {
+                        label = localize("k_joy_main_config"),
+                        chosen = true,
+                        tab_definition_function = main_tab
+                    },
+                    {
+                        label = localize("k_joy_art_config"),
+                        chosen = false,
+                        tab_definition_function = art_tab
+                    },
+                }
+            }),
         }
     }
 end
@@ -492,12 +621,12 @@ JoyousSpring.card_collection_UIBox = function(_pool, rows, args)
                 nodes = {
                     create_option_cycle({
                         options = options,
-                        w = 4.5,
+                        w = 5,
                         cycle_shoulders = true,
                         opt_callback =
                         'SMODS_card_collection_page',
                         current_option = 1,
-                        colour = G.C.RED,
+                        colour = darken(G.C.JOY.MOD, 0.2),
                         no_pips = true,
                         focus_args = { snap_to = true, nav = 'wide' }
                     })

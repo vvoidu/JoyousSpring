@@ -22,11 +22,11 @@ local solfa_use = function(self, card, area, copier)
             func = function()
                 for _, pcard in ipairs(G.hand.highlighted) do
                     assert(SMODS.change_base(pcard, nil, card.ability.extra.rank))
-                    if next(SMODS.find_card("j_joy_solfa_musecia")) then
-                        local edition = poll_edition("j_joy_solfa_musecia", nil, nil, true) or 'e_foil'
+                    if next(SMODS.find_card("j_joy_solfa_musecia")) and not pcard.edition then
+                        local edition = poll_edition("j_joy_solfa_musecia", nil, true, true) or 'e_foil'
                         pcard:set_edition(edition, true)
                     end
-                    if next(SMODS.find_card("j_joy_solfa_grancoolia")) then
+                    if next(SMODS.find_card("j_joy_solfa_grancoolia")) and not card.seal then
                         local seal = SMODS.poll_seal({ key = "j_joy_solfa_grancoolia", guaranteed = true })
                         pcard:set_seal(seal, false, true)
                     end
@@ -37,9 +37,9 @@ local solfa_use = function(self, card, area, copier)
         JoyousSpring.post_consumable_change_use()
     end
 
-    JoyousSpring.level_up_hand(card, "Full House", false, card.ability.extra.change)
-    JoyousSpring.level_up_hand(card, "Straight", false, card.ability.extra.change)
-    JoyousSpring.level_up_hand(card, "Two Pair", false, card.ability.extra.change)
+    JoyousSpring.level_up_hand(card, "Full House", false, 1)
+    JoyousSpring.level_up_hand(card, "Straight", false, 1)
+    JoyousSpring.level_up_hand(card, "Two Pair", false, 1)
 end
 
 local solfa_count = function()
@@ -103,7 +103,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Solfachord" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -153,7 +152,7 @@ SMODS.Joker({
                     for i = 1, card.ability.extra.creates do
                         JoyousSpring.create_pseudorandom(
                             { { monster_archetypes = { "Solfachord" }, is_pendulum = true } },
-                            pseudoseed("j_joy_solfa_cutia"), true)
+                            'j_joy_solfa_cutia', true)
                     end
                 end
             end
@@ -162,6 +161,34 @@ SMODS.Joker({
                 card.ability.extra.consumed_this_round = 0
             end
         end
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            reminder_text = {
+                { text = "(" },
+                { ref_table = "card.ability.extra", ref_value = "consumed_this_round" },
+                { text = "/" },
+                { ref_table = "card.ability.extra", ref_value = "consumed" },
+                { text = ")" },
+            },
+            calc_function = function(card)
+                local text, _, scoring_hand = JokerDisplay.evaluate_hand()
+                local mult = 0
+                if text ~= 'Unknown' then
+                    for _, scoring_card in pairs(scoring_hand) do
+                        if is_even(scoring_card) then
+                            mult = mult + card.ability.extra.mult * solfa_count()
+                        end
+                    end
+                end
+                card.joker_display_values.mult = mult
+            end
+        }
     end
 })
 
@@ -181,7 +208,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Solfachord" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -227,6 +253,27 @@ SMODS.Joker({
             card.cost = 0
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            calc_function = function(card)
+                local text, _, scoring_hand = JokerDisplay.evaluate_hand()
+                local mult = 0
+                if text ~= 'Unknown' then
+                    for _, scoring_card in pairs(scoring_hand) do
+                        if is_odd(scoring_card) then
+                            mult = mult + card.ability.extra.mult * solfa_count()
+                        end
+                    end
+                end
+                card.joker_display_values.mult = mult
+            end
+        }
+    end
 })
 
 -- MiSolfachord Eliteia
@@ -245,7 +292,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Solfachord" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -291,7 +337,7 @@ SMODS.Joker({
                         .scored
                     local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Solfachord" }, is_extra_deck = true } })
                     for i = 1, card.ability.extra.adds do
-                        local key_to_add, _ = pseudorandom_element(choices, pseudoseed("j_joy_solfa_eliteia"))
+                        local key_to_add, _ = pseudorandom_element(choices, 'j_joy_solfa_eliteia')
                         if key_to_add and #JoyousSpring.extra_deck_area.cards < JoyousSpring.extra_deck_area.config.card_limit then
                             JoyousSpring.add_to_extra_deck(key_to_add)
                         end
@@ -305,6 +351,22 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "current_chips", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.CHIPS },
+            reminder_text = {
+                { text = "(" },
+                { ref_table = "card.ability.extra", ref_value = "currently_scored" },
+                { text = "/" },
+                { ref_table = "card.ability.extra", ref_value = "scored" },
+                { text = ")" },
+            },
+        }
+    end
 })
 
 -- FaSolfachord Fancia
@@ -323,7 +385,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Solfachord" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -370,7 +431,7 @@ SMODS.Joker({
                     for i = 1, card.ability.extra.creates do
                         JoyousSpring.create_pseudorandom(
                             { { monster_archetypes = { "Solfachord" }, is_pendulum = true } },
-                            pseudoseed("j_joy_solfa_fancia"), true)
+                            'j_joy_solfa_fancia', true)
                     end
                 end
             end
@@ -381,6 +442,23 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "current_chips", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.CHIPS },
+            reminder_text = {
+                { text = "(" },
+                { ref_table = "card.ability.extra", ref_value = "currently_scored" },
+                { text = "/" },
+                { ref_table = "card.ability.extra", ref_value = "scored" },
+                { text = ")" },
+            },
+        }
+    end
 })
 
 -- SolSolfachord Gracia
@@ -400,7 +478,6 @@ SMODS.Joker({
         { "j_joy_solfa_harmonia",                                     name = "k_joy_creates" },
         { properties = { { monster_archetypes = { "Solfachord" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -412,7 +489,7 @@ SMODS.Joker({
             },
             change = 5,
             rank = '4',
-            repetitions = 4,
+            repetitions = 1,
             creates = 1,
             scored = 80,
             currently_scored = 0
@@ -468,6 +545,21 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            reminder_text = {
+                { text = "(" },
+                { ref_table = "card.ability.extra", ref_value = "currently_scored" },
+                { text = "/" },
+                { ref_table = "card.ability.extra", ref_value = "scored" },
+                { text = ")" },
+            },
+            retrigger_function = function(card, scoring_hand, held_in_hand, joker_card)
+                return is_even(card) and joker_card.ability.extra.repetitions or 0
+            end
+        }
+    end
 })
 
 -- LaSolfachord Angelia
@@ -489,7 +581,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Solfachord" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -501,7 +592,7 @@ SMODS.Joker({
             },
             change = 6,
             rank = '3',
-            repetitions = 3,
+            repetitions = 1,
             revives = 1,
             scored = 41,
             currently_scored = 0
@@ -541,7 +632,7 @@ SMODS.Joker({
                         .scored
                     for i = 1, card.ability.extra.revives do
                         JoyousSpring.revive_pseudorandom({ { monster_archetypes = { "Solfachord" } } },
-                            pseudoseed("j_joy_solfa_angelia"), true)
+                            'j_joy_solfa_angelia', true)
                     end
                 end
             end
@@ -565,6 +656,21 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            reminder_text = {
+                { text = "(" },
+                { ref_table = "card.ability.extra", ref_value = "currently_scored" },
+                { text = "/" },
+                { ref_table = "card.ability.extra", ref_value = "scored" },
+                { text = ")" },
+            },
+            retrigger_function = function(card, scoring_hand, held_in_hand, joker_card)
+                return is_odd(card) and joker_card.ability.extra.repetitions or 0
+            end
+        }
+    end
 })
 
 -- TiSolfachord Beautia
@@ -586,7 +692,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Solfachord" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -598,7 +703,7 @@ SMODS.Joker({
             },
             change = 7,
             rank = '2',
-            xchips = 0.2,
+            xchips = 0.1,
             banishes = 2
         },
     },
@@ -635,16 +740,42 @@ SMODS.Joker({
                     end
                 end
             end
-            if context.end_of_round and context.main_eval and context.game_over == false then
+            if context.joy_post_round_eval then
                 local choices = JoyousSpring.get_materials_owned({ { is_pendulum = true } })
                 for i = 1, card.ability.extra.banishes do
-                    local to_banish = pseudorandom_element(choices, pseudoseed("j_joy_solfa_beautia"))
+                    local to_banish, index = pseudorandom_element(choices, 'j_joy_solfa_beautia')
                     if to_banish then
                         JoyousSpring.banish(to_banish, "blind_selected")
+                        table.remove(choices, index)
                     end
                 end
             end
         end
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xchips", retrigger_type = "exp" }
+                    },
+                    border_colour = G.C.CHIPS
+                }
+            },
+            calc_function = function(card)
+                local text, _, scoring_hand = JokerDisplay.evaluate_hand()
+                local count = 0
+                if text ~= 'Unknown' then
+                    for _, scoring_card in pairs(scoring_hand) do
+                        if is_even(scoring_card) then
+                            count = count + JokerDisplay.calculate_card_triggers(scoring_card)
+                        end
+                    end
+                end
+                card.joker_display_values.xchips = (1 + card.ability.extra.xchips * solfa_count()) ^ count
+            end
+        }
     end
 })
 
@@ -664,7 +795,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Solfachord" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -713,6 +843,30 @@ SMODS.Joker({
                 end
             end
         end
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xmult", retrigger_type = "exp" }
+                    },
+                }
+            },
+            calc_function = function(card)
+                local text, _, scoring_hand = JokerDisplay.evaluate_hand()
+                local count = 0
+                if text ~= 'Unknown' then
+                    for _, scoring_card in pairs(scoring_hand) do
+                        if is_odd(scoring_card) then
+                            count = count + JokerDisplay.calculate_card_triggers(scoring_card)
+                        end
+                    end
+                end
+                card.joker_display_values.xmult = (1 + card.ability.extra.xmult * solfa_count()) ^ count
+            end
+        }
     end
 })
 
@@ -727,12 +881,11 @@ SMODS.Joker({
     eternal_compat = true,
     cost = 10,
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extra.creates, card.ability.extra.consumed, card.ability.extra.consumed - card.ability.extra.consumed_this_round } }
+        return { vars = { card.ability.extra.creates, card.ability.extra.consumed, card.ability.extra.consumed - card.ability.extra.consumed_this_ante, card.ability.extra.consumed_increase } }
     end,
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Solfachord" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -753,22 +906,29 @@ SMODS.Joker({
             },
             creates = 1,
             consumed = 4,
-            consumed_this_round = 0
+            consumed_increase = 2,
+            consumed_this_ante = 0,
+            activated = false
         },
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
-            if context.using_consumeable and JoyousSpring.is_pendulum_monster(context.consumeable) then
-                card.ability.extra.consumed_this_round = card.ability.extra.consumed_this_round + 1
-                if card.ability.extra.consumed_this_round >= card.ability.extra.consumed then
-                    card.ability.extra.consumed_this_round = 0
+            if context.using_consumeable and JoyousSpring.is_pendulum_monster(context.consumeable) and not card.ability.extra.activated then
+                card.ability.extra.consumed_this_ante = card.ability.extra.consumed_this_ante + 1
+                if card.ability.extra.consumed_this_ante >= card.ability.extra.consumed then
+                    card.ability.extra.activated = true
                     for i = 1, card.ability.extra.creates do
                         JoyousSpring.create_pseudorandom(
                             { { monster_archetypes = { "Solfachord" }, is_pendulum = true } },
-                            pseudoseed("j_joy_solfa_cutia"), false, false, "e_negative")
+                            "j_joy_solfa_cutia", false, false, "e_negative")
                     end
+                    card.ability.extra.consumed = card.ability.extra.consumed + card.ability.extra.consumed_increase
                 end
             end
+        end
+        if context.end_of_round and context.game_over == false and context.main_eval and context.beat_boss then
+            card.ability.extra.consumed_this_ante = 0
+            card.ability.extra.activated = false
         end
     end
 })
@@ -789,7 +949,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Solfachord" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -836,6 +995,18 @@ SMODS.Joker({
                 card.ability.extra.consumed_this_round = 0
             end
         end
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "chips", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.CHIPS },
+            calc_function = function(card)
+                card.joker_display_values.chips = card.ability.extra.chips * pend_count()
+            end
+        }
     end
 })
 
@@ -858,7 +1029,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Solfachord" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -876,10 +1046,10 @@ SMODS.Joker({
             if context.setting_blind and context.main_eval then
                 for i = 1, card.ability.extra.revives do
                     local revived_card = JoyousSpring.revive_pseudorandom({ { monster_archetypes = { "Solfachord" } } },
-                        pseudoseed("j_joy_solfa_harmonia"), true)
+                        'j_joy_solfa_harmonia', true)
 
                     if not revived_card then
-                        JoyousSpring.revive_pseudorandom({ { is_pendulum = true } }, pseudoseed("j_joy_solfa_harmonia"),
+                        JoyousSpring.revive_pseudorandom({ { is_pendulum = true } }, 'j_joy_solfa_harmonia',
                             true)
                     end
                 end
@@ -897,11 +1067,13 @@ SMODS.Joker({
                 return {
                     func = function()
                         for _, playing_card in ipairs(context.scoring_hand) do
-                            if is_even(playing_card) then
-                                playing_card:set_ability(G.P_CENTERS.m_gold, nil, true)
-                            end
-                            if is_odd(playing_card) then
-                                playing_card:set_ability(G.P_CENTERS.m_steel, nil, true)
+                            if not next(SMODS.get_enhancements(playing_card)) then
+                                if is_even(playing_card) then
+                                    playing_card:set_ability(G.P_CENTERS.m_gold, nil, true)
+                                end
+                                if is_odd(playing_card) then
+                                    playing_card:set_ability(G.P_CENTERS.m_steel, nil, true)
+                                end
                             end
                             playing_card:juice_up()
                         end

@@ -15,7 +15,7 @@ if next(SMODS.find_card("j_joy_yokai_ash")) and
     (G.GAME.current_round.hands_played > 0 or G.GAME.current_round.discards_used > 0) then
     for _, joker in ipairs(SMODS.find_card("j_joy_yokai_ash")) do
         if JoyousSpring.can_use_abilities(joker) and
-            pseudorandom("j_joy_yokai_ash") < G.GAME.probabilities.normal / joker.ability.extra.odds then
+            SMODS.pseudorandom_probability(joker, joker.config.center.key, 1, joker.ability.extra.odds) then
             hand_space = (#G.hand.cards == 0) and 1 or 0
             SMODS.calculate_context({joy_no_draw = true, joy_card = joker})
             break
@@ -33,30 +33,6 @@ position = 'before'
 match_indent = true
 payload = '''
 SMODS.calculate_context({joy_selecting_hand = true})
-'''
-
-# Add to next shop
-[[patches]]
-[patches.pattern]
-target = "functions/UI_definitions.lua"
-pattern = "G.GAME.spectral_rate = G.GAME.spectral_rate or 0"
-position = 'before'
-match_indent = true
-payload = '''
-if G.GAME.joy_create_card and #G.GAME.joy_create_card > 0 then
-    local joy_forced_card_key = table.remove(G.GAME.joy_create_card,1)
-    local joy_forced_card = SMODS.create_card({
-                        key = joy_forced_card_key.key,
-                        area = area
-                    })
-    create_shop_card_ui(joy_forced_card, 'Joker', area)
-    joy_forced_card.states.visible = false
-    joy_forced_card:start_materialize()
-    for k, v in ipairs(G.GAME.tags) do
-        if v:apply_to_run({ type = 'store_joker_modify', card = joy_forced_card }) then break end
-    end
-    return joy_forced_card
-end
 '''
 
 # Game Over text (stolen from LobCorp <3)
@@ -90,17 +66,6 @@ if score == 'defeated_by' and JoyousSpring and JoyousSpring.defeated_by then
 end'''
 match_indent = true
 
-# Prevent discarding more than 5
-[[patches]]
-[patches.pattern]
-target = "functions/button_callbacks.lua"
-pattern = "if G.GAME.current_round.discards_left <= 0 or #G.hand.highlighted <= 0 then"
-position = 'at'
-match_indent = true
-payload = '''
-if G.GAME.current_round.discards_left <= 0 or #G.hand.highlighted <= 0 or #G.hand.highlighted > 5 then
-'''
-
 # Keep cards flipped after blind
 [[patches]]
 [patches.pattern]
@@ -109,18 +74,92 @@ pattern = "if v.facing == 'back' then v:flip() end"
 position = 'at'
 match_indent = true
 payload = '''
-if self.name == 'Amber Acorn' and v.facing == 'back' then v:flip() end
+if self.name == 'Amber Acorn' then
+    if v.facing == 'back' then v:flip() end
+end
 '''
 
-# Modify modify scoring hand context
+# Pre-setting_blind context to disable flip blind effects
 [[patches]]
 [patches.pattern]
-target = 'functions/state_events.lua'
+target = "functions/state_events.lua"
+pattern = "G.GAME.blind:set_blind(G.GAME.round_resets.blind)"
+position = 'before'
 match_indent = true
-position = 'at'
-pattern = '''
-SMODS.calculate_context({modify_scoring_hand = true, other_card =  G.play.cards[i], full_hand = G.play.cards, scoring_hand = scoring_hand}, effects)
-'''
 payload = '''
-SMODS.calculate_context({modify_scoring_hand = true, other_card =  G.play.cards[i], full_hand = G.play.cards, scoring_hand = scoring_hand, in_scoring = true}, effects)
+SMODS.calculate_context({joy_pre_setting_blind = true, joy_blind = G.GAME.round_resets.blind})
+'''
+
+# Add multiple hand_types to planets
+[[patches]]
+[patches.pattern]
+target = "card.lua"
+pattern = '''
+if v.config.hand_type == G.GAME.last_hand_played then
+    _planet = v.key
+end
+'''
+position = 'after'
+match_indent = true
+payload = '''
+if v.config.joy_hand_types then
+    for _, name in ipairs(v.config.joy_hand_types) do
+        if name == G.GAME.last_hand_played then
+            _planet = v.key
+            break
+        end
+    end
+    if planet ~= 0 then break end
+end
+'''
+
+# Add multiple hand_types to telescope
+[[patches]]
+[patches.pattern]
+target = '=[SMODS _ "src/game_object.lua"]'
+pattern = '''
+if v.config.hand_type == _hand then
+    _planet = v.key
+end
+'''
+position = 'after'
+match_indent = true
+payload = '''
+if v.config.joy_hand_types then
+    for _, name in ipairs(v.config.joy_hand_types) do
+        if name == _hand then
+            _planet = v.key
+            break
+        end
+    end
+    if planet then break end
+end
+'''
+
+# Don't shuffle after excavating
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = '''
+G.deck:shuffle('nr'..G.GAME.round_resets.ante)
+'''
+position = 'at'
+match_indent = true
+payload = '''
+if not G.GAME.joy_excavated then
+    G.deck:shuffle('nr'..G.GAME.round_resets.ante)
+end
+G.GAME.joy_excavated = nil
+'''
+
+[[patches]]
+[patches.pattern]
+target = "functions/button_callbacks.lua"
+pattern = '''
+G.deck:shuffle('cashout'..G.GAME.round_resets.ante)
+'''
+position = 'after'
+match_indent = true
+payload = '''
+G.GAME.joy_excavated = nil
 '''

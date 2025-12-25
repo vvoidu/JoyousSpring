@@ -19,8 +19,14 @@ return {
             k_joy_transferred_abilities = "Transferred Abilities:",
             k_joy_select = "Select",
             k_joy_summon = "Summon",
+            k_joy_summon_no_space = " (No space available)",
             k_joy_detach = "Detach",
             k_joy_activate = "Activate",
+            k_joy_side_deck = "Side Deck",
+            b_joy_to_side_1 = "To Side",
+            b_joy_to_side_2 = "Deck",
+            b_joy_buy_to_side_1 = "Buy to",
+            b_joy_buy_to_side_2 = "Side Deck",
             --#endregion
             --#region Related cards
             k_joy_related = "Related",

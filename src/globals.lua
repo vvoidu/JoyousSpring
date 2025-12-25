@@ -11,7 +11,7 @@ G.C.JOY = {
     FUSION = HEX("A086B7"),
     SYNCHRO = HEX("ADADAD"),
     XYZ = HEX("7F7E7E"),
-    LINK = HEX("006EAD"),
+    LINK = HEX("0092E6"),
     TOKEN = HEX("828E85"),
     LIGHT = HEX("DBBB51"),
     DARK = HEX("937CB5"),
@@ -99,30 +99,4 @@ function loc_colour(_c, _default)
     G.ARGS.LOC_COLOURS.joy_divine = G.C.JOY.DIVINE
 
     return loc_colour_ref(_c, _default)
-end
-
-local get_current_pool_ref = get_current_pool
-function get_current_pool(_type, _rarity, _legendary, _append)
-    local _pool, _pool_key = get_current_pool_ref(_type, _rarity, _legendary, _append)
-    if G.GAME.modifiers["joy_no_extra_deck_jokers"] then
-        for i = 1, #_pool do
-            local key = _pool[i]
-            local center = G.P_CENTERS[key]
-
-            if ((center or {}).config or {}).extra and type(center.config.extra) == "table" and center.config.extra.joyous_spring then
-                if not center.config.extra.joyous_spring.is_main_deck then
-                    _pool[i] = "UNAVAILABLE"
-                end
-            end
-        end
-    end
-    return _pool, _pool_key
-end
-
-local game_start_run_ref = Game.start_run
-function Game:start_run(args)
-    game_start_run_ref(self, args)
-
-    self.GAME.joy_create_card = JoyousSpring.debug and JoyousSpring.debug_shop_cards or self.GAME.joy_create_card or {}
-    JoyousSpring.cards_to_create = self.GAME.joy_create_card
 end

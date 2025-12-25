@@ -35,7 +35,7 @@ return {
                     },
                     {
                         "Once per round, you can {C:attention}tribute #2#{} {C:joy_normal}Cyberse{}",
-                        "to create {C:attention}#3#{} {C:joy_normal}Main Deck {C:green}Uncommon{} {C:joy_normal}\"@Ignister\"",
+                        "to create {C:attention}#3#{} {C:green}Uncommon{} {C:joy_normal}Main Deck \"@Ignister\"",
                         "{C:inactive}(Must have room){}",
                     },
                     {
@@ -131,7 +131,7 @@ return {
                         "{C:attention}Revives #1#{} {C:joy_normal}Main Deck \"@Ignister\"{} when obtained",
                     },
                     {
-                        "Adds {C:attention}#2#{} {C:joy_normal}\"@Ignister\"{} to the {C:joy_spell}Extra Deck",
+                        "Adds {C:attention}#2#{} not obtained {C:joy_normal}\"@Ignister\"{} to the {C:joy_spell}Extra Deck",
                         "when used as {C:attention}material{} for a {C:joy_normal}Cyberse",
                     },
                 }
@@ -180,23 +180,34 @@ return {
                     },
                 }
             },
+            j_joy_ignis_linkslayer = {
+                name = "{C:joy_effect}Linkslayer @Ignister",
+                text = {
+                    {
+                        "Can be used as any {C:attention}material{} for a {C:joy_link}Link",
+                    },
+                    {
+                        "Permanently gain {C:red}+#1#{} discard",
+                        "when used as {C:attention}material{} for a {C:joy_normal}Cyberse{}",
+                    }
+                }
+            },
             j_joy_ignis_leviathan = {
                 name = "{C:joy_ritual}Water Leviathan @Ignister",
                 text = {
                     {
-                        "Adds {C:attention}#1#{} {C:joy_normal}\"@Ignister\"{} to the {C:joy_spell}Extra Deck{} when summoned",
+                        "Adds {C:attention}#1#{} not obtained {C:joy_normal}\"@Ignister\"",
+                        "to the {C:joy_spell}Extra Deck{} when summoned",
                     },
                     {
                         "Scored cards gain {C:chips}+#2#{} Chips for each {C:attention}Attribute{} used for its summon",
-                        "Amount increases by {C:chips}+#3#{} when a {C:joy_link}Link{} is summoned",
-                        "{C:inactive}(Currently {C:chips}+#4# {C:inactive}Chips)",
+                        "{C:inactive}(Currently {C:chips}+#3# {C:inactive}Chips)",
                         "A {C:joy_link}Link{} summoned using this card as {C:attention}material{} gains this ability",
                     },
                 },
                 joy_transfer_ability = {
                     "Scored cards gain {C:chips}+#1#{} Chips for each {C:attention}Attribute{} used for its summon",
-                    "Amount increases by {C:chips}+#2#{} when a {C:joy_link}Link{} is summoned",
-                    "{C:inactive}(Currently {C:chips}+#3# {C:inactive}Chips)",
+                    "{C:inactive}(Currently {C:chips}+#2# {C:inactive}Chips)",
                 },
                 joy_summon_conditions = {
                     "{C:attention}2+ {C:joy_normal}Cyberse{}"
@@ -206,7 +217,8 @@ return {
                 name = "{C:joy_fusion}Earth Golem @Ignister",
                 text = {
                     {
-                        "Adds {C:attention}#1#{} {C:joy_normal}\"@Ignister\"{} to the {C:joy_spell}Extra Deck{} when summoned",
+                        "Adds {C:attention}#1#{} not obtained {C:joy_normal}\"@Ignister\"",
+                        "to the {C:joy_spell}Extra Deck{} when summoned",
                     },
                     {
                         "{C:attention}+#2# Joker{} slot for each {C:attention}Attribute{} used for its summon",
@@ -226,7 +238,8 @@ return {
                 name = "{C:joy_synchro}Wind Pegasus @Ignister",
                 text = {
                     {
-                        "Adds {C:attention}#1#{} {C:joy_normal}\"@Ignister\"{} to the {C:joy_spell}Extra Deck{} when summoned",
+                        "Adds {C:attention}#1#{} not obtained {C:joy_normal}\"@Ignister\"",
+                        "to the {C:joy_spell}Extra Deck{} when summoned",
                     },
                     {
                         "{C:green}#2# in #3#{} chance to retrigger playing cards",
@@ -248,7 +261,8 @@ return {
                 name = "{C:joy_xyz}Light Dragon @Ignister",
                 text = {
                     {
-                        "Adds {C:attention}#1#{} {C:joy_normal}\"@Ignister\"{} to the {C:joy_spell}Extra Deck{} when summoned",
+                        "Adds {C:attention}#1#{} not obtained {C:joy_normal}\"@Ignister\"",
+                        "to the {C:joy_spell}Extra Deck{} when summoned",
                     },
                     {
                         "Scored cards gain {C:money}+$#2#{} when held in hand at end of round",
@@ -272,23 +286,22 @@ return {
                 name = "{C:joy_link}Fire Phoenix @Ignister",
                 text = {
                     {
-                        "Adds {C:attention}#1#{} {C:joy_normal}\"@Ignister\"{} to the {C:joy_spell}Extra Deck{} when summoned",
+                        "Adds {C:attention}#1#{} not obtained {C:joy_normal}\"@Ignister\"",
+                        "to the {C:joy_spell}Extra Deck{} when summoned",
                     },
                     {
                         "Creates {C:attention}#2#{} {C:dark_edition}Negative{} Debuffed {C:joy_link}\"Fire Phoenix @Ignister\"{}",
                         "when used as {C:attention}material{} for a {C:joy_normal}Cyberse",
                     },
                     {
-                        "Scored cards gain {X:mult,C:white}X#3#{} extra Mult for each {C:attention}Attribute{} used for its summon",
-                        "Amount increases {X:mult,C:white}X#4#{} when a {C:joy_link}Link{} is summoned",
-                        "{C:inactive}(Currently {X:mult,C:white}X#5#{} {C:inactive}extra Mult)",
+                        "Scored cards gain {C:mult}+#3#{} Mult for each {C:attention}Attribute{} used for its summon",
+                        "{C:inactive}(Currently {C:mult}+#4#{} {C:inactive}Mult)",
                         "A {C:joy_link}Link{} summoned using this card as {C:attention}material{} gains this ability",
                     },
                 },
                 joy_transfer_ability = {
-                    "Scored cards gain {X:mult,C:white}X#1#{} extra Mult for each {C:attention}Attribute{} used for its summon",
-                    "Amount increases {X:mult,C:white}X#2#{} when a {C:joy_link}Link{} is summoned",
-                    "{C:inactive}(Currently {X:mult,C:white}X#3#{} {C:inactive}extra Mult)",
+                    "Scored cards gain {C:mult}+#1#{} Mult for each {C:attention}Attribute{} used for its summon",
+                    "{C:inactive}(Currently {C:mult}+#2#{} {C:inactive}Mult)",
                 },
                 joy_summon_conditions = {
                     "{C:attention}2+ {C:joy_normal}Cyberse{}"
@@ -353,8 +366,30 @@ return {
                         "{V:4}DARK{V:7}: Creates {V:5}#4#{} {V:6}Spectral{V:7} at end of round {s:0.9,C:inactive}(Must have room)",
                         "{V:8}WATER{V:10}: {V:9}+#5#{V:10} Chips",
                         "{V:11}FIRE{V:13}: {V:12}+#6#{V:13} Mult",
-                        "{V:14}WIND{V:17}: {V:15}#7# in #8#{V:17} chance to create a {V:16}Negative{V:17} copy of a used consumable",
-                        "{V:18}EARTH{V:20}: {V:19}+#9#{V:20} hand size",
+                        "{V:14}WIND{V:17}: {V:15}#7# in #8#{V:17} chance to create a {V:16}Negative{V:17} copy of a used {V:18}Spectral",
+                        "{V:19}EARTH{V:21}: {V:20}+#9#{V:21} hand size",
+                    },
+                },
+                joy_summon_conditions = {
+                    "{C:attention}5+ {C:joy_normal}Cyberse{}"
+                }
+            },
+            j_joy_ignis_arrival_divine = {
+                name = "{C:joy_link}The Arrival Cyberse @Ignister",
+                text = {
+                    {
+                        "{X:mult,C:white}X#1#{} Mult for each {C:attention}Attribute{} used for its summon",
+                        "{C:inactive}(Currently{} {X:mult,C:white}X#2#{} {C:inactive}Mult)",
+                    },
+                    {
+                        "Gains abilities based on the {C:attention}materials{} used for its summon",
+                        "{V:1}LIGHT{V:3}: {V:2}+$#3#{V:3} at end of round",
+                        "{V:4}DARK{V:7}: Creates {V:5}#4#{} {V:6}Spectral{V:7} at end of round {s:0.9,C:inactive}(Must have room)",
+                        "{V:8}WATER{V:10}: {V:9}+#5#{V:10} Chips",
+                        "{V:11}FIRE{V:13}: {V:12}+#6#{V:13} Mult",
+                        "{V:14}WIND{V:17}: {V:15}#7# in #8#{V:17} chance to create a {V:16}Negative{V:17} copy of a used {V:18}Spectral",
+                        "{V:19}EARTH{V:21}: {V:20}+#9#{V:21} hand size",
+                        "{C:joy_divine}DIVINE{}: Lowers {C:attention}Blind{}'s requirement by {C:red}50%{}"
                     },
                 },
                 joy_summon_conditions = {
@@ -380,10 +415,6 @@ return {
     misc = {
         dictionary = {
             k_joy_archetype_ignis = "@Ignister",
-            k_joy_arrival_text1 = ": Lowers ",
-            k_joy_arrival_text2 = "Blind",
-            k_joy_arrival_text3 = "'s requirement by ",
-            k_joy_arrival_text4 = "50%",
         }
     },
 }

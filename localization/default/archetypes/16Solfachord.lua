@@ -5,7 +5,7 @@ return {
                 name = "{C:joy_pendulum_effect}DoSolfachord Cutia",
                 joy_consumable = {
                     "Change rank of up to {C:attention}#1#{} selected cards to {C:attention}8{}",
-                    "and level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{} by {C:attention}#1#",
+                    "also level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{}",
                 },
                 text = {
                     {
@@ -23,7 +23,7 @@ return {
                 name = "{C:joy_pendulum_effect}ReSolfachord Dreamia",
                 joy_consumable = {
                     "Change rank of up to {C:attention}#1#{} selected cards to {C:attention}7{}",
-                    "and level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{} by {C:attention}#1#",
+                    "also level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{}",
                 },
                 text = {
                     {
@@ -39,7 +39,7 @@ return {
                 name = "{C:joy_pendulum_effect}MiSolfachord Eliteia",
                 joy_consumable = {
                     "Change rank of up to {C:attention}#1#{} selected cards to {C:attention}6{}",
-                    "and level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{} by {C:attention}#1#",
+                    "also level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{}",
                 },
                 text = {
                     {
@@ -57,7 +57,7 @@ return {
                 name = "{C:joy_pendulum_effect}FaSolfachord Fancia",
                 joy_consumable = {
                     "Change rank of up to {C:attention}#1#{} selected cards to {C:attention}5{}",
-                    "and level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{} by {C:attention}#1#",
+                    "also level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{}",
                 },
                 text = {
                     {
@@ -74,11 +74,11 @@ return {
                 name = "{C:joy_pendulum_effect}SolSolfachord Gracia",
                 joy_consumable = {
                     "Change rank of up to {C:attention}#1#{} selected cards to {C:attention}4{}",
-                    "and level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{} by {C:attention}#1#",
+                    "also level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{}",
                 },
                 text = {
                     {
-                        "Retrigger each even card {C:attention}#2#{} times",
+                        "Retrigger each even card {C:attention}#2#{} time",
                     },
                     {
                         "Creates {C:attention}#3#{} {C:joy_spell}\"Solfachord Harmonia\"{}",
@@ -91,11 +91,11 @@ return {
                 name = "{C:joy_pendulum_effect}LaSolfachord Angelia",
                 joy_consumable = {
                     "Change rank of up to {C:attention}#1#{} selected cards to {C:attention}3{}",
-                    "and level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{} by {C:attention}#1#",
+                    "also level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{}",
                 },
                 text = {
                     {
-                        "Retrigger each odd card {C:attention}#2#{} times",
+                        "Retrigger each odd card {C:attention}#2#{} time",
                     },
                     {
                         "{C:attention}Revives #3#{} {C:joy_normal}\"Solfachord\"{} after {C:attention}#4#{} odd cards are scored",
@@ -107,7 +107,7 @@ return {
                 name = "{C:joy_pendulum_effect}TiSolfachord Beautia",
                 joy_consumable = {
                     "Change rank of up to {C:attention}#1#{} selected cards to {C:attention}2{}",
-                    "and level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{} by {C:attention}#1#",
+                    "also level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{}",
                 },
                 text = {
                     {
@@ -125,7 +125,7 @@ return {
                 name = "{C:joy_pendulum_effect}DoSolfachord Coolia",
                 joy_consumable = {
                     "Change rank of up to {C:attention}#1#{} selected cards to {C:attention}Aces{}",
-                    "and level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{} by {C:attention}#1#",
+                    "also level up {C:attention}Full House{}, {C:attention}Straight{} and {C:attention}Two Pair{}",
                 },
                 text = {
                     {
@@ -134,7 +134,7 @@ return {
                         "{C:inactive}(Currently {X:mult,C:white}X#3#{} {C:inactive}Mult)",
                     },
                     {
-                        "Cards in the {C:attention}GY{} count for {C:joy_normal}\"Solfachord\"{} abilities",
+                        "{C:joy_normal}\"Solfachord\"{} in the {C:attention}GY{} count for {C:joy_normal}\"Solfachord\"{} abilities",
                     },
                 },
             },
@@ -143,18 +143,20 @@ return {
                 text = {
                     {
                         "Playing cards affected by {C:joy_normal}\"Solfachord\"{} consumable abilities",
-                        "gain a random edition if possible",
+                        "gain a random {C:dark_edition}Edition{} if possible",
+                        "{C:inactive}(Except Negative){}"
                     },
                     {
-                        "Creates {C:attention}#1#{} {C:dark_edition}Negative{} {C:joy_pendulum}Pendulum{} {C:joy_normal}\"Solfachord\"{}",
+                        "Once per ante, creates {C:attention}#1#{} {C:dark_edition}Negative{} {C:joy_pendulum}Pendulum{} {C:joy_normal}\"Solfachord\"{}",
                         "after {C:attention}#2#{} {C:joy_pendulum}Pendulum{} are consumed {C:inactive}(#3# remaining){}",
+                        "and increases requirement by {C:attention}#4#{}"
                     },
                     {
                         "If scoring hand contains both even and odd ranks,",
                         "all scored cards count as both for {C:joy_normal}\"Solfachord\"{} abilities",
                     },
                     {
-                        "{C:joy_pendulum}Pendulum{} count for {C:joy_normal}\"Solfachord\"{} abilities",
+                        "{C:joy_pendulum}Pendulum{} count as {C:joy_normal}\"Solfachord\"{} for other {C:joy_normal}\"Solfachord\"{} abilities",
                     },
                 },
                 joy_summon_conditions = {
@@ -170,7 +172,7 @@ return {
                     },
                     {
                         "Playing cards affected by {C:joy_normal}\"Solfachord\"{} consumable abilities",
-                        "gain a random seal if possible",
+                        "gain a random {C:attention}Seal{} if possible",
                     },
                     {
                         "{C:money}+$#3#{} after {C:attention}#4#{} {C:joy_pendulum}Pendulum{} are consumed {C:inactive}(#5#/#4#){}",
@@ -197,7 +199,8 @@ return {
                         "{C:inactive}(Must have room){}",
                     },
                     {
-                        "All even cards become {C:attention}Gold{} and all odd cards become {C:attention}Steel{} after scoring",
+                        "All unenhanced even cards become {C:attention}Gold{} and",
+                        "all unenhanced odd cards become {C:attention}Steel{} after scoring",
                         "if {C:attention}#3# {C:joy_normal}\"Solfachord\"{} with different names are owned, ignoring other abilities",
                     },
                 }

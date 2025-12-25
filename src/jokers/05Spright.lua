@@ -1,4 +1,4 @@
---- GHOST GIRLS
+--- SPRIGHT
 SMODS.Atlas({
     key = "Spright",
     path = "05Spright.png",
@@ -25,7 +25,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Spright" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -43,7 +42,7 @@ SMODS.Joker({
                 for i = 1, card.ability.extra.cards_to_create do
                     JoyousSpring.create_pseudorandom(
                         { { monster_archetypes = { "Spright" }, is_main_deck = true, exclude_keys = { "j_joy_spright_blue" } } },
-                        pseudoseed("j_joy_spright_blue"), true)
+                        'j_joy_spright_blue', true)
                 end
             end
         end
@@ -71,7 +70,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Spright" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -80,17 +78,15 @@ SMODS.Joker({
                 monster_type = "Thunder",
                 monster_archetypes = { ["Spright"] = true }
             },
-            mill = 2,
+            mills = 2,
         },
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if context.setting_blind and context.main_eval then
-                local choices = JoyousSpring.get_materials_in_collection({ { rarity = 2 } })
-
-                for i = 1, card.ability.extra.mill do
-                    JoyousSpring.send_to_graveyard(pseudorandom_element(choices, pseudoseed("j_joy_spright_jet")))
-                end
+                JoyousSpring.send_to_graveyard_pseudorandom(
+                    { { rarity = 2 } },
+                    card.config.center.key, card.ability.extra.mills)
             end
         end
     end,
@@ -123,7 +119,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Spright" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -192,7 +187,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Spright" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -258,7 +252,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Spright" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -267,7 +260,7 @@ SMODS.Joker({
                 monster_type = "Thunder",
                 monster_archetypes = { ["Spright"] = true }
             },
-            chips = 15,
+            chips = 40,
         },
     },
     calculate = function(self, card, context)
@@ -321,7 +314,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Spright" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -349,7 +341,7 @@ SMODS.Joker({
                 for i = 1, card.ability.extra.revives do
                     JoyousSpring.revive_pseudorandom(
                         { { rarity = 2 } },
-                        pseudoseed("j_joy_spright_elf"),
+                        'j_joy_spright_elf',
                         true
                     )
                 end
@@ -375,7 +367,6 @@ SMODS.Joker({
         { "j_joy_spright_gigantic",                                name = "k_joy_adds" },
         { properties = { { monster_archetypes = { "Spright" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -400,7 +391,7 @@ SMODS.Joker({
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
-            if not context.blueprint_card and not context.retrigger_joker and context.joy_detach then
+            if not context.blueprint_card and not context.retrigger_joker and context.joy_detached then
                 card.ability.extra.detached = card.ability.extra.detached + 1
                 if card.ability.extra.detached >= card.ability.extra.base_materials then
                     card.ability.extra.detached = 0
@@ -418,6 +409,9 @@ SMODS.Joker({
         end
     end,
     add_to_deck = function(self, card, from_debuff)
+        if not from_debuff then
+            card.ability.extra.unique_count = #SMODS.find_card("j_joy_spright_sprind", true)
+        end
         if not card.debuff then
             local spright_material = false
             for _, key in ipairs(JoyousSpring.get_materials(card)) do
@@ -428,12 +422,12 @@ SMODS.Joker({
             end
             if spright_material then
                 for _, joker in ipairs(G.jokers.cards) do
-                    if joker.config.center.rarity == 2 then
+                    if joker:is_rarity(2) then
                         if not joker.edition then
                             joker:set_edition({ negative = true })
                         end
                     else
-                        SMODS.debuff_card(joker, true, "j_joy_spright_sprind")
+                        SMODS.debuff_card(joker, true, "j_joy_spright_sprind" .. (card.ability.extra.unique_count or 0))
                     end
                 end
             end
@@ -441,7 +435,7 @@ SMODS.Joker({
     end,
     remove_from_deck = function(self, card, from_debuff)
         for _, joker in ipairs(G.jokers.cards) do
-            SMODS.debuff_card(joker, false, "j_joy_spright_sprind")
+            SMODS.debuff_card(joker, false, "j_joy_spright_sprind" .. (card.ability.extra.unique_count or 0))
         end
     end,
     joy_apply_to_jokers_added = function(card, added_card)
@@ -454,15 +448,27 @@ SMODS.Joker({
                 end
             end
             if spright_material then
-                if added_card.config.center.rarity == 2 then
+                if added_card:is_rarity(2) then
                     if not added_card.edition then
                         added_card:set_edition({ negative = true })
                     end
                 else
-                    SMODS.debuff_card(added_card, true, "j_joy_spright_sprind")
+                    SMODS.debuff_card(added_card, true, "j_joy_spright_sprind" .. (card.ability.extra.unique_count or 0))
                 end
             end
         end
+    end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            reminder_text = {
+                { text = "(" },
+                { ref_table = "card.ability.extra", ref_value = "detached" },
+                { text = "/" },
+                { ref_table = "card.ability.extra", ref_value = "base_materials" },
+                { text = ")" },
+            },
+        }
     end
 })
 
@@ -483,7 +489,6 @@ SMODS.Joker({
         end
         return { vars = { card.ability.extra.cards_to_create } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     update = JoyousSpring.update_counter,
     joy_desc_cards = {
@@ -519,16 +524,19 @@ SMODS.Joker({
 
                 for i = 1, card.ability.extra.cards_to_create do
                     if #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit then
-                        JoyousSpring.create_summon({
-                            set = "Joker",
-                            rarity = "Uncommon",
-                            key_append = "JoyousSpring"
-                        }, true)
+                        JoyousSpring.create_pseudorandom({ {
+                            rarity = 2,
+                            exclude_field_spell = not (#JoyousSpring.field_spell_area.cards <
+                                JoyousSpring.field_spell_area.config.card_limit) or nil
+                        } }, card.config.center.key, true)
                     end
                 end
             end
         end
     end,
+    joy_can_detach = function(self, card)
+        return #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit
+    end
 })
 
 JoyousSpring.collection_pool[#JoyousSpring.collection_pool + 1] = {

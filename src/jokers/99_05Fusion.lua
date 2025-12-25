@@ -17,7 +17,6 @@ SMODS.Joker({
         end
         return {}
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -61,7 +60,6 @@ SMODS.Joker({
         end
         return { vars = { card.ability.extra.h_size, card.ability.extra.h_size_gain } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -69,7 +67,6 @@ SMODS.Joker({
                 summon_type = "FUSION",
                 attribute = "DARK",
                 monster_type = "WingedBeast",
-
                 summon_conditions = {
                     {
                         type = "FUSION",

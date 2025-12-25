@@ -24,7 +24,7 @@ G.FUNCS.joy_can_buy_and_use = function(e)
         if card.highlighted then
             e.UIBox.states.visible = true
         end
-        e.config.colour = G.C.SECONDARY_SET.Voucher
+        e.config.colour = G.C.JOY.PENDULUM
         e.config.button = 'joy_buy_and_use'
     end
 end
@@ -42,6 +42,8 @@ G.FUNCS.joy_buy_and_use = function(e)
                 card.children.price = nil
                 if card.children.buy_button then card.children.buy_button:remove() end
                 card.children.buy_button = nil
+                if card.children.joy_side_button then card.children.joy_side_button:remove() end
+                card.children.joy_side_button = nil
                 remove_nils(card.children)
 
                 G.GAME.round_scores.cards_purchased.amt = G.GAME.round_scores.cards_purchased.amt + 1
@@ -133,6 +135,7 @@ G.FUNCS.joy_use_card = function(e)
             delay = 0.2,
             func = function()
                 JoyousSpring.send_to_graveyard(card)
+                card.getting_sliced = true
                 card:start_dissolve()
                 G.E_MANAGER:add_event(Event({
                     trigger = 'after',

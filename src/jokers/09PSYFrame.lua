@@ -5,12 +5,7 @@ SMODS.Atlas({
     px = 71,
     py = 95
 })
-SMODS.Atlas({
-    key = "PSYFrame02",
-    path = "09PSYFrame02.png",
-    px = 71,
-    py = 95
-})
+
 -- PSY-Frame Driver
 SMODS.Joker({
     key = "psy_driver",
@@ -24,7 +19,12 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "PSYFrame" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
+    joy_no_shop = true,
+    loc_vars = function(self, info_queue, card)
+        if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
+        end
+    end,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -60,7 +60,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "PSYFrame" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -72,12 +71,12 @@ SMODS.Joker({
             },
             cards_to_create = 1,
             xmult = 1.1,
-            active = true
+            active = false
         },
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
-            if not context.blueprint_card and context.setting_blind and context.main_eval then
+            if not context.blueprint_card and context.joy_pre_setting_blind then
                 local _, driver = next(SMODS.find_card("j_joy_psy_driver", true))
                 if not driver then
                     _, driver = next(SMODS.find_card("j_joy_psy_multithreader", true))
@@ -108,6 +107,33 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "x_mult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                local playing_hand = next(G.play.cards)
+                local count = 0
+                if card.ability.extra.active then
+                    for _, playing_card in ipairs(G.hand.cards) do
+                        if playing_hand or not playing_card.highlighted then
+                            if not (playing_card.facing == 'back') and not playing_card.debuff then
+                                count = count + JokerDisplay.calculate_card_triggers(playing_card, nil, true)
+                            end
+                        end
+                    end
+                end
+                card.joker_display_values.x_mult = card.ability.extra.xmult ^ count
+            end
+        }
+    end
 })
 
 -- PSY-Framegear Beta
@@ -129,7 +155,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "PSYFrame" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -140,12 +165,13 @@ SMODS.Joker({
                 monster_archetypes = { ["PSYFrame"] = true }
             },
             cards_to_create = 1,
-            xmult = 1.5
+            xmult = 1.5,
+            active = false
         },
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
-            if not context.blueprint_card and context.setting_blind and context.main_eval then
+            if not context.blueprint_card and context.joy_pre_setting_blind then
                 local _, driver = next(SMODS.find_card("j_joy_psy_driver", true))
                 if not driver then
                     _, driver = next(SMODS.find_card("j_joy_psy_multithreader", true))
@@ -176,6 +202,31 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "x_mult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                local count = 0
+                local text, _, scoring_hand = JokerDisplay.evaluate_hand()
+                if card.ability.extra.active and text ~= 'Unknown' then
+                    for _, scoring_card in pairs(scoring_hand) do
+                        if not scoring_card.debuff then
+                            count = count + JokerDisplay.calculate_card_triggers(scoring_card, nil, true)
+                        end
+                    end
+                end
+                card.joker_display_values.x_mult = card.ability.extra.xmult ^ count
+            end
+        }
+    end
 })
 
 -- PSY-Framegear Gamma
@@ -197,7 +248,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "PSYFrame" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -208,12 +258,13 @@ SMODS.Joker({
                 monster_archetypes = { ["PSYFrame"] = true }
             },
             cards_to_create = 1,
-            xmult = 1.2
+            xmult = 1.2,
+            active = false
         },
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
-            if not context.blueprint_card and context.setting_blind and context.main_eval then
+            if not context.blueprint_card and context.joy_pre_setting_blind then
                 local _, driver = next(SMODS.find_card("j_joy_psy_driver", true))
                 if not driver then
                     _, driver = next(SMODS.find_card("j_joy_psy_multithreader", true))
@@ -245,6 +296,16 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            mod_function = function(card, mod_joker)
+                return {
+                    x_mult = mod_joker.ability.extra.active and
+                        mod_joker.ability.extra.xmult ^ JokerDisplay.calculate_joker_triggers(mod_joker) or nil
+                }
+            end
+        }
+    end
 })
 
 -- PSY-Framegear Delta
@@ -266,7 +327,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "PSYFrame" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -277,12 +337,13 @@ SMODS.Joker({
                 monster_archetypes = { ["PSYFrame"] = true }
             },
             cards_to_create = 1,
-            xmult = 2
+            xmult = 2,
+            active = false
         },
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
-            if not context.blueprint_card and context.setting_blind and context.main_eval then
+            if not context.blueprint_card and context.joy_pre_setting_blind then
                 local _, driver = next(SMODS.find_card("j_joy_psy_driver", true))
                 if not driver then
                     _, driver = next(SMODS.find_card("j_joy_psy_multithreader", true))
@@ -313,6 +374,30 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "x_mult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                local count = 0
+                if card.ability.extra.active then
+                    for _, consumable in pairs(G.consumeables.cards) do
+                        if consumable.ability.set == "Tarot" then
+                            count = count + 1
+                        end
+                    end
+                end
+                card.joker_display_values.x_mult = card.ability.extra.xmult ^ count
+            end
+        }
+    end
 })
 
 -- PSY-Framegear Epsilon
@@ -334,7 +419,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "PSYFrame" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -345,12 +429,13 @@ SMODS.Joker({
                 monster_archetypes = { ["PSYFrame"] = true }
             },
             cards_to_create = 1,
-            xmult = 2
+            xmult = 2,
+            active = false
         },
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
-            if not context.blueprint_card and context.setting_blind and context.main_eval then
+            if not context.blueprint_card and context.joy_pre_setting_blind then
                 local _, driver = next(SMODS.find_card("j_joy_psy_driver", true))
                 if not driver then
                     _, driver = next(SMODS.find_card("j_joy_psy_multithreader", true))
@@ -381,6 +466,30 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "x_mult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                local count = 0
+                if card.ability.extra.active then
+                    for _, consumable in pairs(G.consumeables.cards) do
+                        if consumable.ability.set == "Planet" then
+                            count = count + 1
+                        end
+                    end
+                end
+                card.joker_display_values.x_mult = card.ability.extra.xmult ^ count
+            end
+        }
+    end
 })
 
 -- PSY-Frame Multi-Threader
@@ -403,7 +512,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "PSYFrame" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -421,7 +529,7 @@ SMODS.Joker({
                 for i = 1, card.ability.extra.cards_to_create do
                     JoyousSpring.create_pseudorandom(
                         { { monster_archetypes = { "PSYFrame" }, is_main_deck = true, is_effect = true, exclude_keys = { "j_joy_psy_multithreader" } } },
-                        pseudoseed("j_joy_psy_multithreader"), true)
+                        'j_joy_psy_multithreader', true)
                 end
             end
         end
@@ -447,7 +555,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "PSYFrame" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -471,7 +578,7 @@ SMODS.Joker({
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
-            if not context.blueprint_card and context.end_of_round and context.game_over == false and context.main_eval then
+            if not context.blueprint_card and context.joy_post_round_eval then
                 JoyousSpring.banish(card, "blind_selected")
                 local choices = {}
                 for _, consumable in ipairs(G.consumeables.cards) do
@@ -479,7 +586,7 @@ SMODS.Joker({
                 end
                 for i = 1, card.ability.extra.banishes do
                     if #choices > 0 then
-                        local to_banish, pos = pseudorandom_element(choices, pseudoseed("j_joy_psy_zeta"))
+                        local to_banish, pos = pseudorandom_element(choices, 'j_joy_psy_zeta')
                         if to_banish then
                             JoyousSpring.banish(to_banish, "blind_selected")
                         end
@@ -510,7 +617,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "PSYFrame" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -533,10 +639,15 @@ SMODS.Joker({
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
-            if not context.blueprint_card and context.end_of_round and context.game_over == false and context.main_eval then
+            if not context.blueprint_card and context.joy_post_round_eval then
                 JoyousSpring.banish(card, "blind_selected")
-                local choices = JoyousSpring.get_materials_owned({ { exclude_keys = { "j_joy_psy_omega" } } })
-                local to_banish = pseudorandom_element(choices, pseudoseed("j_joy_psy_omega"))
+                local choices = {}
+                for _, joker in ipairs(G.jokers.cards) do
+                    if joker ~= card then
+                        table.insert(choices, joker)
+                    end
+                end
+                local to_banish = pseudorandom_element(choices, 'j_joy_psy_omega')
                 if to_banish then
                     JoyousSpring.banish(to_banish, "blind_selected")
                 end
@@ -564,7 +675,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "PSYFrame" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -593,7 +703,7 @@ SMODS.Joker({
                 local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "PSYFrame" }, is_extra_deck = true, exclude_keys = { "j_joy_psy_lambda" } } })
 
                 for i = 1, card.ability.extra.cards_to_create do
-                    local key_to_add, _ = pseudorandom_element(choices, pseudoseed("j_joy_psy_lambda"))
+                    local key_to_add, _ = pseudorandom_element(choices, 'j_joy_psy_lambda')
                     if key_to_add and #JoyousSpring.extra_deck_area.cards < JoyousSpring.extra_deck_area.config.card_limit then
                         JoyousSpring.add_to_extra_deck(key_to_add)
                     end
@@ -606,8 +716,8 @@ SMODS.Joker({
 -- PSY-Frame Circuit
 SMODS.Joker({
     key = "psy_circuit",
-    atlas = 'PSYFrame02',
-    pos = { x = 0, y = 0 },
+    atlas = 'PSYFrame',
+    pos = { x = 2, y = 2 },
     rarity = 1,
     discovered = true,
     blueprint_compat = false,
@@ -619,7 +729,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "PSYFrame" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {

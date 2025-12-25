@@ -14,7 +14,7 @@ SMODS.Joker({
     rarity = 1,
     discovered = true,
     blueprint_compat = false,
-    eternal_compat = true,
+    eternal_compat = false,
     cost = 4,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
@@ -26,7 +26,6 @@ SMODS.Joker({
         { "j_joy_witch_potterie",                                       name = "k_joy_creates" },
         { properties = { { monster_archetypes = { "Witchcrafter" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -63,7 +62,7 @@ SMODS.Joker({
         end
     end,
     joy_can_activate = function(card)
-        if not (#G.jokers.cards + G.GAME.joker_buffer - ((card.edition and card.edition.negative) and 0 or 1) < G.jokers.config.card_limit) then
+        if not (#G.jokers.cards + G.GAME.joker_buffer + JoyousSpring.get_card_limit(card) <= G.jokers.config.card_limit) then
             return false
         end
         local materials = JoyousSpring.get_consumable_count("Tarot")
@@ -90,7 +89,7 @@ SMODS.Joker({
     rarity = 1,
     discovered = true,
     blueprint_compat = false,
-    eternal_compat = true,
+    eternal_compat = false,
     cost = 4,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
@@ -103,7 +102,6 @@ SMODS.Joker({
         { "j_joy_witch_pittore",                                        name = "k_joy_creates" },
         { properties = { { monster_archetypes = { "Witchcrafter" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -138,7 +136,7 @@ SMODS.Joker({
                     }, true)
                 end
             end
-            if not context.blueprint_card and context.end_of_round and context.game_over == false and context.main_eval then
+            if not context.blueprint_card and context.joy_post_round_eval then
                 JoyousSpring.banish(card, "blind_selected")
                 local choices = {}
                 for _, consumable in ipairs(G.consumeables.cards) do
@@ -148,7 +146,7 @@ SMODS.Joker({
                 end
                 for i = 1, card.ability.extra.banishes do
                     if #choices > 0 then
-                        local to_banish, pos = pseudorandom_element(choices, pseudoseed("j_joy_witch_potterie"))
+                        local to_banish, pos = pseudorandom_element(choices, 'j_joy_witch_potterie')
                         if to_banish then
                             JoyousSpring.banish(to_banish, "blind_selected")
                         end
@@ -159,7 +157,7 @@ SMODS.Joker({
         end
     end,
     joy_can_activate = function(card)
-        if not (#G.jokers.cards + G.GAME.joker_buffer - ((card.edition and card.edition.negative) and 0 or 1) < G.jokers.config.card_limit) then
+        if not (#G.jokers.cards + G.GAME.joker_buffer + JoyousSpring.get_card_limit(card) <= G.jokers.config.card_limit) then
             return false
         end
         local materials = JoyousSpring.get_consumable_count("Tarot")
@@ -186,7 +184,7 @@ SMODS.Joker({
     rarity = 2,
     discovered = true,
     blueprint_compat = false,
-    eternal_compat = true,
+    eternal_compat = false,
     cost = 5,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
@@ -198,7 +196,6 @@ SMODS.Joker({
         { "j_joy_witch_schmietta",                                      name = "k_joy_creates" },
         { properties = { { monster_archetypes = { "Witchcrafter" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -277,7 +274,7 @@ SMODS.Joker({
         end
     end,
     joy_can_activate = function(card)
-        if not (#G.jokers.cards + G.GAME.joker_buffer - ((card.edition and card.edition.negative) and 0 or 1) < G.jokers.config.card_limit) then
+        if not (#G.jokers.cards + G.GAME.joker_buffer + JoyousSpring.get_card_limit(card) <= G.jokers.config.card_limit) then
             return false
         end
         local materials = JoyousSpring.get_consumable_count("Tarot")
@@ -285,6 +282,15 @@ SMODS.Joker({
     end,
     add_to_deck = function(self, card, from_debuff)
         card.ability.extra.current_chips = card.ability.extra.chips * JoyousSpring.count_set_tributed("Tarot")
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "current_chips", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.CHIPS },
+        }
     end
 })
 
@@ -296,7 +302,7 @@ SMODS.Joker({
     rarity = 2,
     discovered = true,
     blueprint_compat = false,
-    eternal_compat = true,
+    eternal_compat = false,
     cost = 5,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
@@ -308,7 +314,6 @@ SMODS.Joker({
         { "j_joy_witch_edel",                                           name = "k_joy_creates" },
         { properties = { { monster_archetypes = { "Witchcrafter" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -376,7 +381,7 @@ SMODS.Joker({
         end
     end,
     joy_can_activate = function(card)
-        if not (#G.jokers.cards + G.GAME.joker_buffer - ((card.edition and card.edition.negative) and 0 or 1) < G.jokers.config.card_limit) then
+        if not (#G.jokers.cards + G.GAME.joker_buffer + JoyousSpring.get_card_limit(card) <= G.jokers.config.card_limit) then
             return false
         end
         local materials = JoyousSpring.get_consumable_count("Tarot")
@@ -384,6 +389,15 @@ SMODS.Joker({
     end,
     add_to_deck = function(self, card, from_debuff)
         card.ability.extra.current_mult = card.ability.extra.mult * JoyousSpring.count_set_tributed("Tarot")
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "current_mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+        }
     end
 })
 
@@ -395,7 +409,7 @@ SMODS.Joker({
     rarity = 3,
     discovered = true,
     blueprint_compat = false,
-    eternal_compat = true,
+    eternal_compat = false,
     cost = 7,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
@@ -407,7 +421,6 @@ SMODS.Joker({
         { "j_joy_witch_genni",                                          "j_joy_witch_haine",     name = "k_joy_creates" },
         { properties = { { monster_archetypes = { "Witchcrafter" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -462,12 +475,24 @@ SMODS.Joker({
         end
     end,
     joy_can_activate = function(card)
-        if not (#G.jokers.cards + G.GAME.joker_buffer - ((card.edition and card.edition.negative) and 0 or 1) < G.jokers.config.card_limit) then
+        if not (#G.jokers.cards + G.GAME.joker_buffer + JoyousSpring.get_card_limit(card) <= G.jokers.config.card_limit) then
             return false
         end
         local materials = JoyousSpring.get_consumable_count("Tarot")
         return materials >= card.ability.extra.tributes
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            reminder_text = {
+                { text = "(" },
+                { ref_table = "card.ability.extra", ref_value = "hands_played" },
+                { text = "/" },
+                { ref_table = "card.ability.extra", ref_value = "hands_to_play" },
+                { text = ")" },
+            },
+        }
+    end
 })
 
 -- Witchcrafter Haine
@@ -478,7 +503,7 @@ SMODS.Joker({
     rarity = 3,
     discovered = true,
     blueprint_compat = false,
-    eternal_compat = true,
+    eternal_compat = false,
     cost = 7,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
@@ -490,7 +515,6 @@ SMODS.Joker({
         { "j_joy_witch_verre",                                          name = "k_joy_creates" },
         { properties = { { monster_archetypes = { "Witchcrafter" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -536,14 +560,14 @@ SMODS.Joker({
         end
     end,
     joy_can_activate = function(card)
-        if not (#G.jokers.cards + G.GAME.joker_buffer - ((card.edition and card.edition.negative) and 0 or 1) < G.jokers.config.card_limit) then
+        if not (#G.jokers.cards + G.GAME.joker_buffer + JoyousSpring.get_card_limit(card) <= G.jokers.config.card_limit) then
             return false
         end
         local materials = JoyousSpring.get_consumable_count("Tarot")
         return materials >= card.ability.extra.tributes
     end,
     add_to_deck = function(self, card, from_debuff)
-        if not from_debuff and JoyousSpring.count_set_tributed("Tarot") > 0 then
+        if not from_debuff and not card.debuff and JoyousSpring.count_set_tributed("Tarot") > 0 then
             ease_dollars(card.ability.extra.money * JoyousSpring.count_set_tributed("Tarot"))
         end
     end
@@ -568,7 +592,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Witchcrafter" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -617,6 +640,23 @@ SMODS.Joker({
                 })
             end
         end
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xmult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                card.joker_display_values.xmult = card.ability.extra.current_xmult > 1 and
+                    card.ability.extra.current_xmult or
+                    1
+            end
+        }
     end
 })
 
@@ -639,7 +679,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Witchcrafter" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -687,6 +726,15 @@ SMODS.Joker({
             card.cost = 0
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "current_mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+        }
+    end
 })
 
 -- Witchcrafter Vice-Madame
@@ -706,7 +754,6 @@ SMODS.Joker({
         { "j_joy_witch_genni",                                          name = "k_joy_creates" },
         { properties = { { monster_archetypes = { "Witchcrafter" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -755,6 +802,18 @@ SMODS.Joker({
         if other_card.ability.set == "Booster" and other_card.config.center.kind == "Arcana" then
             other_card.cost = 0
         end
+    end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            reminder_text = {
+                { text = "(" },
+                { ref_table = "card.ability.extra", ref_value = "consumables_used" },
+                { text = "/" },
+                { ref_table = "card.ability.extra", ref_value = "consumables" },
+                { text = ")" },
+            },
+        }
     end
 })
 

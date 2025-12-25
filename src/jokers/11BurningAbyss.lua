@@ -1,4 +1,4 @@
---- RUNICK
+--- BURNING ABYSS
 SMODS.Atlas({
     key = "BA",
     path = "11BurningAbyss.png",
@@ -32,7 +32,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -48,8 +47,7 @@ SMODS.Joker({
         if JoyousSpring.can_use_abilities(card) then
             if context.setting_blind and context.main_eval then
                 if ba_die() and not context.blueprint then
-                    card.getting_sliced = true
-                    card:start_dissolve()
+                    SMODS.destroy_cards(card, nil, true)
                 else
                     G.GAME.blind.chips = math.floor(G.GAME.blind.chips - G.GAME.blind.chips * card.ability.extra.percent)
                     G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
@@ -85,7 +83,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -101,8 +98,7 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if context.setting_blind and context.main_eval and ba_die() and not context.blueprint then
-                card.getting_sliced = true
-                card:start_dissolve()
+                SMODS.destroy_cards(card, nil, true)
             end
             if context.joker_main then
                 return {
@@ -111,6 +107,19 @@ SMODS.Joker({
                 }
             end
         end
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            calc_function = function(card)
+                card.joker_display_values.mult = card.ability.extra.mult +
+                    (card.ability.extra.extra_mult * JoyousSpring.count_materials_in_graveyard({ { monster_type = "Fiend" } }))
+            end
+        }
     end
 })
 
@@ -131,7 +140,6 @@ SMODS.Joker({
         { properties = { { monster_type = "Fiend" } }, name = "k_joy_mills" },
         { "j_joy_ba_beatrice",                         properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -148,14 +156,11 @@ SMODS.Joker({
         if JoyousSpring.can_use_abilities(card) then
             if context.setting_blind and context.main_eval then
                 if ba_die() and not context.blueprint then
-                    card.getting_sliced = true
-                    card:start_dissolve()
+                    SMODS.destroy_cards(card, nil, true)
                 else
-                    local choices = JoyousSpring.get_materials_in_collection({ { monster_type = "Fiend" } })
-                    for _ = 1, card.ability.extra.mills do
-                        local key_to_send = pseudorandom_element(choices, pseudoseed("j_joy_ba_cagna"))
-                        JoyousSpring.send_to_graveyard(key_to_send or "j_joy_ba_cagna")
-                    end
+                    JoyousSpring.send_to_graveyard_pseudorandom(
+                        { { monster_type = "Fiend" } },
+                        card.config.center.key, card.ability.extra.mills)
                 end
             end
             if context.joker_main then
@@ -164,6 +169,15 @@ SMODS.Joker({
                 }
             end
         end
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "chips", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.CHIPS },
+        }
     end
 })
 
@@ -183,7 +197,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -198,8 +211,7 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if context.setting_blind and context.main_eval and ba_die() and not context.blueprint then
-                card.getting_sliced = true
-                card:start_dissolve()
+                SMODS.destroy_cards(card, nil, true)
             end
         end
     end,
@@ -234,7 +246,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -251,12 +262,11 @@ SMODS.Joker({
         if JoyousSpring.can_use_abilities(card) then
             if context.setting_blind and context.main_eval then
                 if ba_die() and not context.blueprint then
-                    card.getting_sliced = true
-                    card:start_dissolve()
+                    SMODS.destroy_cards(card, nil, true)
                 else
                     for _ = 1, card.ability.extra.revives do
                         JoyousSpring.revive_pseudorandom({ { monster_archetypes = { "BurningAbyss" } } },
-                            pseudoseed("j_joy_ba_cir"), true)
+                            'j_joy_ba_cir', true)
                     end
                 end
             end
@@ -266,7 +276,17 @@ SMODS.Joker({
                 }
             end
         end
-    end
+    end,
+    j_cavendish = { -- Cavendish
+        text = {
+            {
+                border_nodes = {
+                    { text = "X" },
+                    { ref_table = "card.ability.extra", ref_value = "xmult", retrigger_type = "exp" }
+                }
+            }
+        },
+    },
 })
 
 -- Draghig, Malebranche of the Burning Abyss
@@ -288,7 +308,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -304,8 +323,7 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if context.setting_blind and context.main_eval and ba_die() and not context.blueprint then
-                card.getting_sliced = true
-                card:start_dissolve()
+                SMODS.destroy_cards(card, nil, true)
             end
             if context.other_joker and context.other_joker.facing == "front" and JoyousSpring.is_monster_type(context.other_joker, "Fiend") then
                 return {
@@ -320,10 +338,20 @@ SMODS.Joker({
             for _ = 1, card.ability.extra.creates do
                 JoyousSpring.create_pseudorandom(
                     { { monster_archetypes = { "BurningAbyss" }, is_main_deck = true, exclude_summon_types = { "RITUAL" }, exclude_keys = { "j_joy_ba_draghig" } } },
-                    pseudoseed("j_joy_ba_draghig"), true)
+                    'j_joy_ba_draghig', true)
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            mod_function = function(card, mod_joker)
+                return {
+                    chips = card.facing == "front" and JoyousSpring.is_monster_type(card, "Fiend") and
+                        mod_joker.ability.extra.chips * JokerDisplay.calculate_joker_triggers(mod_joker) or nil
+                }
+            end
+        }
+    end
 })
 
 -- Farfa, Malebranche of the Burning Abyss
@@ -345,7 +373,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -360,15 +387,14 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if context.setting_blind and context.main_eval and ba_die() and not context.blueprint then
-                card.getting_sliced = true
-                card:start_dissolve()
+                SMODS.destroy_cards(card, nil, true)
             end
         end
     end,
     add_to_deck = function(self, card, from_debuff)
         if not card.debuff and not from_debuff and JoyousSpring.can_use_abilities(card) then
             local choices = JoyousSpring.get_materials_owned({ { exclude_keys = { "j_joy_ba_farfa" } } })
-            local to_banish = pseudorandom_element(choices, pseudoseed("j_joy_ba_farfa"))
+            local to_banish = pseudorandom_element(choices, 'j_joy_ba_farfa')
             if to_banish then
                 JoyousSpring.banish(to_banish, "end_of_round")
             end
@@ -395,7 +421,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -411,8 +436,7 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if context.setting_blind and context.main_eval and ba_die() and not context.blueprint then
-                card.getting_sliced = true
-                card:start_dissolve()
+                SMODS.destroy_cards(card, nil, true)
             end
             if context.other_joker and context.other_joker.facing == "front" and JoyousSpring.is_monster_type(context.other_joker, "Fiend") then
                 return {
@@ -427,10 +451,20 @@ SMODS.Joker({
             for _ = 1, card.ability.extra.creates do
                 JoyousSpring.create_pseudorandom(
                     { { monster_archetypes = { "BurningAbyss" }, is_main_deck = true, exclude_summon_types = { "RITUAL" }, exclude_keys = { "j_joy_ba_graff" } } },
-                    pseudoseed("j_joy_ba_graff"), true)
+                    'j_joy_ba_graff', true)
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            mod_function = function(card, mod_joker)
+                return {
+                    mult = card.facing == "front" and JoyousSpring.is_monster_type(card, "Fiend") and
+                        mod_joker.ability.extra.mult * JokerDisplay.calculate_joker_triggers(mod_joker) or nil
+                }
+            end
+        }
+    end
 })
 
 -- Libic, Malebranche of the Burning Abyss
@@ -452,7 +486,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -467,11 +500,10 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if (context.selling_self or (context.setting_blind and context.main_eval and ba_die())) and not context.blueprint then
-                card.getting_sliced = true
-                card:start_dissolve()
+                SMODS.destroy_cards(card, nil, true)
                 for _ = 1, card.ability.extra.revives do
                     JoyousSpring.revive_pseudorandom({ { monster_type = "Fiend" } },
-                        pseudoseed("j_joy_ba_libic"), true)
+                        'j_joy_ba_libic', true)
                 end
             end
         end
@@ -494,7 +526,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -510,12 +541,11 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if (context.selling_self or (context.setting_blind and context.main_eval and ba_die())) and not context.blueprint then
-                card.getting_sliced = true
-                card:start_dissolve()
+                SMODS.destroy_cards(card, nil, true)
 
                 local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "BurningAbyss" }, is_extra_deck = true } })
                 for _ = 1, card.ability.extra.adds do
-                    local key_to_add = pseudorandom_element(choices, pseudoseed("j_joy_ba_draghig"))
+                    local key_to_add = pseudorandom_element(choices, 'j_joy_ba_draghig')
                     if #JoyousSpring.extra_deck_area.cards < JoyousSpring.extra_deck_area.config.card_limit then
                         JoyousSpring.add_to_extra_deck(key_to_add or "j_joy_ba_dante")
                     end
@@ -545,7 +575,6 @@ SMODS.Joker({
         { properties = { { is_main_deck = true, monster_type = "Fiend" } }, name = "k_joy_creates" },
         { "j_joy_ba_beatrice",                                              properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -560,13 +589,12 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if (context.selling_self or (context.setting_blind and context.main_eval and ba_die())) and not context.blueprint then
-                card.getting_sliced = true
-                card:start_dissolve()
+                SMODS.destroy_cards(card, nil, true)
 
                 for _ = 1, card.ability.extra.creates do
                     JoyousSpring.create_pseudorandom(
                         { { monster_type = "Fiend", is_main_deck = true, exclude_keys = { "j_joy_ba_scarm" } } },
-                        pseudoseed("j_joy_ba_scarm"), true)
+                        'j_joy_ba_scarm', true)
                 end
             end
         end
@@ -592,7 +620,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -623,6 +650,22 @@ SMODS.Joker({
                 }
             end
         end
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xmult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                card.joker_display_values.xmult = 1 +
+                    (card.ability.extra.xmult * JoyousSpring.count_materials_in_graveyard({ { monster_type = "Fiend" } }))
+            end
+        }
     end
 })
 
@@ -642,7 +685,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -667,11 +709,9 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if context.setting_blind and context.main_eval then
-                local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "BurningAbyss" } } })
-                for _ = 1, card.ability.extra.mills do
-                    local key_to_send = pseudorandom_element(choices, pseudoseed("j_joy_ba_cherubini"))
-                    JoyousSpring.send_to_graveyard(key_to_send or "j_joy_ba_cagna")
-                end
+                JoyousSpring.send_to_graveyard_pseudorandom(
+                    { { monster_archetypes = { "BurningAbyss" } } },
+                    card.config.center.key, card.ability.extra.mills)
             end
         end
     end
@@ -697,7 +737,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     update = JoyousSpring.update_counter,
     config = {
@@ -725,11 +764,9 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and context.joy_detach and context.joy_detaching_card == card then
-                local choices = JoyousSpring.get_materials_in_collection({ { is_monster = true, exclude_tokens = true } })
-                for _ = 1, card.ability.extra.mills do
-                    local key_to_send = pseudorandom_element(choices, pseudoseed("j_joy_ba_dante"))
-                    JoyousSpring.send_to_graveyard(key_to_send or "j_joy_ba_cir")
-                end
+                JoyousSpring.send_to_graveyard_pseudorandom(
+                    { { is_monster = true, exclude_tokens = true } },
+                    card.config.center.key, card.ability.extra.mills)
                 JoyousSpring.ease_detach(card)
             end
             if context.joker_main then
@@ -738,6 +775,18 @@ SMODS.Joker({
                 }
             end
         end
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            calc_function = function(card)
+                card.joker_display_values.mult = card.ability.extra.mult * JoyousSpring.get_graveyard_count()
+            end
+        }
     end
 })
 
@@ -757,7 +806,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -818,7 +866,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -867,7 +914,6 @@ SMODS.Joker({
         { "j_joy_ba_dante",    "j_joy_ba_pilgrim",                                           name = "k_joy_adds" },
         { "j_joy_ba_beatrice", properties = { { monster_archetypes = { "BurningAbyss" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     update = JoyousSpring.update_counter,
     config = {
@@ -905,9 +951,9 @@ SMODS.Joker({
                 JoyousSpring.ease_detach(card)
                 for _ = 1, card.ability.extra.revives do
                     local revived = JoyousSpring.revive_pseudorandom({ { monster_archetypes = { "BurningAbyss" } } },
-                        pseudoseed("j_joy_ba_beatrice"), false, "e_negative")
+                        "j_joy_ba_beatrice", false, "e_negative")
                     if not revived then
-                        revived = JoyousSpring.revive_pseudorandom({ {} }, pseudoseed("j_joy_ba_beatrice"), false,
+                        revived = JoyousSpring.revive_pseudorandom({ {} }, 'j_joy_ba_beatrice', false,
                             "e_negative")
                     end
                 end
@@ -924,6 +970,25 @@ SMODS.Joker({
                 }
             end
         end
+    end,
+    joy_can_detach = function(self, card)
+        return JoyousSpring.count_materials_in_graveyard({ {} }, true) > 0
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xmult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                card.joker_display_values.xmult = 1 +
+                    (card.ability.extra.xmult * JoyousSpring.get_graveyard_count())
+            end
+        }
     end
 })
 

@@ -1,12 +1,21 @@
 ---CARD UI
 
+SMODS.Font {
+    key = "font",
+    path = "DoHyeon-Regular.ttf",
+    FONTSCALE = 0.1
+}
+
 ---Creates UI for a monsters type information
 ---@param card Card
 ---@return table
 JoyousSpring.get_type_ui = function(card)
-    local joyous_spring_table = card and card.ability and card.ability.extra.joyous_spring or {}
+    local joyous_spring_table = card and card.ability and
+        type(card.ability.extra) == "table"
+        and card.ability.extra.joyous_spring or {}
+    local extra_values = JoyousSpring.get_extra_values(card) or {}
 
-    if joyous_spring_table.is_field_spell then
+    if extra_values.is_field_spell or joyous_spring_table.is_field_spell then
         return {
             {
                 n = G.UIT.O,
@@ -29,14 +38,15 @@ JoyousSpring.get_type_ui = function(card)
         }
     end
 
-    local attribute_text = localize("k_joy_" .. (joyous_spring_table.attribute or "LIGHT"))
-    local type_text = localize("k_joy_" .. (joyous_spring_table.monster_type or "Beast"))
+    local attribute_text = localize("k_joy_" .. (extra_values.attribute or joyous_spring_table.attribute or "LIGHT"))
+    local type_text = localize("k_joy_" .. (extra_values.monster_type or joyous_spring_table.monster_type or "Beast"))
     local summon_type_text = joyous_spring_table.summon_type and joyous_spring_table.summon_type ~= "NORMAL" and
         localize("k_joy_" .. joyous_spring_table.summon_type) or nil
     local pendulum_text = joyous_spring_table.is_pendulum and localize("k_joy_pendulum") or nil
     local flip_text = joyous_spring_table.is_flip and localize("k_joy_flip") or nil
-    local tuner_text = joyous_spring_table.is_tuner and localize("k_joy_tuner") or nil
-    local effect_text = joyous_spring_table.is_effect and localize("k_joy_effect") or localize("k_joy_normal")
+    local tuner_text = (extra_values.is_tuner or joyous_spring_table.is_tuner) and localize("k_joy_tuner") or nil
+    local effect_text = (extra_values.is_effect or joyous_spring_table.is_effect) and localize("k_joy_effect") or
+        localize("k_joy_normal")
     local trap_text = joyous_spring_table.is_trap and localize("k_joy_trap") or nil
     local full_text = attribute_text ..
         "/" .. type_text .. "/" .. (summon_type_text or "") .. (summon_type_text and "/" or "") ..
@@ -51,7 +61,7 @@ JoyousSpring.get_type_ui = function(card)
         config = {
             object = DynaText({
                 string = { attribute_text },
-                colours = { G.C.JOY[joyous_spring_table.attribute or "LIGHT"] },
+                colours = { G.C.JOY[extra_values.attribute or joyous_spring_table.attribute or "LIGHT"] },
                 bump = true,
                 silent = true,
                 pop_in = 0,
@@ -64,7 +74,7 @@ JoyousSpring.get_type_ui = function(card)
             })
         }
     }
-    local type = {
+    local monster_type = {
         n = G.UIT.O,
         config = {
             object = DynaText({
@@ -216,7 +226,7 @@ JoyousSpring.get_type_ui = function(card)
     return {
         attribute,
         separator,
-        type,
+        monster_type,
         separator,
         summon_type,
         summon_type and separator or nil,
@@ -232,10 +242,10 @@ JoyousSpring.get_type_ui = function(card)
     }
 end
 
----Generates Joker's description UI. This is done to:
----* Add type information under names
----* Add summoning conditions to info_queue automatically
----* Remove color codes from info_queue tooltip names
+---Generates Joker's description UI. This is done to add:
+---* Type information under names
+---* Some tooltips to info_queue automatically
+---* Transferred ability descriptions
 ---@param self table
 ---@param info_queue table
 ---@param card Card
@@ -243,18 +253,9 @@ end
 ---@param specific_vars table
 ---@param full_UI_table table
 JoyousSpring.generate_info_ui = function(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
-    SMODS.Center.generate_ui(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
+    --SMODS.Center.generate_ui(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
 
-    if desc_nodes ~= full_UI_table.main then
-        -- Remove color codes from info_queue tooltip names
-        if string.len(desc_nodes.name) > 2 and string.sub(desc_nodes.name, string.len(desc_nodes.name) - 1, string.len(desc_nodes.name)) == "{}" then
-            desc_nodes.name = string.sub(desc_nodes.name, 1, string.len(desc_nodes.name) - 2)
-        end
-        if string.sub(desc_nodes.name, 1, 3) == "{C:" then
-            local _, _, _, real_name = string.find(desc_nodes.name, "{C:(.*)}(.*)")
-            desc_nodes.name = real_name
-        end
-    else
+    if desc_nodes == full_UI_table.main and self.set == "Joker" then
         -- Add type information under names
         full_UI_table.name = {
             {
@@ -289,48 +290,33 @@ JoyousSpring.generate_info_ui = function(self, info_queue, card, desc_nodes, spe
             end
         end
 
+        local is_monster = type(card.ability.extra) == "table" and card.ability.extra.joyous_spring
+
         -- Transferred ability
-        if card and not card.debuff and card.joy_transfer_text and card.ability.extra.joyous_spring.material_effects and next(card.ability.extra.joyous_spring.material_effects) then
-            full_UI_table.main = {}
-            full_UI_table.main[#full_UI_table.main + 1] = {
-                {
-                    n = G.UIT.R,
-                    config = { align = "cm" },
-                    nodes = {
-                        {
-                            n = G.UIT.T,
-                            config = {
-                                text = localize("k_joy_transferred_abilities"),
-                                scale = 0.3,
-                                colour = G.C.UI.TEXT_INACTIVE,
-                            },
-                        },
-                    }
-                },
-            }
+        if card and not card.debuff and is_monster and card.joy_transfer_text and card.ability.extra.joyous_spring.material_effects and next(card.ability.extra.joyous_spring.material_effects) then
+            full_UI_table.multi_box = {}
+            local initial = true
             for material_key, config in pairs(card.ability.extra.joyous_spring.material_effects) do
-                local joy_loc_string = localize { type = 'name_text', set = "Joker", key = material_key } or ''
-                full_UI_table.main[#full_UI_table.main + 1] = {
-                    {
-                        n = G.UIT.R,
-                        config = { align = "cm" },
-                        nodes = {
-                            {
-                                n = G.UIT.T,
-                                config = {
-                                    text = joy_loc_string,
-                                    scale = 0.27,
-                                    colour = JoyousSpring.get_name_color(material_key) or G.C.JOY.EFFECT,
-                                },
-                            }
-                        }
-                    },
-                }
+                local name_node = {}
+                local node = {}
 
                 local material_center = G.P_CENTERS[material_key]
                 if material_center and G.localization.descriptions["Joker"][material_key].joy_transfer_ability then
-                    localize { type = "joy_transfer_ability", set = "Joker", key = material_key, nodes = full_UI_table.main, vars = material_center.joy_transfer_loc_vars and material_center:joy_transfer_loc_vars(info_queue, card, config).vars or {}, scale = 0.9 }
+                    localize { type = 'name', set = "Joker", key = material_key, nodes = name_node, vars = material_center.joy_transfer_loc_vars and material_center:joy_transfer_loc_vars(info_queue, card, config).vars or {}, scale = 0.7 }
+                    localize { type = "joy_transfer_ability", set = "Joker", key = material_key, nodes = node, vars = material_center.joy_transfer_loc_vars and material_center:joy_transfer_loc_vars(info_queue, card, config).vars or {}, scale = 0.9 }
                 end
+                if initial then
+                    full_UI_table.main = name_node
+                    full_UI_table.main.main_box_flag = true
+                    full_UI_table.main.joy_box_minh = 0
+                    full_UI_table.box_colours[1] = G.C.CLEAR
+                else
+                    full_UI_table.multi_box[#full_UI_table.multi_box + 1] = name_node
+                    full_UI_table.multi_box[#full_UI_table.multi_box].joy_box_minh = 0
+                    full_UI_table.box_colours[#full_UI_table.multi_box + 1] = G.C.CLEAR
+                end
+                full_UI_table.multi_box[#full_UI_table.multi_box + 1] = node
+                initial = false
             end
         end
 
@@ -342,32 +328,78 @@ JoyousSpring.generate_info_ui = function(self, info_queue, card, desc_nodes, spe
             localize { type = "joy_summon_conditions", set = self.set, key = self.key, nodes = summon_desc_nodes }
         end
 
-        -- Add tooltip if it's a flip
-        if JoyousSpring.is_flip_monster(card) then
-            if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+        if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            -- Add tooltip if it's a flip
+            if JoyousSpring.is_flip_monster(card) then
                 table.insert(info_queue, 1, { set = "Other", key = "joy_tooltip_flip" })
             end
-        end
-        -- Add tooltip if it's a trap
-        if JoyousSpring.is_trap_monster(card) then
-            if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            -- Add tooltip if it's a trap
+            if JoyousSpring.is_trap_monster(card) then
                 table.insert(info_queue, 1, { set = "Other", key = "joy_tooltip_trap" })
             end
+            -- Add tooltip if it's a field spell
+            if JoyousSpring.is_field_spell(card) then
+                table.insert(info_queue, 1,
+                    { set = "Other", key = "joy_tooltip_field_spell_joker", vars = { scale = 0.5 } })
+            end
+            -- Add Special Joker tooltips
+            for _, type in ipairs({ "RITUAL", "FUSION", "SYNCHRO", "XYZ", "LINK" }) do
+                if JoyousSpring.is_summon_type(card, type) then
+                    table.insert(info_queue, 1, { set = "Other", key = "joy_tooltip_" .. type:lower() .. "_joker" })
+                    break
+                end
+            end
         end
+
         -- Add tooltip if it's face-down
-        if card.facing == 'back' then
+        if card.facing == 'back' and JoyousSpring.is_from_joyousspring(card) then
             if not card.fake_card then
                 table.insert(info_queue, 1, { set = "Other", key = "joy_face_down" })
             end
         end
-        if card and not card.debuff and card.ability.extra.joyous_spring.material_effects and next(card.ability.extra.joyous_spring.material_effects) then
-            table.insert(info_queue, 1, { set = "Other", key = "joy_tooltip_transferred" })
+        -- Add tooltip if it has alt arts
+        if self.joy_alt_pos and not card.fake_card then
+            table.insert(info_queue, 1, { set = "Other", key = "joy_tooltip_alt_art" })
         end
+    end
+
+    if desc_nodes == full_UI_table.main then
         -- Add tooltip if it has a related cards menu
         if self.joy_desc_cards and not card.fake_card then
             table.insert(info_queue, 1, { set = "Other", key = "joy_tooltip_related" })
         end
     end
+end
+
+local center_generate_ui = SMODS.Center.generate_ui or function() end -- so vscode doesnt complain
+SMODS.Center.generate_ui = function(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
+    if desc_nodes == full_UI_table.main and JoyousSpring.is_from_joyousspring(card) then
+        JoyousSpring.main_card_ui = true
+    end
+    center_generate_ui(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
+    JoyousSpring.main_card_ui = nil
+end
+
+local desc_from_rows_ref = desc_from_rows
+function desc_from_rows(desc_nodes, empty, maxw)
+    local ret = desc_from_rows_ref(desc_nodes, empty, maxw)
+
+    if desc_nodes.joy_box_minh then
+        ret = {}
+        local t = {}
+        for _, v in ipairs(desc_nodes) do
+            t[#t + 1] = { n = G.UIT.R, config = { align = "cm", maxw = maxw }, nodes = v }
+        end
+        ret = {
+            n = G.UIT.R,
+            config = { align = "cm", colour = desc_nodes.background_colour or empty and G.C.CLEAR or G.C.UI.BACKGROUND_WHITE, r = 0.1, padding = -0.03, minw = 2, minh = desc_nodes.joy_box_minh, emboss = not empty and 0.05 or nil, filler = true, main_box_flag = desc_nodes.main_box_flag and true or nil },
+            nodes = {
+                { n = G.UIT.R, config = { align = "cm", padding = -0.03 }, nodes = t }
+            }
+        }
+    end
+
+    return ret
 end
 
 local localize_ref = localize
@@ -377,94 +409,15 @@ function localize(args, misc_cat)
     end
 
     local loc_target = nil
-    if args.type == 'joy_summon_conditions' or args.type == 'joy_transfer_ability' or args.type == 'joy_consumable' then
+    if args and (args.type == 'joy_summon_conditions' or args.type == 'joy_transfer_ability' or args.type == 'joy_consumable') then
         loc_target = G.localization.descriptions[(args.set or args.node.config.center.set)]
             [args.key or args.node.config.center.key]
 
         if loc_target then
-            for _, lines in ipairs(loc_target[args.type .. "_parsed"]) do
-                local final_line = {}
-                for _, part in ipairs(lines) do
-                    local assembled_string = ''
-                    for _, subpart in ipairs(part.strings) do
-                        assembled_string = assembled_string ..
-                            (type(subpart) == 'string' and subpart or format_ui_value(args.vars[tonumber(subpart[1])]) or 'ERROR')
-                    end
-                    local desc_scale = G.LANG.font.DESCSCALE
-                    if G.F_MOBILE_UI then desc_scale = desc_scale * 1.5 end
-                    if part.control.E then
-                        local _float, _silent, _pop_in, _bump, _spacing = nil, true, nil, nil, nil
-                        if part.control.E == '1' then
-                            _float = true; _silent = true; _pop_in = 0
-                        elseif part.control.E == '2' then
-                            _bump = true; _spacing = 1
-                        end
-                        final_line[#final_line + 1] = {
-                            n = G.UIT.O,
-                            config = {
-                                object = DynaText({
-                                    string = { assembled_string },
-                                    colours = { part.control.V and args.vars.colours[tonumber(part.control.V)] or loc_colour(part.control.C or nil) },
-                                    float = _float,
-                                    silent = _silent,
-                                    pop_in = _pop_in,
-                                    bump = _bump,
-                                    spacing = _spacing,
-                                    scale = 0.32 * (part.control.s and tonumber(part.control.s) or args.scale or 1) *
-                                        desc_scale
-                                })
-                            }
-                        }
-                    elseif part.control.X then
-                        final_line[#final_line + 1] = {
-                            n = G.UIT.C,
-                            config = { align = "m", colour = loc_colour(part.control.X), r = 0.05, padding = 0.03, res = 0.15 },
-                            nodes = {
-                                {
-                                    n = G.UIT.T,
-                                    config = {
-                                        text = assembled_string,
-                                        colour = loc_colour(part.control.C or nil),
-                                        scale = 0.32 * (part.control.s and tonumber(part.control.s) or args.scale or 1) *
-                                            desc_scale
-                                    }
-                                },
-                            }
-                        }
-                    else
-                        final_line[#final_line + 1] = {
-                            n = G.UIT.T,
-                            config = {
-                                detailed_tooltip = part.control.T and
-                                    (G.P_CENTERS[part.control.T] or G.P_TAGS[part.control.T]) or nil,
-                                text = assembled_string,
-                                shadow = args.shadow,
-                                colour = part.control.V and args.vars.colours[tonumber(part.control.V)] or
-                                    not part.control.C and args.text_colour or
-                                    loc_colour(part.control.C or nil, args.default_col),
-                                scale = 0.32 * (part.control.s and tonumber(part.control.s) or args.scale or 1) *
-                                    desc_scale
-                            },
-                        }
-                    end
-                end
-                args.nodes[#args.nodes + 1] = final_line
+            for _, line in ipairs(loc_target[args.type .. "_parsed"]) do
+                args.nodes[#args.nodes + 1] = SMODS.localize_box(line, args)
             end
         end
-    else
-        local ret = localize_ref(args, misc_cat)
-        -- Remove color codes from info_queue tooltip names
-        if type(ret) == "string" and args.type == "name_text" then
-            if string.len(ret) > 2 and string.sub(ret, string.len(ret) - 1, string.len(ret)) == "{}" then
-                ret = string.sub(ret, 1, string.len(ret) - 2)
-            end
-            if string.sub(ret, 1, 3) == "{C:" then
-                local _, _, _, real_name = string.find(ret, "{C:(.*)}(.*)")
-                ret = real_name
-            end
-        end
-
-        return ret
     end
     return localize_ref(args, misc_cat)
 end
@@ -496,10 +449,26 @@ function init_localization()
 end
 
 ---Adds YGO's back to cards
----@param self table|SMODS.Center
+---@param self table|SMODS.Center?
 ---@param card Card
----@param front table
+---@param front table?
 JoyousSpring.set_back_sprite = function(self, card, front)
+    local self = self or card.config.center
+    if self.joy_alt_pos then
+        if not card.ability or not card.ability.extra or card.ability.extra.joyous_spring.alt_art == nil then
+            if JoyousSpring.config.alt_art[self.key] then
+                card.children.center:set_sprite_pos(self.joy_alt_pos[1])
+            else
+                card.children.center:set_sprite_pos(self.pos)
+            end
+        elseif card.ability.extra.joyous_spring.alt_art == false then
+            card.children.center:set_sprite_pos(self.pos)
+        else
+            card.children.center:set_sprite_pos(self.joy_alt_pos[1])
+        end
+    end
+
+
     if card.children.back then card.children.back:remove() end
     card.children.back = Sprite(card.T.x, card.T.y, card.T.w, card.T.h, G.ASSET_ATLAS["joy_Back"], { x = 0, y = 0 })
     card.children.back.states.hover = card.states.hover
@@ -583,7 +552,7 @@ SMODS.Keybind({
         local selected = G and G.CONTROLLER and
             (G.CONTROLLER.focused.target or G.CONTROLLER.hovering.target)
 
-        if not selected or not JoyousSpring.is_monster_card(selected) then
+        if not selected or type(selected) ~= "table" or not ((selected.config or {}).center or {}).joy_desc_cards then
             return
         end
 
@@ -597,13 +566,32 @@ SMODS.Keybind({
         local selected = G and G.CONTROLLER and
             (G.CONTROLLER.focused.target or G.CONTROLLER.hovering.target)
 
-        if not selected or not JoyousSpring.is_monster_card(selected) or selected.debuff or not selected.ability.extra.joyous_spring.material_effects or not next(selected.ability.extra.joyous_spring.material_effects) then
+        if not selected or not JoyousSpring.is_monster_card(selected) or not JoyousSpring.has_joyous_table(selected) or selected.debuff or not selected.ability.extra.joyous_spring.material_effects or not next(selected.ability.extra.joyous_spring.material_effects) then
             return
         end
 
         selected.joy_transfer_text = not selected.joy_transfer_text
         selected:stop_hover()
         selected:hover()
+    end
+})
+
+SMODS.Keybind({
+    key_pressed = "a",
+    action = function(self)
+        local selected = G and G.CONTROLLER and
+            (G.CONTROLLER.focused.target or G.CONTROLLER.hovering.target)
+
+        if not selected or not JoyousSpring.is_monster_card(selected) or not JoyousSpring.has_joyous_table(selected) or not selected.config.center.joy_alt_pos then
+            return
+        end
+
+        if selected.ability.extra.joyous_spring.alt_art ~= nil then
+            selected.ability.extra.joyous_spring.alt_art = not selected.ability.extra.joyous_spring.alt_art
+        else
+            selected.ability.extra.joyous_spring.alt_art = not JoyousSpring.config.alt_art[selected.config.center.key]
+        end
+        selected:set_sprites(selected.config.center)
     end
 })
 
@@ -619,6 +607,12 @@ JoyousSpring.create_overlay_see_related = function(card)
     end
 
     if not card_center or not card_center.joy_desc_cards or not type(card_center.joy_desc_cards) == "table" then return end
+
+    if JoyousSpring.related_area then
+        for _, area in ipairs(JoyousSpring.related_area) do
+            area:remove()
+        end
+    end
 
     JoyousSpring.related_area = {}
     local tabs = {}
@@ -652,7 +646,22 @@ JoyousSpring.create_overlay_see_related = function(card)
                     end
                 end
                 table.sort(keys, function(a, b) return JoyousSpring.card_order[a] < JoyousSpring.card_order[b] end)
+                local count = 0
                 for j, key in ipairs(keys) do
+                    if count > 20 then
+                        t.area_table[#t.area_table + 1] = CardArea(
+                            0,
+                            0,
+                            G.CARD_W * 8.95,
+                            G.CARD_H,
+                            {
+                                card_limit = 10,
+                                type = 'title',
+                                highlight_limit = 0,
+                            }
+                        )
+                        count = 0
+                    end
                     local old_used_jokers = G.GAME.used_jokers[key]
                     local added_card = SMODS.create_card({
                         key = key,
@@ -661,6 +670,22 @@ JoyousSpring.create_overlay_see_related = function(card)
                     })
                     G.GAME.used_jokers[key] = old_used_jokers
                     t.area_table[#t.area_table]:emplace(added_card)
+                    count = count + 1
+                end
+
+                local nodes = {}
+
+                for _, area in ipairs(t.area_table) do
+                    nodes[#nodes + 1] =
+                    {
+                        n = G.UIT.R,
+                        nodes = { {
+                            n = G.UIT.O,
+                            config = {
+                                object = area
+                            }
+                        } }
+                    }
                 end
 
                 return {
@@ -672,23 +697,16 @@ JoyousSpring.create_overlay_see_related = function(card)
                     },
                     nodes = {
                         {
-                            n = G.UIT.R,
+                            n = G.UIT.C,
                             config = {
                                 align = "cm",
                                 r = 0.1,
-                                padding = 1,
+                                padding = 0.1,
                                 minh = 5,
                                 minw = 7,
                                 colour = G.C.BLACK
                             },
-                            nodes = {
-                                {
-                                    n = G.UIT.O,
-                                    config = {
-                                        object = t.area_table[#t.area_table]
-                                    }
-                                },
-                            }
+                            nodes = nodes
                         }
                     }
                 }

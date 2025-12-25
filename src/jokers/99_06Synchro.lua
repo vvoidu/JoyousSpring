@@ -17,7 +17,6 @@ SMODS.Joker({
         end
         return { vars = { card.ability.extra.revives, card.ability.extra.creates } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -51,10 +50,10 @@ SMODS.Joker({
         end
     end,
     add_to_deck = function(self, card, from_debuff)
-        if not from_debuff then
+        if not from_debuff and not card.debuff then
             for i = 1, card.ability.extra.revives do
                 JoyousSpring.revive_pseudorandom({ { is_extra_deck = true, monster_type = "Cyberse" } },
-                    pseudoseed("j_joy_firewall_saber"), false, "e_negative")
+                    "j_joy_firewall_saber", false, "e_negative")
             end
         end
     end
@@ -73,7 +72,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.mult, card.ability.extra.mult * JoyousSpring.count_materials_owned({ { exclude_debuffed = true } }) } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -104,9 +102,8 @@ SMODS.Joker({
             if context.end_of_round and context.game_over == false and context.main_eval then
                 local count = 0
                 for _, joker in ipairs(G.jokers.cards) do
-                    if joker ~= card and not joker.ability.eternal and not joker.getting_sliced and not joker.debuff and joker.config.center.key ~= "j_joy_token" then
-                        joker.getting_sliced = true
-                        joker:start_dissolve()
+                    if joker ~= card and not SMODS.is_eternal(joker, card) and not joker.getting_sliced and not joker.debuff and joker.config.center.key ~= "j_joy_token" then
+                        SMODS.destroy_cards(joker, nil, true)
                         count = count + 1
                     end
                 end
@@ -116,6 +113,19 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            calc_function = function(card)
+                card.joker_display_values.mult = card.ability.extra.mult *
+                    JoyousSpring.count_materials_owned({ { exclude_debuffed = true } })
+            end
+        }
+    end
 })
 
 JoyousSpring.token_pool["utchatzimime"] = {
@@ -145,7 +155,6 @@ SMODS.Joker({
         end
         return { vars = { card.ability.extra.adds, card.ability.extra.creates } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -171,10 +180,11 @@ SMODS.Joker({
     },
     calculate = function(self, card, context)
         if JoyousSpring.used_as_material(card, context) then
-            local choices = JoyousSpring.get_materials_in_collection({ { monster_type = "Fish", is_extra_deck = true } })
+            local choices = JoyousSpring.get_materials_in_collection({ { monster_type = "Fish", is_extra_deck = true } },
+                nil, nil, card.config.center.key)
             for _ = 1, card.ability.extra.adds do
-                local key_to_add, _ = pseudorandom_element(choices, pseudoseed("j_joy_fishlamp"))
-                if key_to_add and #JoyousSpring.extra_deck_area.cards < JoyousSpring.extra_deck_area.config.card_limit then
+                local key_to_add, _ = pseudorandom_element(choices, 'j_joy_fishlamp')
+                if key_to_add and #JoyousSpring.extra_deck_area.cards - (JoyousSpring.get_card_limit(context.joy_card) > 0 and 0 or 1) < JoyousSpring.extra_deck_area.config.card_limit then
                     JoyousSpring.add_to_extra_deck(key_to_add)
                 end
             end
@@ -210,7 +220,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.creates, card.ability.extra.destroys_and_creates, card.ability.extra.money } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -238,27 +247,34 @@ SMODS.Joker({
             if context.setting_blind and context.main_eval then
                 local choices = {}
                 for _, field in ipairs(JoyousSpring.field_spell_area.cards) do
-                    if not field.ability.eternal then
+                    if not SMODS.is_eternal(field, card) then
                         table.insert(choices, field)
                     end
                 end
                 if #choices > 0 then
                     local destroyed = 0
                     for i = 1, card.ability.extra.destroys_and_creates do
-                        local chosen, index = pseudorandom_element(choices, pseudoseed("j_joy_afd"))
+                        local chosen, index = pseudorandom_element(choices, 'j_joy_afd')
                         if chosen then
-                            chosen.getting_sliced = true
-                            chosen:start_dissolve()
+                            SMODS.destroy_cards(chosen, nil, true)
                             destroyed = destroyed + 1
                             table.remove(choices, index)
-                        end
-                        if #JoyousSpring.field_spell_area.cards < JoyousSpring.field_spell_area.config.card_limit then
-                            local choices_field = JoyousSpring.get_materials_in_collection({ { is_field_spell = true } })
 
-                            local spell = pseudorandom_element(choices_field, pseudorandom("j_joy_afd"))
-                            if spell and #JoyousSpring.field_spell_area.cards < JoyousSpring.field_spell_area.config.card_limit then
-                                JoyousSpring.add_to_extra_deck(spell)
-                            end
+                            G.E_MANAGER:add_event(Event({
+                                func = (function()
+                                    if #JoyousSpring.field_spell_area.cards < JoyousSpring.field_spell_area.config.card_limit then
+                                        local choices_field = JoyousSpring.get_materials_in_collection(
+                                            { { is_field_spell = true } },
+                                            nil, nil, card.config.center.key)
+
+                                        local spell = pseudorandom_element(choices_field, pseudorandom("j_joy_afd"))
+                                        if spell then
+                                            JoyousSpring.add_to_extra_deck(spell)
+                                        end
+                                    end
+                                    return true
+                                end)
+                            }))
                         end
                     end
                     return {
@@ -269,9 +285,9 @@ SMODS.Joker({
         end
     end,
     add_to_deck = function(self, card, from_debuff)
-        if not from_debuff then
+        if not from_debuff and not card.debuff then
             for i = 1, card.ability.extra.creates do
-                JoyousSpring.create_pseudorandom({ { is_tuner = true } }, pseudoseed("j_joy_afd"), true)
+                JoyousSpring.create_pseudorandom({ { is_tuner = true } }, 'j_joy_afd', true)
             end
         end
     end

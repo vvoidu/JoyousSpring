@@ -6,13 +6,6 @@ SMODS.Atlas({
     py = 95
 })
 
-SMODS.Atlas({
-    key = "LiveTwin02",
-    path = "02LiveTwin02.png",
-    px = 71,
-    py = 95
-})
-
 -- Live☆Twin Lil-la
 SMODS.Joker({
     key = "ltwin_lilla",
@@ -30,7 +23,6 @@ SMODS.Joker({
         { "j_joy_ltwin_kisikil",                                                                             name = "k_joy_creates" },
         { properties = { { monster_archetypes = { "LiveTwin" } }, { monster_archetypes = { "EvilTwin" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -53,15 +45,20 @@ SMODS.Joker({
         end
     end,
     add_to_deck = function(self, card, from_debuff)
-        if not next(SMODS.find_card("j_joy_ltwin_kisikil", true)) and not card.debuff and not from_debuff then
-            for i = 1, card.ability.extra.cards_to_create do
-                JoyousSpring.create_summon({
-                    key = "j_joy_ltwin_kisikil"
-                }, true)
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                if not next(SMODS.find_card("j_joy_ltwin_kisikil", true)) and not card.debuff and not from_debuff then
+                    for i = 1, card.ability.extra.cards_to_create do
+                        JoyousSpring.create_summon({
+                            key = "j_joy_ltwin_kisikil"
+                        }, true)
 
-                card:juice_up()
+                        card:juice_up()
+                    end
+                end
+                return true
             end
-        end
+        }))
     end,
     joker_display_def = function(JokerDisplay)
         return {
@@ -91,7 +88,6 @@ SMODS.Joker({
         { "j_joy_ltwin_lilla",                                                                               name = "k_joy_creates" },
         { properties = { { monster_archetypes = { "LiveTwin" } }, { monster_archetypes = { "EvilTwin" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -114,14 +110,19 @@ SMODS.Joker({
         end
     end,
     add_to_deck = function(self, card, from_debuff)
-        if not next(SMODS.find_card("j_joy_ltwin_lilla", true)) and not card.debuff and not from_debuff then
-            for i = 1, card.ability.extra.cards_to_create do
-                JoyousSpring.create_summon({
-                    key = "j_joy_ltwin_lilla"
-                }, true)
-                card:juice_up()
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                if not next(SMODS.find_card("j_joy_ltwin_lilla", true)) and not card.debuff and not from_debuff then
+                    for i = 1, card.ability.extra.cards_to_create do
+                        JoyousSpring.create_summon({
+                            key = "j_joy_ltwin_lilla"
+                        }, true)
+                        card:juice_up()
+                    end
+                end
+                return true
             end
-        end
+        }))
     end,
     joker_display_def = function(JokerDisplay)
         return {
@@ -147,7 +148,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.discards } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -197,7 +197,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "LiveTwin" } }, { monster_archetypes = { "EvilTwin" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -244,7 +243,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "LiveTwin" } }, { monster_archetypes = { "EvilTwin" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -278,7 +276,7 @@ SMODS.Joker({
     key = "etwin_kisikil_deal",
     atlas = 'LiveTwin',
     pos = { x = 2, y = 1 },
-    rarity = 2,
+    rarity = 1,
     discovered = true,
     blueprint_compat = true,
     eternal_compat = true,
@@ -292,7 +290,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "LiveTwin" } }, { monster_archetypes = { "EvilTwin" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -324,11 +321,9 @@ SMODS.Joker({
                 }
             end
             if context.setting_blind and context.main_eval then
-                local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Lilla" }, is_main_deck = true } })
-
-                for i = 1, card.ability.extra.mills do
-                    JoyousSpring.send_to_graveyard(pseudorandom_element(choices, pseudoseed("j_joy_etwin_kisikil_deal")))
-                end
+                JoyousSpring.send_to_graveyard_pseudorandom(
+                    { { monster_archetypes = { "Lilla" }, is_main_deck = true } },
+                    card.config.center.key, card.ability.extra.mills)
                 return {
                     message = localize("k_joy_mill")
                 }
@@ -337,8 +332,8 @@ SMODS.Joker({
         if JoyousSpring.used_as_material(card, context) and JoyousSpring.is_summon_type(context.joy_card, "LINK") then
             local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "EvilTwin" }, is_extra_deck = true } })
             for i = 1, card.ability.extra.adds do
-                local key_to_add, _ = pseudorandom_element(choices, pseudoseed("j_joy_ignis_doyon"))
-                if key_to_add and #JoyousSpring.extra_deck_area.cards < JoyousSpring.extra_deck_area.config.card_limit then
+                local key_to_add, _ = pseudorandom_element(choices, 'j_joy_ignis_doyon')
+                if key_to_add and #JoyousSpring.extra_deck_area.cards - (JoyousSpring.get_card_limit(context.joy_card) > 0 and 0 or 1) < JoyousSpring.extra_deck_area.config.card_limit then
                     JoyousSpring.add_to_extra_deck(key_to_add)
                 end
             end
@@ -370,6 +365,7 @@ SMODS.Joker({
     key = "etwin_kisikil",
     atlas = 'LiveTwin',
     pos = { x = 3, y = 1 },
+    joy_alt_pos = { { x = 2, y = 2 } },
     rarity = 2,
     discovered = true,
     blueprint_compat = true,
@@ -384,7 +380,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "LiveTwin" } }, { monster_archetypes = { "EvilTwin" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -426,7 +421,7 @@ SMODS.Joker({
                     for i = 1, card.ability.extra.revives do
                         local revived_card = JoyousSpring.revive_pseudorandom(
                             { { monster_archetypes = { "Lilla" } } },
-                            pseudoseed("j_joy_etwin_kisikil"),
+                            'j_joy_etwin_kisikil',
                             true
                         )
                         has_revived = revived_card and true or has_revived
@@ -464,6 +459,7 @@ SMODS.Joker({
     key = "etwin_lilla",
     atlas = 'LiveTwin',
     pos = { x = 0, y = 2 },
+    joy_alt_pos = { { x = 3, y = 2 } },
     rarity = 2,
     discovered = true,
     blueprint_compat = false,
@@ -478,7 +474,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "LiveTwin" } }, { monster_archetypes = { "EvilTwin" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -498,7 +493,7 @@ SMODS.Joker({
                 },
             },
             chips = 80,
-            money = 5,
+            money = 10,
             revives = 1
         },
     },
@@ -520,7 +515,7 @@ SMODS.Joker({
                     for i = 1, card.ability.extra.revives do
                         local revived_card = JoyousSpring.revive_pseudorandom(
                             { { monster_archetypes = { "Kisikil" } } },
-                            pseudoseed("j_joy_etwin_lilla"),
+                            'j_joy_etwin_lilla',
                             true
                         )
                         has_revived = revived_card and true or has_revived
@@ -576,7 +571,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "LiveTwin" } }, { monster_archetypes = { "EvilTwin" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -633,7 +627,7 @@ SMODS.Joker({
     key = "etwin_sunny",
     atlas = 'LiveTwin',
     pos = { x = 1, y = 2 },
-    rarity = 3,
+    rarity = 2,
     discovered = true,
     blueprint_compat = true,
     eternal_compat = true,
@@ -648,7 +642,6 @@ SMODS.Joker({
         { "j_joy_etwin_kisikil",                                                                             "j_joy_etwin_lilla",     name = "Revives" },
         { properties = { { monster_archetypes = { "LiveTwin" } }, { monster_archetypes = { "EvilTwin" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -677,7 +670,7 @@ SMODS.Joker({
             if not context.blueprint_card and not context.retrigger_joker and
                 context.end_of_round and context.game_over == false and context.main_eval then
                 if #JoyousSpring.extra_deck_area.cards < JoyousSpring.extra_deck_area.config.card_limit +
-                    ((card.edition and card.edition.negative) and 1 or 0) then
+                    JoyousSpring.get_card_limit(card) then
                     local is_lilla_owned = JoyousSpring.count_materials_owned({ { monster_archetypes = { "Lilla" } } }) >
                         0
                     local kisikil_summoned = {}
@@ -732,8 +725,8 @@ SMODS.Joker({
 -- Live☆Twin Channel
 SMODS.Joker({
     key = "ltwin_channel",
-    atlas = 'LiveTwin02',
-    pos = { x = 0, y = 0 },
+    atlas = 'LiveTwin',
+    pos = { x = 0, y = 3 },
     rarity = 3,
     discovered = true,
     blueprint_compat = false,
@@ -749,7 +742,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "LiveTwin" } }, { monster_archetypes = { "EvilTwin" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -790,7 +782,7 @@ SMODS.Joker({
             for i = 1, card.ability.extra.revives do
                 JoyousSpring.revive_pseudorandom(
                     { { monster_archetypes = { "Kisikil" } }, { monster_archetypes = { "Lilla" } } },
-                    pseudoseed("j_joy_ltwin_channel"),
+                    'j_joy_ltwin_channel',
                     true
                 )
             end

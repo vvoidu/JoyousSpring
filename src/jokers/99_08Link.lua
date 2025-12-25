@@ -5,6 +5,7 @@ SMODS.Joker({
     key = "apollousa",
     atlas = 'Misc01',
     pos = { x = 2, y = 1 },
+    joy_alt_pos = { { x = 0, y = 2 } },
     rarity = 1,
     discovered = true,
     blueprint_compat = true,
@@ -18,7 +19,6 @@ SMODS.Joker({
             card.ability.extra.mult_loss * card.ability.extra.turns)
         return { vars = { card.ability.extra.mult_gain, card.ability.extra.mult_loss, mult } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -94,7 +94,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.mult, card.ability.extra.mult * JoyousSpring.get_pendulum_count(), card.ability.extra.creates, card.ability.extra.consume, card.ability.extra.consumed } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -129,11 +128,30 @@ SMODS.Joker({
                 card.ability.extra.consumed = card.ability.extra.consumed + 1
                 if card.ability.extra.consumed >= card.ability.extra.consume then
                     card.ability.extra.consumed = 0
-                    JoyousSpring.create_pseudorandom({ { is_pendulum = true } }, pseudoseed("j_joy_beyond"), true)
+                    JoyousSpring.create_pseudorandom({ { is_pendulum = true } }, 'j_joy_beyond', true)
                 end
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            reminder_text = {
+                { text = "(" },
+                { ref_table = "card.ability.extra", ref_value = "consumed" },
+                { text = "/" },
+                { ref_table = "card.ability.extra", ref_value = "consume" },
+                { text = ")" },
+            },
+            calc_function = function(card)
+                card.joker_display_values.mult = card.ability.extra.mult * JoyousSpring.get_pendulum_count()
+            end
+        }
+    end
 })
 
 -- Exceed the Pendulum
@@ -152,7 +170,6 @@ SMODS.Joker({
         end
         return { vars = { card.ability.extra.xmult, 1 + card.ability.extra.xmult * JoyousSpring.get_pendulum_count(), card.ability.extra.creates } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -173,6 +190,7 @@ SMODS.Joker({
             },
             xmult = 0.05,
             creates = 1,
+            activated = true
         },
     },
     calculate = function(self, card, context)
@@ -182,15 +200,32 @@ SMODS.Joker({
                     xmult = 1 + card.ability.extra.xmult * JoyousSpring.get_pendulum_count()
                 }
             end
-            if context.end_of_round and context.game_over == false and context.main_eval and G.GAME.blind.boss then
+            if context.end_of_round and context.game_over == false and context.main_eval and context.beat_boss and
+                not card.ability.extra.activated then
+                card.ability.extra.activated = true
                 for i = 1, card.ability.extra.creates do
                     JoyousSpring.create_pseudorandom({ { is_pendulum = true, is_main_deck = true } },
-                        pseudoseed("j_joy_exceed"), false, false,
+                        'j_joy_exceed', false, false,
                         "e_negative")
                 end
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xmult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                card.joker_display_values.xmult = 1 + card.ability.extra.xmult * JoyousSpring.get_pendulum_count()
+            end
+        }
+    end
 })
 
 -- Linkuriboh
@@ -206,7 +241,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = {} }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -253,7 +287,6 @@ SMODS.Joker({
         end
         return { vars = { card.ability.extra.h_size } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -299,18 +332,18 @@ SMODS.Joker({
     key = "ipmasq",
     atlas = 'Misc04',
     pos = { x = 7, y = 5 },
-    rarity = 3,
+    joy_alt_pos = { { x = 3, y = 6 } },
+    rarity = 1,
     discovered = true,
     blueprint_compat = false,
     eternal_compat = true,
-    cost = 10,
+    cost = 5,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
         return { vars = {} }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -334,7 +367,7 @@ SMODS.Joker({
         if JoyousSpring.can_use_abilities(card) then
             if context.setting_blind and context.main_eval then
                 local choices = JoyousSpring.get_materials_in_collection({ { summon_type = "LINK", exclude_keys = { "j_joy_ipmasq" } } })
-                local key_to_transform = pseudorandom_element(choices, pseudoseed("j_joy_ipmasq")) or "j_joy_spknight"
+                local key_to_transform = pseudorandom_element(choices, 'j_joy_ipmasq') or "j_joy_spknight"
                 JoyousSpring.transform_card(card, key_to_transform, false, "Link", { "j_joy_ipmasq" })
             end
         end
@@ -368,7 +401,6 @@ SMODS.Joker({
         end
         return { vars = { card.ability.extra.banishes } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -391,14 +423,14 @@ SMODS.Joker({
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
-            if context.end_of_round and context.game_over == false and context.main_eval then
+            if context.joy_post_round_eval then
                 local choices = {}
                 for _, joker in ipairs(G.jokers.cards) do
                     if joker ~= card then
                         table.insert(choices, joker)
                     end
                 end
-                local chosen = pseudorandom_element(choices, pseudoseed("j_joy_spknight"))
+                local chosen = pseudorandom_element(choices, 'j_joy_spknight')
                 if chosen then
                     local ed_materials = 0
                     for _, material in ipairs(JoyousSpring.get_materials(card)) do
@@ -433,7 +465,6 @@ SMODS.Joker({
         end
         return { vars = { card.ability.extra.banishes } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -456,7 +487,7 @@ SMODS.Joker({
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
-            if context.end_of_round and context.game_over == false and context.main_eval then
+            if context.joy_post_round_eval then
                 local column = JoyousSpring.get_joker_column(card)
 
                 local choices = {}
@@ -466,7 +497,7 @@ SMODS.Joker({
                 if G.jokers.cards[column + 1] then
                     choices[#choices + 1] = G.jokers.cards[column + 1]
                 end
-                local chosen = pseudorandom_element(choices, pseudoseed("j_joy_progleo"))
+                local chosen = pseudorandom_element(choices, 'j_joy_progleo')
                 if chosen then
                     JoyousSpring.banish(chosen, "boss_selected")
                 end
@@ -491,7 +522,6 @@ SMODS.Joker({
         end
         return { vars = { card.ability.extra.mult, card.ability.extra.mult * JoyousSpring.count_materials_in_graveyard({ { summon_type = "LINK" } }), card.ability.extra.percent * 100 } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -526,7 +556,7 @@ SMODS.Joker({
             if context.joy_activate_effect and context.joy_activated_card == card and G.GAME.blind.in_blind then
                 local tributes = {}
                 for _, joker in ipairs(G.jokers.cards) do
-                    if joker ~= card and not joker.ability.eternal then
+                    if joker ~= card and not SMODS.is_eternal(joker, card) then
                         table.insert(tributes, joker)
                     end
                 end
@@ -540,14 +570,27 @@ SMODS.Joker({
         end
     end,
     joy_can_activate = function(card)
-        if not G.GAME.blind.in_blind or G.GAME.blind.chips <= 0 then
+        if not G.GAME.blind.in_blind or G.GAME.blind.chips <= to_big(0) then
             return false
         end
         for _, joker in ipairs(G.jokers.cards) do
-            if joker ~= card and not joker.ability.eternal then
+            if joker ~= card and not SMODS.is_eternal(joker, card) then
                 return true
             end
         end
         return false
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            calc_function = function(card)
+                card.joker_display_values.mult = card.ability.extra.mult *
+                    JoyousSpring.count_materials_in_graveyard({ { summon_type = "LINK" } })
+            end
+        }
+    end
 })

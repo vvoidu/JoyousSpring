@@ -23,7 +23,6 @@ SMODS.Joker({
         { "j_joy_generaider_boss_stage",                              name = "k_joy_creates" },
         { properties = { { monster_archetypes = { "Generaider" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -37,11 +36,10 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval and G.GAME.blind.boss then
+                context.end_of_round and context.game_over == false and context.main_eval and context.beat_boss then
                 if #JoyousSpring.field_spell_area.cards < JoyousSpring.field_spell_area.config.card_limit then
                     JoyousSpring.add_to_extra_deck("j_joy_generaider_boss_stage")
-                    card.getting_sliced = true
-                    card:start_dissolve()
+                    SMODS.destroy_cards(card, nil, true)
                 end
             end
         end
@@ -67,7 +65,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Generaider" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -84,15 +81,13 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval and G.GAME.blind.boss then
-                if #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit +
-                    ((card.edition and card.edition.negative) and 0 or 1) then
+                context.end_of_round and context.game_over == false and context.main_eval and context.beat_boss then
+                if #G.jokers.cards + G.GAME.joker_buffer + JoyousSpring.get_card_limit(card) <= G.jokers.config.card_limit then
                     for i = 1, card.ability.extra.revives do
-                        if #G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit +
-                            ((card.edition and card.edition.negative) and 0 or 1) then
+                        if #G.jokers.cards + G.GAME.joker_buffer + JoyousSpring.get_card_limit(card) <= G.jokers.config.card_limit then
                             JoyousSpring.revive_pseudorandom(
                                 { { rarity = 3, monster_archetypes = { "Generaider" } } },
-                                pseudoseed("j_joy_generaider_vala"),
+                                'j_joy_generaider_vala',
                                 false
                             )
                         end
@@ -102,19 +97,16 @@ SMODS.Joker({
                             key = "j_joy_generaider_loptr"
                         })
                     end
-                    card.getting_sliced = true
-                    card:start_dissolve()
+                    SMODS.destroy_cards(card, nil, true)
                 end
             end
         end
     end,
     add_to_deck = function(self, card, from_debuff)
         if not from_debuff and not card.debuff then
-            local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Generaider" }, rarity = 3, is_main_deck = true } })
-
-            for i = 1, card.ability.extra.mills do
-                JoyousSpring.send_to_graveyard(pseudorandom_element(choices, pseudoseed("j_joy_generaider_vala")))
-            end
+            JoyousSpring.send_to_graveyard_pseudorandom(
+                { { monster_archetypes = { "Generaider" }, rarity = 3, is_main_deck = true } },
+                card.config.center.key, card.ability.extra.mills)
             SMODS.calculate_effect({ message = localize("k_joy_mill") }, card)
         end
     end,
@@ -130,8 +122,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 10,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
         end
         return { vars = { card.ability.extra.tributes } }
@@ -139,7 +133,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Generaider" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -169,7 +162,7 @@ SMODS.Joker({
         end
     end,
     joy_can_activate = function(card)
-        if not G.GAME.blind and ((not G.GAME.blind.disabled) and (G.GAME.blind.boss)) then
+        if not G.GAME.blind or G.GAME.blind.disabled or not G.GAME.blind.boss then
             return false
         end
         local materials = JoyousSpring.get_materials_owned(
@@ -179,6 +172,28 @@ SMODS.Joker({
     in_pool = function(self, args)
         return args and args.source and args.source == "JoyousSpring" or false
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            reminder_text = {
+                { ref_table = "card.joker_display_values", ref_value = "active_text" },
+            },
+            calc_function = function(card)
+                local disableable = G.GAME and G.GAME.blind and G.GAME.blind.get_type and
+                    ((not G.GAME.blind.disabled) and (G.GAME.blind:get_type() == 'Boss'))
+                card.joker_display_values.active = disableable
+                card.joker_display_values.active_text = localize(disableable and 'k_active' or 'ph_no_boss_active')
+            end,
+            style_function = function(card, text, reminder_text, extra)
+                if reminder_text and reminder_text.children[1] then
+                    reminder_text.children[1].config.colour = card.joker_display_values.active and G.C.GREEN or G.C.RED
+                    reminder_text.children[1].config.scale = card.joker_display_values.active and 0.35 or 0.3
+                    return true
+                end
+                return false
+            end
+        }
+    end
 })
 
 -- Nidhogg, Generaider Boss of Ice
@@ -191,8 +206,10 @@ SMODS.Joker({
     blueprint_compat = true,
     eternal_compat = true,
     cost = 10,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
         end
         return { vars = { card.ability.extra.tributes } }
@@ -200,7 +217,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Generaider" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -265,6 +281,15 @@ SMODS.Joker({
     in_pool = function(self, args)
         return args and args.source and args.source == "JoyousSpring" or false
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            retrigger_function = function(playing_card, scoring_hand, held_in_hand, joker_card)
+                if held_in_hand then return 0 end
+                return joker_card.ability.extra.active and 1 * JokerDisplay.calculate_joker_triggers(joker_card) or 0
+            end
+        }
+    end
 })
 
 -- Frodi, Generaider Boss of Swords
@@ -277,8 +302,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 10,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
         end
         return {}
@@ -286,7 +313,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Generaider" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -358,8 +384,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 10,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_banish" }
         end
@@ -368,7 +396,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Generaider" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -394,7 +421,7 @@ SMODS.Joker({
                 #context.joy_selection == card.ability.extra.tributes then
                 JoyousSpring.tribute(card, context.joy_selection)
                 local choices = G.consumeables.cards
-                local to_banish = pseudorandom_element(choices, pseudoseed("j_joy_generaider_utgarda"))
+                local to_banish = pseudorandom_element(choices, 'j_joy_generaider_utgarda')
                 if to_banish then
                     JoyousSpring.banish(to_banish, "blind_selected")
                 end
@@ -424,8 +451,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 10,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
         end
         return { vars = { card.ability.extra.tributes, card.ability.extra.cards_to_create } }
@@ -433,7 +462,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Generaider" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -464,7 +492,7 @@ SMODS.Joker({
                 for i = 1, card.ability.extra.cards_to_create do
                     JoyousSpring.create_pseudorandom(
                         { { monster_archetypes = { "Generaider" }, rarity = 1 }, { monster_archetypes = { "Generaider" }, rarity = 2 } },
-                        pseudoseed("j_joy_generaider_mardel"), true)
+                        'j_joy_generaider_mardel', true)
                 end
             end
         end
@@ -495,8 +523,10 @@ SMODS.Joker({
     blueprint_compat = true,
     eternal_compat = true,
     cost = 10,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
         end
         return { vars = { card.ability.extra.tributes, card.ability.extra.xmult } }
@@ -504,7 +534,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Generaider" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -572,6 +601,19 @@ SMODS.Joker({
     in_pool = function(self, args)
         return args and args.source and args.source == "JoyousSpring" or false
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            mod_function = function(card, mod_joker)
+                return {
+                    x_mult = mod_joker.ability.extra.active and card.facing == "front" and
+                        ((JoyousSpring.is_monster_archetype(card, "Generaider") or
+                                JoyousSpring.is_monster_type(card, "Machine")) and mod_joker.ability.extra.xmult and
+                            mod_joker.ability.extra.xmult ^ JokerDisplay.calculate_joker_triggers(mod_joker) or nil)
+                }
+            end
+        }
+    end
 })
 
 -- Naglfar, Generaider Boss of Fire
@@ -584,8 +626,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 10,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
         end
         return { vars = { card.ability.extra.tributes, card.ability.extra.hands, card.ability.extra.discards } }
@@ -593,7 +637,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Generaider" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -650,8 +693,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 10,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_revive" }
         end
@@ -660,7 +705,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Generaider" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -690,7 +734,7 @@ SMODS.Joker({
                     for i = 1, card.ability.extra.revives do
                         JoyousSpring.revive_pseudorandom(
                             { { rarity = 3, monster_archetypes = { "Generaider" } } },
-                            pseudoseed("j_joy_generaider_hela"),
+                            'j_joy_generaider_hela',
                             false,
                             { negative = true }
                         )
@@ -732,7 +776,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Generaider" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     update = JoyousSpring.update_counter,
     config = {
@@ -770,6 +813,20 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            calc_function = function(card)
+                card.joker_display_values.mult = card.ability.extra.mult * card.ability.extra.joyous_spring
+                    .xyz_materials
+            end
+        }
+    end
 })
 
 -- Laevatein, Generaider Boss of Shadows
@@ -793,7 +850,6 @@ SMODS.Joker({
         { "j_joy_generaider_jormungandr",                             name = "k_joy_creates" },
         { properties = { { monster_archetypes = { "Generaider" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -837,6 +893,9 @@ SMODS.Joker({
             end
         end
     end,
+    joy_can_detach = function(self, card)
+        return #G.jokers.cards + G.GAME.joker_buffer > (card.area == G.jokers and 1 or 0)
+    end
 })
 
 -- Generaider Boss Stage
@@ -859,7 +918,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Generaider" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -867,7 +925,7 @@ SMODS.Joker({
                 is_field_spell = true,
                 monster_archetypes = { ["Generaider"] = true },
             },
-            mult = 15,
+            mult = 1,
             current_mult = 0,
             tributes = 2,
             cards_to_create = 1,
@@ -888,7 +946,7 @@ SMODS.Joker({
             local generaiders = JoyousSpring.get_materials_owned({ { monster_archetypes = { "Generaider" }, exclude_tokens = true } })
             local count = 0
             for _, joker in ipairs(generaiders) do
-                if not joker.edition or not joker.edition.negative then
+                if JoyousSpring.get_card_limit(joker) == 0 then
                     count = count + 1
                 end
             end
@@ -913,7 +971,7 @@ SMODS.Joker({
             for i = 1, card.ability.extra.cards_to_create do
                 JoyousSpring.create_pseudorandom(
                     { { monster_archetypes = { "Generaider" }, rarity = 3, is_main_deck = true } },
-                    pseudoseed("j_joy_generaider_boss_stage"), true, true)
+                    'j_joy_generaider_boss_stage', true, true)
             end
         end
         if context.end_of_round and context.main_eval then
@@ -926,6 +984,16 @@ SMODS.Joker({
             (not card.ability.extra.used and #G.jokers.cards + G.GAME.joker_buffer - card.ability.extra.tributes < G.jokers.config.card_limit and #tokens >= card.ability.extra.tributes) and
             true or false
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "current_mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+        }
+    end
 })
 
 JoyousSpring.token_pool["generaider"] = {

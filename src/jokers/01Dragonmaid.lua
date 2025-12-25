@@ -9,7 +9,7 @@ SMODS.Atlas({
 -- Kitchen Dragonmaid
 SMODS.Joker({
     key = "dmaid_kitchen",
-    atlas = 'joy_Dragonmaid',
+    atlas = 'Dragonmaid',
     pos = { x = 0, y = 0 },
     rarity = 1,
     discovered = true,
@@ -26,7 +26,6 @@ SMODS.Joker({
         { "j_joy_dmaid_tinkhec",                                      name = "k_joy_transforms_into" },
         { properties = { { monster_archetypes = { "Dragonmaid" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -75,8 +74,10 @@ SMODS.Joker({
     blueprint_compat = true,
     eternal_compat = true,
     cost = 6,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
         return { vars = { card.ability.extra.mult } }
@@ -85,7 +86,6 @@ SMODS.Joker({
         { "j_joy_dmaid_kitchen",                                      name = "k_joy_transforms_into" },
         { properties = { { monster_archetypes = { "Dragonmaid" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -177,7 +177,6 @@ SMODS.Joker({
         { "j_joy_dmaid_lorpar",                                       name = "k_joy_transforms_into" },
         { properties = { { monster_archetypes = { "Dragonmaid" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -222,11 +221,10 @@ SMODS.Joker({
                     add_tag(Tag('tag_joy_booster'))
                 end
             end
-            local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Dragonmaid" }, is_main_deck = true } })
+            JoyousSpring.send_to_graveyard_pseudorandom(
+                { { monster_archetypes = { "Dragonmaid" }, is_main_deck = true } },
+                card.config.center.key, card.ability.extra.mills)
 
-            for i = 1, card.ability.extra.mills do
-                JoyousSpring.send_to_graveyard(pseudorandom_element(choices, pseudoseed("j_joy_dmaid_laundry")))
-            end
             SMODS.calculate_effect({ message = localize("k_joy_mill") }, card)
         end
     end,
@@ -242,8 +240,10 @@ SMODS.Joker({
     blueprint_compat = true,
     eternal_compat = true,
     cost = 4,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
         return { vars = { card.ability.extra.xmult } }
@@ -252,7 +252,6 @@ SMODS.Joker({
         { "j_joy_dmaid_parlor",                                       name = "k_joy_transforms_into" },
         { properties = { { monster_archetypes = { "Dragonmaid" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -331,14 +330,16 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 3,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_revive" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
-        return { vars = { G.GAME.probabilities.normal or 1, card.ability.extra.odds, card.ability.extra.revives } }
+        local numerator, denominator = SMODS.get_probability_vars(card, card.ability.extra.numerator,
+            card.ability.extra.odds,
+            self.key)
+        return { vars = { numerator, denominator, card.ability.extra.revives } }
     end,
     joy_desc_cards = {
         { "j_joy_dmaid_ernus",                                        name = "k_joy_transforms_into" },
@@ -352,7 +353,8 @@ SMODS.Joker({
                 monster_archetypes = { ["Dragonmaid"] = true },
             },
             revives = 1,
-            odds = 2
+            numerator = 5,
+            odds = 10
         },
     },
     calculate = function(self, card, context)
@@ -366,11 +368,11 @@ SMODS.Joker({
     add_to_deck = function(self, card, from_debuff)
         if not from_debuff and not card.debuff then
             local has_revived = false
-            if pseudorandom("j_joy_dmaid_nurse") < G.GAME.probabilities.normal / card.ability.extra.odds then
+            if SMODS.pseudorandom_probability(card, card.config.center.key, card.ability.extra.numerator, card.ability.extra.odds) then
                 for i = 1, card.ability.extra.revives do
                     local revived_card = JoyousSpring.revive_pseudorandom(
                         { { rarity = 1, monster_archetypes = { "Dragonmaid" } } },
-                        pseudoseed("j_joy_dmaid_nurse"),
+                        'j_joy_dmaid_nurse',
                         true
                     )
                     has_revived = (revived_card and true) or has_revived
@@ -392,7 +394,10 @@ SMODS.Joker({
             },
             extra_config = { colour = G.C.GREEN, scale = 0.3 },
             calc_function = function(card)
-                card.joker_display_values.odds = localize { type = 'variable', key = "jdis_odds", vars = { (G.GAME and G.GAME.probabilities.normal or 1), card.ability.extra.odds } }
+                local numerator, denominator = SMODS.get_probability_vars(card, card.ability.extra.numerator,
+                    card.ability.extra.odds,
+                    card.config.center.key)
+                card.joker_display_values.odds = localize { type = 'variable', key = "jdis_odds", vars = { numerator, denominator } }
             end
         }
     end
@@ -408,17 +413,18 @@ SMODS.Joker({
     blueprint_compat = true,
     eternal_compat = true,
     cost = 3,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
-        return { vars = { card.ability.extra.mult } }
+        return { vars = { card.ability.extra.mult, card.ability.extra.mult * JoyousSpring.count_materials_in_graveyard({ { monster_archetypes = { "Dragonmaid" } } }) } }
     end,
     joy_desc_cards = {
         { "j_joy_dmaid_nurse",                                        name = "k_joy_transforms_into" },
         { properties = { { monster_archetypes = { "Dragonmaid" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -485,7 +491,6 @@ SMODS.Joker({
         { "j_joy_dmaid_nudyarl",                                      name = "k_joy_transforms_into" },
         { properties = { { monster_archetypes = { "Dragonmaid" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -507,11 +512,9 @@ SMODS.Joker({
     end,
     add_to_deck = function(self, card, from_debuff)
         if not from_debuff and not card.debuff then
-            local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Dragonmaid" }, is_main_deck = true } })
-
-            for i = 1, card.ability.extra.mills do
-                JoyousSpring.send_to_graveyard(pseudorandom_element(choices, pseudoseed("j_joy_dmaid_laundry")))
-            end
+            JoyousSpring.send_to_graveyard_pseudorandom(
+                { { monster_archetypes = { "Dragonmaid" }, is_main_deck = true } },
+                card.config.center.key, card.ability.extra.mills)
             SMODS.calculate_effect({ message = localize("k_joy_mill") }, card)
         end
     end,
@@ -527,17 +530,18 @@ SMODS.Joker({
     blueprint_compat = true,
     eternal_compat = true,
     cost = 5,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
-        return { vars = { card.ability.extra.chips } }
+        return { vars = { card.ability.extra.chips, card.ability.extra.chips * JoyousSpring.count_materials_in_graveyard({ { monster_archetypes = { "Dragonmaid" } } }) } }
     end,
     joy_desc_cards = {
         { "j_joy_dmaid_laundry",                                      name = "k_joy_transforms_into" },
         { properties = { { monster_archetypes = { "Dragonmaid" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -583,7 +587,7 @@ SMODS.Joker({
     end
 })
 
--- Chamber Dragonmaid
+-- Cehrmba Dragonmaid
 SMODS.Joker({
     key = "dmaid_chamber",
     atlas = 'Dragonmaid',
@@ -606,10 +610,9 @@ SMODS.Joker({
         }
     end,
     joy_desc_cards = {
-        { "j_joy_dmaid_stern",                                        name = "k_joy_transforms_into" },
+        { "j_joy_dmaid_cehrmba",                                      name = "k_joy_transforms_into" },
         { properties = { { monster_archetypes = { "Dragonmaid" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -628,7 +631,7 @@ SMODS.Joker({
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
                 context.setting_blind and context.main_eval then
-                JoyousSpring.transform_card(card, "j_joy_dmaid_stern")
+                JoyousSpring.transform_card(card, "j_joy_dmaid_cehrmba")
             end
         end
     end,
@@ -654,19 +657,17 @@ SMODS.Joker({
                     add_tag(Tag('tag_voucher'))
                 end
             end
-            local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Dragonmaid" }, is_main_deck = true } })
-
-            for i = 1, card.ability.extra.mills do
-                JoyousSpring.send_to_graveyard(pseudorandom_element(choices, pseudoseed("j_joy_dmaid_laundry")))
-            end
+            JoyousSpring.send_to_graveyard_pseudorandom(
+                { { monster_archetypes = { "Dragonmaid" }, is_main_deck = true } },
+                card.config.center.key, card.ability.extra.mills)
             SMODS.calculate_effect({ message = localize("k_joy_mill") }, card)
         end
     end,
 })
 
--- Dragonmaid Stern
+-- Dragonmaid Cehrmba
 SMODS.Joker({
-    key = "dmaid_stern",
+    key = "dmaid_cehrmba",
     atlas = 'Dragonmaid',
     pos = { x = 4, y = 1 },
     rarity = 2,
@@ -674,18 +675,22 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 2,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_revive" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
-        return { vars = { G.GAME.probabilities.normal or 1, card.ability.extra.odds, card.ability.extra.revives } }
+        local numerator, denominator = SMODS.get_probability_vars(card, card.ability.extra.numerator,
+            card.ability.extra.odds,
+            self.key)
+        return { vars = { numerator, denominator, card.ability.extra.revives } }
     end,
     joy_desc_cards = {
         { "j_joy_dmaid_chamber",                                      name = "k_joy_transforms_into" },
         { properties = { { monster_archetypes = { "Dragonmaid" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -695,7 +700,8 @@ SMODS.Joker({
                 monster_archetypes = { ["Dragonmaid"] = true },
             },
             revives = 1,
-            odds = 2
+            numerator = 5,
+            odds = 10
         },
     },
     calculate = function(self, card, context)
@@ -709,7 +715,7 @@ SMODS.Joker({
     add_to_deck = function(self, card, from_debuff)
         if not from_debuff and not card.debuff then
             local has_revived = false
-            if pseudorandom("j_joy_dmaid_stern") < G.GAME.probabilities.normal / card.ability.extra.odds then
+            if SMODS.pseudorandom_probability(card, card.config.center.key, card.ability.extra.numerator, card.ability.extra.odds) then
                 for i = 1, card.ability.extra.revives do
                     local revived_card
                     JoyousSpring.revive_pseudorandom(
@@ -717,7 +723,7 @@ SMODS.Joker({
                             { rarity = 2, monster_archetypes = { "Dragonmaid" } },
                             { rarity = 3, monster_archetypes = { "Dragonmaid" } },
                         },
-                        pseudoseed("j_joy_dmaid_stern"),
+                        'j_joy_dmaid_cehrmba',
                         true
                     )
                     has_revived = revived_card and true or has_revived
@@ -742,7 +748,10 @@ SMODS.Joker({
             },
             extra_config = { colour = G.C.GREEN, scale = 0.3 },
             calc_function = function(card)
-                card.joker_display_values.odds = localize { type = 'variable', key = "jdis_odds", vars = { (G.GAME and G.GAME.probabilities.normal or 1), card.ability.extra.odds } }
+                local numerator, denominator = SMODS.get_probability_vars(card, card.ability.extra.numerator,
+                    card.ability.extra.odds,
+                    card.config.center.key)
+                card.joker_display_values.odds = localize { type = 'variable', key = "jdis_odds", vars = { numerator, denominator } }
             end
         }
     end
@@ -753,7 +762,7 @@ SMODS.Joker({
     key = "dmaid_lady",
     atlas = 'Dragonmaid',
     pos = { x = 0, y = 2 },
-    rarity = 3,
+    rarity = 2,
     discovered = true,
     blueprint_compat = false,
     eternal_compat = true,
@@ -762,15 +771,15 @@ SMODS.Joker({
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
-        return {
-            vars = { G.GAME.probabilities.normal or 1, card.ability.extra.odds }
-        }
+        local numerator, denominator = SMODS.get_probability_vars(card, card.ability.extra.numerator,
+            card.ability.extra.odds,
+            self.key)
+        return { vars = { numerator, denominator } }
     end,
     joy_desc_cards = {
         { "j_joy_dmaid_house",                                        name = "k_joy_adds" },
         { properties = { { monster_archetypes = { "Dragonmaid" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -789,17 +798,18 @@ SMODS.Joker({
                     }
                 },
             },
-            odds = 2
+            numerator = 5,
+            odds = 10
         },
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
                 context.setting_blind and context.main_eval then
-                if pseudorandom("j_joy_dmaid_lady") < G.GAME.probabilities.normal / card.ability.extra.odds then
-                    local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Dragonmaid" }, rarity = 2 } })
+                if SMODS.pseudorandom_probability(card, card.config.center.key, card.ability.extra.numerator, card.ability.extra.odds) then
+                    local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Dragonmaid" }, rarity = 2, exclude_keys = { "j_joy_dmaid_lady" } } })
                     JoyousSpring.transform_card(card,
-                        pseudorandom_element(choices, pseudoseed("j_joy_dmaid_lady")) or j_joy_dmaid_tinkhec)
+                        pseudorandom_element(choices, 'j_joy_dmaid_lady') or "j_joy_dmaid_tinkhec")
                 end
             end
         end
@@ -823,7 +833,10 @@ SMODS.Joker({
             },
             extra_config = { colour = G.C.GREEN, scale = 0.3 },
             calc_function = function(card)
-                card.joker_display_values.odds = localize { type = 'variable', key = "jdis_odds", vars = { (G.GAME and G.GAME.probabilities.normal or 1), card.ability.extra.odds } }
+                local numerator, denominator = SMODS.get_probability_vars(card, card.ability.extra.numerator,
+                    card.ability.extra.odds,
+                    card.config.center.key)
+                card.joker_display_values.odds = localize { type = 'variable', key = "jdis_odds", vars = { numerator, denominator } }
             end
         }
     end
@@ -834,6 +847,7 @@ SMODS.Joker({
     key = "dmaid_house",
     atlas = 'Dragonmaid',
     pos = { x = 1, y = 2 },
+    joy_alt_pos = { { x = 3, y = 2 } },
     rarity = 3,
     discovered = true,
     blueprint_compat = true,
@@ -857,7 +871,6 @@ SMODS.Joker({
         { "j_joy_dmaid_sheou",                                        name = "k_joy_transforms_into" },
         { properties = { { monster_archetypes = { "Dragonmaid" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -934,8 +947,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 9,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
         return { vars = { card.ability.extra.cards_to_create } }
@@ -944,7 +959,6 @@ SMODS.Joker({
         { "j_joy_dmaid_house",                                        name = "k_joy_transforms_into" },
         { properties = { { monster_archetypes = { "Dragonmaid" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -958,15 +972,16 @@ SMODS.Joker({
         },
     },
     calculate = function(self, card, context)
-        if JoyousSpring.can_use_abilities(card) then
+        if JoyousSpring.can_use_abilities(card) or card.joy_faceup_before_blind then
             if not context.blueprint_card and not context.retrigger_joker and
                 context.setting_blind and context.main_eval then
+                card.ability.extra.faceup_before_blind = nil
                 if G.GAME.blind and ((not G.GAME.blind.disabled) and (G.GAME.blind.boss)) then
                     G.GAME.blind:disable()
 
                     for i = 1, card.ability.extra.cards_to_create do
                         JoyousSpring.create_pseudorandom({ { monster_archetypes = { "Dragonmaid" }, rarity = 1 } },
-                            pseudoseed("j_joy_dmaid_sheou"), true)
+                            'j_joy_dmaid_sheou', true)
                     end
                     JoyousSpring.transform_card(card, "j_joy_dmaid_house")
                     return { message = localize('ph_boss_disabled') }

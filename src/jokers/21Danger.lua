@@ -9,12 +9,12 @@ SMODS.Atlas({
 local danger_destroy = function(card, context)
     local destructable_jokers = {}
     for i = 1, #G.jokers.cards do
-        if not G.jokers.cards[i].ability.eternal and not G.jokers.cards[i].getting_sliced then
+        if not SMODS.is_eternal(G.jokers.cards[i], card) and not G.jokers.cards[i].getting_sliced then
             destructable_jokers[#destructable_jokers + 1] = G.jokers.cards[i]
         end
     end
     local joker_to_destroy = #destructable_jokers > 0 and
-        pseudorandom_element(destructable_jokers, pseudoseed(card.config.center.key)) or nil
+        pseudorandom_element(destructable_jokers, card.config.center.key) or nil
 
     if joker_to_destroy and not (context.blueprint_card or card).getting_sliced then
         joker_to_destroy:start_dissolve()
@@ -48,7 +48,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Danger" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -92,11 +91,24 @@ SMODS.Joker({
 
             for i = 1, card.ability.extra.creates do
                 JoyousSpring.create_pseudorandom({ { monster_archetypes = { "Danger" }, is_main_deck = true } },
-                    pseudoseed('j_joy_danger_jack'), true, nil,
+                    'j_joy_danger_jack', true, nil,
                     next(SMODS.find_card("j_joy_danger_realm")) and "e_polychrome" or nil)
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "chips", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.CHIPS },
+            calc_function = function(card)
+                card.joker_display_values.chips = card.ability.extra.current_chips +
+                    (card.ability.extra.dest_chips * get_danger_count())
+            end
+        }
+    end
 })
 
 -- Danger!? Tsuchinoko?
@@ -115,7 +127,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Danger" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -158,11 +169,24 @@ SMODS.Joker({
             inc_danger_count()
             for i = 1, card.ability.extra.creates do
                 JoyousSpring.create_pseudorandom({ { monster_archetypes = { "Danger" }, is_main_deck = true } },
-                    pseudoseed('j_joy_danger_tsuch'), true, nil,
+                    'j_joy_danger_tsuch', true, nil,
                     next(SMODS.find_card("j_joy_danger_realm")) and "e_polychrome" or nil)
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            calc_function = function(card)
+                card.joker_display_values.mult = card.ability.extra.current_mult +
+                    (card.ability.extra.dest_mult * get_danger_count())
+            end
+        }
+    end
 })
 
 -- Danger! Chupacabra!
@@ -176,12 +200,14 @@ SMODS.Joker({
     eternal_compat = true,
     cost = 5,
     loc_vars = function(self, info_queue, card)
+        if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_revive" }
+        end
         return { vars = { card.ability.extra.current_money, card.ability.extra.money, card.ability.extra.revives } }
     end,
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Danger" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -218,7 +244,7 @@ SMODS.Joker({
             inc_danger_count()
             for i = 1, card.ability.extra.revives do
                 JoyousSpring.revive_pseudorandom({ { monster_archetypes = { "Danger" }, is_main_deck = true } },
-                    pseudoseed('j_joy_danger_chup'), true,
+                    'j_joy_danger_chup', true,
                     next(SMODS.find_card("j_joy_danger_realm")) and "e_polychrome" or nil)
             end
         end
@@ -227,6 +253,22 @@ SMODS.Joker({
         return JoyousSpring.can_use_abilities(card) and
             card.ability.extra.current_money or nil
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            text = {
+                { text = "+$" },
+                { ref_table = "card.ability.extra", ref_value = "current_money" },
+            },
+            text_config = { colour = G.C.GOLD },
+            reminder_text = {
+                { ref_table = "card.joker_display_values", ref_value = "localized_text" },
+            },
+            calc_function = function(card)
+                card.joker_display_values.localized_text = "(" .. localize("k_round") .. ")"
+            end
+        }
+    end
 })
 
 -- Danger! Mothman!
@@ -240,12 +282,14 @@ SMODS.Joker({
     eternal_compat = true,
     cost = 5,
     loc_vars = function(self, info_queue, card)
+        if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_revive" }
+        end
         return { vars = { card.ability.extra.current_discards, card.ability.extra.discards, card.ability.extra.revives } }
     end,
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Danger" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -285,7 +329,7 @@ SMODS.Joker({
             inc_danger_count()
             for i = 1, card.ability.extra.revives do
                 JoyousSpring.revive_pseudorandom({ { monster_archetypes = { "Danger" }, is_main_deck = true } },
-                    pseudoseed('j_joy_danger_moth'), true,
+                    'j_joy_danger_moth', true,
                     next(SMODS.find_card("j_joy_danger_realm")) and "e_polychrome" or nil)
             end
         end
@@ -314,7 +358,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Danger" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -355,7 +398,7 @@ SMODS.Joker({
             inc_danger_count()
             local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Danger" } } })
             for i = 1, card.ability.extra.adds do
-                key_to_add = pseudorandom_element(choices, pseudoseed("j_joy_danger_dog"))
+                key_to_add = pseudorandom_element(choices, 'j_joy_danger_dog')
                 JoyousSpring.add_monster_tag(key_to_add or "j_joy_danger_jack")
             end
         end
@@ -385,7 +428,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Danger" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -424,7 +466,7 @@ SMODS.Joker({
             inc_danger_count()
             local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Danger" } } })
             for i = 1, card.ability.extra.adds do
-                key_to_add = pseudorandom_element(choices, pseudoseed("j_joy_danger_ness"))
+                key_to_add = pseudorandom_element(choices, 'j_joy_danger_ness')
                 JoyousSpring.add_monster_tag(key_to_add or "j_joy_danger_jack")
             end
         end
@@ -452,7 +494,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Danger" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -492,15 +533,38 @@ SMODS.Joker({
         if context.joy_danger == card and not card.ability.extra.activated then
             card.ability.extra.activated = true
             inc_danger_count()
+            local count = 0
             for i = 1, #G.jokers.cards do
-                if G.jokers.cards[i] ~= card and not G.jokers.cards[i].ability.eternal and not G.jokers.cards[i].getting_sliced then
+                if G.jokers.cards[i] ~= card and not SMODS.is_eternal(G.jokers.cards[i], card) and not G.jokers.cards[i].getting_sliced then
                     G.jokers.cards[i]:start_dissolve()
                     SMODS.calculate_context({ joy_danger = G.jokers.cards[i] })
                     G.jokers.cards[i].getting_sliced = true
+                    count = count + 1
                 end
+            end
+            for i = 1, count do
+                JoyousSpring.create_pseudorandom({ { monster_archetypes = { "Danger" }, is_main_deck = true } },
+                    'j_joy_danger_big', true, nil,
+                    next(SMODS.find_card("j_joy_danger_realm")) and "e_polychrome" or nil)
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xmult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                card.joker_display_values.xmult = card.ability.extra.current_xmult +
+                    (card.ability.extra.dest_xmult * get_danger_count())
+            end
+        }
+    end
 })
 
 -- Danger! Ogopogo!
@@ -519,7 +583,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Danger" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -548,14 +611,25 @@ SMODS.Joker({
         if context.joy_danger == card and not card.ability.extra.activated then
             card.ability.extra.activated = true
             inc_danger_count()
-            local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Danger" } } })
-
-            for i = 1, card.ability.extra.mills do
-                JoyousSpring.send_to_graveyard(pseudorandom_element(choices, pseudoseed("j_joy_danger_ogo")))
-            end
+            JoyousSpring.send_to_graveyard_pseudorandom(
+                { { monster_archetypes = { "Danger" } } },
+                card.config.center.key, card.ability.extra.mills)
             return { message = localize("k_joy_mill") }
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "chips", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.CHIPS },
+            calc_function = function(card)
+                card.joker_display_values.chips = card.ability.extra.chips *
+                    JoyousSpring.count_materials_in_graveyard({ { monster_archetypes = { "Danger" } } })
+            end
+        }
+    end
 })
 
 -- Danger! Thunderbird!
@@ -574,7 +648,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Danger" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -618,12 +691,12 @@ SMODS.Joker({
             for _ = 1, card.ability.extra.destroys do
                 local destructable_jokers = {}
                 for i = 1, #G.jokers.cards do
-                    if G.jokers.cards[i] ~= card and not G.jokers.cards[i].ability.eternal and not G.jokers.cards[i].getting_sliced then
+                    if G.jokers.cards[i] ~= card and not SMODS.is_eternal(G.jokers.cards[i], card) and not G.jokers.cards[i].getting_sliced then
                         destructable_jokers[#destructable_jokers + 1] = G.jokers.cards[i]
                     end
                 end
                 local joker_to_destroy = #destructable_jokers > 0 and
-                    pseudorandom_element(destructable_jokers, pseudoseed(card.config.center.key)) or nil
+                    pseudorandom_element(destructable_jokers, card.config.center.key) or nil
 
                 if joker_to_destroy and not (context.blueprint_card or card).getting_sliced then
                     joker_to_destroy:start_dissolve()
@@ -631,14 +704,37 @@ SMODS.Joker({
                     joker_to_destroy.getting_sliced = true
                 end
             end
+            local count = 0
             for i = 1, #G.consumeables.cards do
-                if not G.consumeables.cards[i].ability.eternal and not G.consumeables.cards[i].getting_sliced then
-                    G.consumeables.cards[i]:start_dissolve()
-                    G.consumeables.cards[i].getting_sliced = true
+                if not SMODS.is_eternal(G.consumeables.cards[i], card) and not G.consumeables.cards[i].getting_sliced then
+                    SMODS.destroy_cards(G.consumeables.cards[i], nil, true)
+                    count = count + 1
                 end
+            end
+            local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Danger" } } })
+            for i = 1, count do
+                key_to_add = pseudorandom_element(choices, 'j_joy_danger_thunder')
+                JoyousSpring.add_monster_tag(key_to_add or "j_joy_danger_jack")
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xchips", retrigger_type = "exp" }
+                    },
+                    border_colour = G.C.CHIPS
+                }
+            },
+            calc_function = function(card)
+                card.joker_display_values.xchips = card.ability.extra.current_xchips +
+                    (card.ability.extra.dest_xchips * get_danger_count())
+            end
+        }
+    end
 })
 
 -- Realm of Danger!
@@ -652,12 +748,14 @@ SMODS.Joker({
     eternal_compat = true,
     cost = 5,
     loc_vars = function(self, info_queue, card)
+        if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_revive" }
+        end
         return { vars = { card.ability.extra.money } }
     end,
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Danger" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -702,7 +800,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { properties = { { monster_archetypes = { "Danger" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -719,7 +816,7 @@ SMODS.Joker({
             if not context.blueprint_card and context.setting_blind and context.main_eval then
                 for i = 1, card.ability.extra.creates do
                     JoyousSpring.create_pseudorandom({ { monster_archetypes = { "Danger" }, is_main_deck = true } },
-                        pseudoseed('j_joy_danger_disorder'), true)
+                        'j_joy_danger_disorder', true)
                 end
             end
             if context.joker_main then
@@ -749,7 +846,19 @@ SMODS.Joker({
             SMODS.debuff_card(added_card, true, "j_joy_danger_disorder")
         end
     end,
-
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            calc_function = function(card)
+                card.joker_display_values.mult = card.ability.extra.mult *
+                    JoyousSpring.count_materials_in_graveyard({ { monster_archetypes = { "Danger" } } })
+            end
+        }
+    end
 })
 JoyousSpring.collection_pool[#JoyousSpring.collection_pool + 1] = {
     keys = { "danger" },

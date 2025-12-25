@@ -1,10 +1,5 @@
 -- CHALLENGES
 
-JoyousSpring.get_challenge_colour = function(challenge)
-    if challenge and challenge.joy_colour then return challenge.joy_colour end
-    return nil
-end
-
 -- Mystic Wok
 SMODS.Challenge({
     key = "mystic_wok",
@@ -36,7 +31,7 @@ SMODS.Challenge({
     unlocked = function(self)
         return true
     end,
-    joy_colour = G.C.JOY.SPELL
+    button_colour = G.C.JOY.SPELL
 })
 
 -- Mistake
@@ -73,7 +68,7 @@ SMODS.Challenge({
     unlocked = function(self)
         return true
     end,
-    joy_colour = G.C.JOY.TRAP
+    button_colour = G.C.JOY.TRAP
 })
 
 -- Monster Reborn
@@ -95,7 +90,7 @@ SMODS.Challenge({
     unlocked = function(self)
         return true
     end,
-    joy_colour = G.C.JOY.SPELL
+    button_colour = G.C.JOY.SPELL
 })
 
 -- Domain of the True Monarchs
@@ -110,5 +105,14 @@ SMODS.Challenge({
     unlocked = function(self)
         return true
     end,
-    joy_colour = G.C.JOY.SPELL
+    button_colour = G.C.JOY.SPELL
 })
+
+local smods_add_to_pool_ref = SMODS.add_to_pool
+function SMODS.add_to_pool(prototype_obj, args)
+    if G.GAME.modifiers.joy_no_extra_deck_jokers and
+        prototype_obj.set == "Joker" and JoyousSpring.is_material_center(prototype_obj.key, { is_extra_deck = true }) then
+        return false
+    end
+    return smods_add_to_pool_ref(prototype_obj, args)
+end

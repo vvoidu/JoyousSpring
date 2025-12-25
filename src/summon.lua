@@ -42,9 +42,12 @@ local function summon_from_booster(card)
     if card.children.price then
         card.children.price:remove(); card.children.price = nil
     end
+    if card.children.joy_side_button then
+        card.children.joy_side_button:remove(); card.children.joy_side_button = nil
+    end
 
     if not card.from_area then card.from_area = card.area end
-    if card.area and (not nc or card.area == G.pack_cards) then card.area:remove_card(card) end
+    if card.area and card.area == G.pack_cards then card.area:remove_card(card) end
 
     card:add_to_deck()
     G.jokers:emplace(card)
@@ -98,6 +101,8 @@ local function summon_from_shop(card)
             card.children.price = nil
             if card.children.buy_button then card.children.buy_button:remove() end
             card.children.buy_button = nil
+            if card.children.joy_side_button then card.children.joy_side_button:remove() end
+            card.children.joy_side_button = nil
             remove_nils(card.children)
             G.jokers:emplace(card)
             G.GAME.round_scores.cards_purchased.amt = G.GAME.round_scores.cards_purchased.amt + 1
@@ -167,19 +172,25 @@ JoyousSpring.perform_summon = function(card, card_list, summon_type)
     end
 end
 
+---Creates a card with correct timings
+---@param add_params Card|table|CreateCard
+---@param must_have_room? boolean
+---@param card_limit_modif? integer
+---@param from_revive_key? string
+---@return Card|table
 JoyousSpring.create_summon = function(add_params, must_have_room, card_limit_modif, from_revive_key)
     local card = add_params.is and add_params:is(Card) and add_params or SMODS.create_card(add_params)
     card.states.visible = false
     G.E_MANAGER:add_event(Event({
         func = function()
-            if not must_have_room or (#G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit + (card_limit_modif or 0)) then
+            local area = JoyousSpring.is_field_spell(card) and JoyousSpring.field_spell_area or G.jokers
+            if not must_have_room or (#area.cards + (area == G.jokers and G.GAME.joker_buffer or 0) < area.config.card_limit + (card_limit_modif or 0)) then
                 card.states.visible = true
                 card:add_to_deck()
-                G.jokers:emplace(card)
+                area:emplace(card)
             else
                 card.getting_sliced = true
                 card:remove()
-                card = nil
                 if from_revive_key then
                     JoyousSpring.graveyard[from_revive_key].count = JoyousSpring.graveyard[from_revive_key].count + 1
                     JoyousSpring.graveyard[from_revive_key].summonable = JoyousSpring.graveyard[from_revive_key]
@@ -190,6 +201,26 @@ JoyousSpring.create_summon = function(add_params, must_have_room, card_limit_mod
         end
     }))
     return card
+end
+
+---Create a random card with *property_list* properties
+---@param property_list material_properties[]
+---@param seed string|number?
+---@param must_have_room boolean?
+---@param not_owned boolean?
+---@param edition table|string?
+---@param ignore_in_pool boolean?
+---@return Card|table?
+JoyousSpring.create_pseudorandom = function(property_list, seed, must_have_room, not_owned, edition, ignore_in_pool)
+    local choices = JoyousSpring.get_materials_in_collection(property_list, not_owned, nil, not ignore_in_pool)
+    local key_to_add = pseudorandom_element(choices, seed or "JoyousSpring")
+    if key_to_add then
+        return JoyousSpring.create_summon({
+            key = key_to_add,
+            ---@diagnostic disable-next-line: assign-type-mismatch
+            edition = edition
+        }, must_have_room)
+    end
 end
 
 ---Summons a Token with specified attributes
@@ -328,28 +359,30 @@ JoyousSpring.is_valid_material_combo = function(combo_list, condition)
             if restrictions.same_name and card_1.config.center.key ~= card_2.config.center.key then
                 return false
             end
-            if restrictions.different_rarities and card_1.config.center.rarity == card_2.config.center.rarity then
+            if restrictions.different_rarities and (card_1:is_rarity(card_2.config.center.rarity) or
+                    card_2:is_rarity(card_1.config.center.rarity)) then
                 return false
             end
-            if restrictions.same_rarity and card_1.config.center.rarity ~= card_2.config.center.rarity then
+            if restrictions.same_rarity and not (card_1:is_rarity(card_2.config.center.rarity) or
+                    card_2:is_rarity(card_1.config.center.rarity)) then
                 return false
             end
             if restrictions.different_attributes or restrictions.same_attribute or restrictions.different_types or restrictions.same_type then
                 if not JoyousSpring.is_monster_card(card_1) or not JoyousSpring.is_monster_card(card_2) then
                     return false
                 end
-                local card_1_properties = card_1.ability.extra.joyous_spring
-                local card_2_properties = card_2.ability.extra.joyous_spring
-                if restrictions.different_attributes and card_1_properties.attribute == card_2_properties.attribute then
+                local is_same_type = JoyousSpring.is_same_type_attribute(card_1, card_2, nil, true)
+                local is_same_attribute = JoyousSpring.is_same_type_attribute(card_1, card_2, true)
+                if restrictions.different_attributes and is_same_attribute then
                     return false
                 end
-                if restrictions.same_attribute and card_1_properties.attribute ~= card_2_properties.attribute then
+                if restrictions.same_attribute and not is_same_attribute then
                     return false
                 end
-                if restrictions.different_types and card_1_properties.monster_type == card_2_properties.monster_type then
+                if restrictions.different_types and is_same_type then
                     return false
                 end
-                if restrictions.same_type and card_1_properties.monster_type ~= card_2_properties.monster_type then
+                if restrictions.same_type and not is_same_type then
                     return false
                 end
             end
@@ -488,7 +521,7 @@ end
 ---@return table?
 ---@return boolean?
 JoyousSpring.get_all_summon_material_combos = function(card, card_list)
-    if not JoyousSpring.is_monster_card(card) or
+    if not JoyousSpring.is_monster_card(card) or not JoyousSpring.has_joyous_table(card) or
         (not card.ability.extra.joyous_spring.summon_conditions and not card.ability.extra.joyous_spring.summon_consumeable_conditions) then
         return nil
     end
@@ -554,7 +587,7 @@ end
 ---@return boolean
 ---@return boolean _ If it has room
 JoyousSpring.can_summon = function(card, card_list)
-    if not JoyousSpring.is_monster_card(card) then
+    if not JoyousSpring.is_monster_card(card) or not JoyousSpring.has_joyous_table(card) then
         return false, false
     end
     if not card.ability.extra.joyous_spring.summon_conditions and not card.ability.extra.joyous_spring.summon_consumeable_conditions then
@@ -563,9 +596,9 @@ JoyousSpring.can_summon = function(card, card_list)
 
     if card.ability.extra.joyous_spring.summon_consumeable_conditions then
         local card_table = card_list or G.consumeables.cards
-        return JoyousSpring.can_summon_consumeables(card, card.ability.extra.joyous_spring.summon_consumeable_conditions,
-                card_table),
-            (card.edition and card.edition.negative and true) or
+        local conditions = card.ability.extra.joyous_spring.summon_consumeable_conditions
+        return JoyousSpring.can_summon_consumeables(card, conditions, card_table),
+            JoyousSpring.get_card_limit(card) > 0 or
             (#G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit)
     else
         local card_table = card_list or G.jokers.cards
@@ -573,7 +606,7 @@ JoyousSpring.can_summon = function(card, card_list)
 
         for _, condition in ipairs(conditions) do
             if JoyousSpring.can_summon_by_condition(condition, card_table) then
-                return true, (card.edition and card.edition.negative and true) or
+                return true, JoyousSpring.get_card_limit(card) > 0 or
                     (#G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit + JoyousSpring.get_min_summon_materials(card))
             end
         end
@@ -586,15 +619,16 @@ end
 ---@param card Card
 ---@param combo Card[]
 ---@return boolean
+---@return boolean
 JoyousSpring.can_summon_with_combo = function(card, combo)
-    if not JoyousSpring.is_monster_card(card) or not combo or #combo == 0 or
+    if not JoyousSpring.is_monster_card(card) or not JoyousSpring.has_joyous_table(card) or not combo or #combo == 0 or
         (not card.ability.extra.joyous_spring.summon_conditions and not card.ability.extra.joyous_spring.summon_consumeable_conditions) then
-        return false
+        return false, true
     end
 
     if card.ability.extra.joyous_spring.summon_consumeable_conditions then
         return JoyousSpring.fulfills_condition_consumeables(
-            card.ability.extra.joyous_spring.summon_consumeable_conditions, combo)
+            card.ability.extra.joyous_spring.summon_consumeable_conditions, combo), true
     else
         local conditions = card.ability.extra.joyous_spring.summon_conditions
 
@@ -602,17 +636,19 @@ JoyousSpring.can_summon_with_combo = function(card, combo)
             if JoyousSpring.fulfills_conditions(combo, condition) then
                 local materials = 0
                 for _, material in ipairs(combo) do
-                    if material.ability.set == "Joker" and not (material.edition and material.edition.negative) then
+                    if material.ability.set == "Joker" and not (JoyousSpring.get_card_limit(material) > 0) then
                         materials = materials + 1
                     end
                 end
-                return (card.edition and card.edition.negative) or
-                    (#G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit + materials)
+                local restrictions = condition.restrictions or {}
+                return restrictions.no_room or JoyousSpring.get_card_limit(card) > 0 or
+                    (#G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit + materials),
+                    false
             end
         end
     end
 
-    return false
+    return false, true
 end
 
 JoyousSpring.get_all_fulfilling = function(card_list, condition)
@@ -638,7 +674,7 @@ end
 ---@param combo Card[]
 ---@return boolean
 JoyousSpring.transfer_materials_with_combo = function(card, combo)
-    if not JoyousSpring.is_monster_card(card) or not combo or #combo == 0 or
+    if not JoyousSpring.is_monster_card(card) or not JoyousSpring.has_joyous_table(card) or not combo or #combo == 0 or
         (not card.ability.extra.joyous_spring.summon_conditions and not card.ability.extra.joyous_spring.summon_consumeable_conditions) then
         return false
     end
@@ -736,7 +772,7 @@ JoyousSpring.can_summon_consumeables = function(card, condition, combo)
     if counts.any < any_min or counts.tarot < tarot_min or counts.planet < planet_min or counts.spectral < spectral_min then
         return false
     end
-    return (card.edition and card.edition.negative and true) or
+    return JoyousSpring.get_card_limit(card) > 0 or
         (#G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit)
 end
 
@@ -784,6 +820,185 @@ JoyousSpring.create_UIBox_select_summon_materials = function(card, is_quick)
     local summon_type = card.ability.extra.joyous_spring.summon_type or "FUSION"
 
     local colour = G.C.JOY[summon_type] or G.C.JOY.FUSION
+
+    JoyousSpring.summon_text = localize('k_joy_summon')
+
+    local ui_nodes = {
+        {
+            n = G.UIT.R,
+            config = {
+                align = "cm",
+                padding = 0.05,
+                minw = 7
+            },
+            nodes = {
+                {
+                    n = G.UIT.O,
+                    config = {
+                        object = DynaText({
+                            string = { localize("k_joy_select_materials") },
+                            colours = { G.C.UI.TEXT_LIGHT },
+                            bump = true,
+                            silent = true,
+                            pop_in = 0,
+                            pop_in_rate = 4,
+                            minw = 10,
+                            shadow = true,
+                            y_offset = -0.6,
+                            scale = 0.8
+                        })
+                    }
+                },
+            }
+        },
+        {
+            n = G.UIT.R,
+            config = {
+                align = "cm",
+                padding = 0.2,
+                minw = 7
+            },
+            nodes = {
+                {
+                    n = G.UIT.R,
+                    config = {
+                        r = 0.1,
+                        minw = 7,
+                        minh = 5,
+                        align = "cm",
+                        padding = 1,
+                        colour = G.C.BLACK
+                    },
+                    nodes = {
+                        {
+                            n = G.UIT.R,
+                            config = {
+                                align = "cm",
+                                padding = 0.07,
+                                no_fill = true,
+                                scale = 1
+                            },
+                            nodes = {
+                                {
+                                    n = G.UIT.O,
+                                    config = {
+                                        object = JoyousSpring.summon_material_area
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            n = G.UIT.R,
+            config = {
+                align = "cm",
+                padding = 0.1,
+                minw = 7,
+                colour = G.C.CLEAR,
+            },
+            nodes = {
+                {
+                    n = G.UIT.C,
+                    config = {
+                        ref_table = card,
+                        align = "cm",
+                        minh = 0.7,
+                        minw = 10,
+                        padding = 0.1,
+                        r = 0.1,
+                        hover = true,
+                        colour = G.C.UI.BACKGROUND_INACTIVE,
+                        button = 'joy_exit_select_material_menu',
+                        shadow = true,
+                        func = 'joy_can_select_material',
+                        focus_args = {
+                            nav = 'wide',
+                            button = 'rightshoulder'
+                        }
+                    },
+                    nodes = {
+                        {
+                            n = G.UIT.R,
+                            config = { align = "cm", padding = 0, no_fill = true },
+                            nodes = {
+                                {
+                                    n = G.UIT.T,
+                                    config = {
+                                        ref_table = JoyousSpring,
+                                        ref_value = "summon_text",
+                                        scale = 0.5,
+                                        colour = G.C.UI.TEXT_LIGHT,
+                                        shadow = true,
+                                        func = 'set_button_pip',
+                                        focus_args = {
+                                            button = 'rightshoulder'
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    }
+                },
+                {
+                    n = G.UIT.C,
+                    config = {
+                        align = "cm",
+                        minh = 0.7,
+                        minw = 3,
+                        padding = 0.1,
+                        r = 0.1,
+                        hover = true,
+                        colour = colour,
+                        button = "exit_overlay_menu",
+                        shadow = true,
+                        focus_args = {
+                            nav = 'wide',
+                            button = 'b'
+                        }
+                    },
+                    nodes = {
+                        {
+                            n = G.UIT.R,
+                            config = { align = "cm", padding = 0, no_fill = true },
+                            nodes = {
+                                {
+                                    n = G.UIT.T,
+                                    config = {
+                                        text = localize('b_back'),
+                                        scale = 0.5,
+                                        colour = G.C.UI.TEXT_LIGHT,
+                                        shadow = true,
+                                        func = 'set_button_pip',
+                                        focus_args = {
+                                            button = 'b'
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    }
+                },
+            }
+        },
+    }
+
+    if is_quick then
+        local quick_node = {
+            n = G.UIT.R,
+            config = {
+                align = "cm",
+                padding = 0.05,
+                minw = 7
+            },
+            nodes = {
+                { n = G.UIT.T, config = { text = localize("k_joy_summon_warning"), scale = 0.35, colour = G.C.UI.TEXT_LIGHT } }
+            }
+        }
+        table.insert(ui_nodes, 2, quick_node)
+    end
     return {
         n = G.UIT.ROOT,
         config = {
@@ -817,177 +1032,7 @@ JoyousSpring.create_UIBox_select_summon_materials = function(card, is_quick)
                             minw = 1,
                             colour = G.C.L_BLACK
                         },
-                        nodes = {
-                            {
-                                n = G.UIT.R,
-                                config = {
-                                    align = "cm",
-                                    padding = 0.05,
-                                    minw = 7
-                                },
-                                nodes = {
-                                    {
-                                        n = G.UIT.O,
-                                        config = {
-                                            object = DynaText({
-                                                string = { localize("k_joy_select_materials") },
-                                                colours = { G.C.UI.TEXT_LIGHT },
-                                                bump = true,
-                                                silent = true,
-                                                pop_in = 0,
-                                                pop_in_rate = 4,
-                                                minw = 10,
-                                                shadow = true,
-                                                y_offset = -0.6,
-                                                scale = 0.8
-                                            })
-                                        }
-                                    },
-                                }
-                            },
-                            is_quick and {
-                                n = G.UIT.R,
-                                config = {
-                                    align = "cm",
-                                    padding = 0.05,
-                                    minw = 7
-                                },
-                                nodes = {
-                                    { n = G.UIT.T, config = { text = localize("k_joy_summon_warning"), scale = 0.35, colour = G.C.UI.TEXT_LIGHT } }
-                                },
-                            } or nil,
-                            {
-                                n = G.UIT.R,
-                                config = {
-                                    align = "cm",
-                                    padding = 0.2,
-                                    minw = 7
-                                },
-                                nodes = {
-                                    {
-                                        n = G.UIT.R,
-                                        config = {
-                                            r = 0.1,
-                                            minw = 7,
-                                            minh = 5,
-                                            align = "cm",
-                                            padding = 1,
-                                            colour = G.C.BLACK
-                                        },
-                                        nodes = {
-                                            {
-                                                n = G.UIT.R,
-                                                config = {
-                                                    align = "cm",
-                                                    padding = 0.07,
-                                                    no_fill = true,
-                                                    scale = 1
-                                                },
-                                                nodes = {
-                                                    {
-                                                        n = G.UIT.O,
-                                                        config = {
-                                                            object = JoyousSpring.summon_material_area
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                n = G.UIT.R,
-                                config = {
-                                    align = "cm",
-                                    padding = 0.1,
-                                    minw = 7,
-                                    colour = G.C.CLEAR,
-                                },
-                                nodes = {
-                                    {
-                                        n = G.UIT.C,
-                                        config = {
-                                            ref_table = card,
-                                            align = "cm",
-                                            minh = 0.7,
-                                            minw = 10,
-                                            padding = 0.1,
-                                            r = 0.1,
-                                            hover = true,
-                                            colour = G.C.UI.BACKGROUND_INACTIVE,
-                                            button = 'joy_exit_select_material_menu',
-                                            shadow = true,
-                                            func = 'joy_can_select_material',
-                                            focus_args = {
-                                                nav = 'wide',
-                                                button = 'rightshoulder'
-                                            }
-                                        },
-                                        nodes = {
-                                            {
-                                                n = G.UIT.R,
-                                                config = { align = "cm", padding = 0, no_fill = true },
-                                                nodes = {
-                                                    {
-                                                        n = G.UIT.T,
-                                                        config = {
-                                                            text = localize('k_joy_summon'),
-                                                            scale = 0.5,
-                                                            colour = G.C.UI.TEXT_LIGHT,
-                                                            shadow = true,
-                                                            func = 'set_button_pip',
-                                                            focus_args = {
-                                                                button = 'rightshoulder'
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                        }
-                                    },
-                                    {
-                                        n = G.UIT.C,
-                                        config = {
-                                            align = "cm",
-                                            minh = 0.7,
-                                            minw = 3,
-                                            padding = 0.1,
-                                            r = 0.1,
-                                            hover = true,
-                                            colour = colour,
-                                            button = "exit_overlay_menu",
-                                            shadow = true,
-                                            focus_args = {
-                                                nav = 'wide',
-                                                button = 'b'
-                                            }
-                                        },
-                                        nodes = {
-                                            {
-                                                n = G.UIT.R,
-                                                config = { align = "cm", padding = 0, no_fill = true },
-                                                nodes = {
-                                                    {
-                                                        n = G.UIT.T,
-                                                        config = {
-                                                            text = localize('b_back'),
-                                                            scale = 0.5,
-                                                            colour = G.C.UI.TEXT_LIGHT,
-                                                            shadow = true,
-                                                            func = 'set_button_pip',
-                                                            focus_args = {
-                                                                button = 'b'
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                        }
-                                    },
-                                }
-                            },
-                        }
+                        nodes = ui_nodes
                     },
                 }
             },
@@ -1017,6 +1062,7 @@ JoyousSpring.create_overlay_select_summon_materials = function(card, card_list)
             {
                 type = 'summon_materials',
                 highlight_limit = highlight_limit,
+                no_card_count = true
             }
         )
         JoyousSpring.summon_material_area.material_combos = material_combos
@@ -1024,7 +1070,7 @@ JoyousSpring.create_overlay_select_summon_materials = function(card, card_list)
 
         for _, joker in ipairs(material_list) do
             local added_joker = copy_card(joker)
-            if JoyousSpring.is_monster_card(joker) then
+            if JoyousSpring.is_monster_card(joker) and JoyousSpring.has_joyous_table(joker) then
                 for k, v in pairs(joker.ability.extra.joyous_spring) do
                     added_joker.ability.extra.joyous_spring[k] = v
                 end
@@ -1069,14 +1115,21 @@ end
 G.FUNCS.joy_can_select_material = function(e)
     local card = e.config.ref_table
 
+    JoyousSpring.summon_text = localize('k_joy_summon')
+
     if card and JoyousSpring.summon_material_area and next(JoyousSpring.summon_material_area.highlighted) then
         local summon_type = card.ability.extra.joyous_spring.summon_type or "Fusion"
         local colour = G.C.JOY[summon_type] or G.C.JOY.FUSION
 
-        if JoyousSpring.can_summon_with_combo(card, JoyousSpring.summon_material_area.highlighted) then
+        local can_summon, has_space = JoyousSpring.can_summon_with_combo(card,
+            JoyousSpring.summon_material_area.highlighted)
+        if can_summon then
             e.config.colour = colour
             e.config.button = 'joy_exit_select_material_menu'
         else
+            if not has_space then
+                JoyousSpring.summon_text = localize('k_joy_summon') .. localize('k_joy_summon_no_space')
+            end
             e.config.colour = G.C.UI.BACKGROUND_INACTIVE
             e.config.button = nil
         end

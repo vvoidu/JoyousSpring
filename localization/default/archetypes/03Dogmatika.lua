@@ -21,6 +21,28 @@ return {
                     },
                 },
             },
+            j_joy_dogma_thunderbolt = {
+                name = "{C:joy_effect}Dogmatika Fleurdelis, the Thunderbolt",
+                text = {
+                    {
+                        "Debuffed {C:joy_spell}Extra Deck{} {C:attention}Jokers{}",
+                        "each give {X:mult,C:white}X#1#{} Mult",
+                    },
+                    {
+                        "{C:joy_normal}\"Dogmatika\"{} owned also count as",
+                        "debuffed {C:joy_spell}Extra Deck{} {C:attention}Jokers{} and vice versa",
+                        "for {C:joy_normal}\"Dogmatika\"{} abilities"
+                    },
+                    {
+                        "Creates a {C:dark_edition}Negative{} {C:joy_effect}\"Dogmatika Fleurdelis, the Thunderbolt\"",
+                        "when used as {C:attention}material{} for a {C:joy_ritual}Ritual",
+                    },
+                    {
+                        "Free and doesn't need room when obtained from the shop",
+                        "if you own a debuffed {C:joy_spell}Extra Deck{} {C:attention}Joker{}"
+                    },
+                },
+            },
             j_joy_dogma_maximus = {
                 name = "{C:joy_effect}Dogmatika Maximus",
                 text = {
@@ -34,7 +56,7 @@ return {
                 name = "{C:joy_effect}Dogmatika Adin, the Enlightened",
                 text = {
                     {
-                        "Creates {C:attention}#1#{} non-{C:joy_ritual}Ritual{} {C:joy_normal}\"Dogmatika\"{}",
+                        "Creates {C:attention}#1#{} non-{C:joy_ritual}Ritual{} {C:joy_normal}Main Deck \"Dogmatika\"{}",
                         "when {C:attention}Boss Blind{} is defeated",
                         "{C:inactive}(Must have room){}",
                     },

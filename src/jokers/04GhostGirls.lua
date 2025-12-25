@@ -19,7 +19,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.base_xmult, card.ability.extra.xmult } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -87,7 +86,6 @@ SMODS.Joker({
         end
         return { vars = { card.ability.extra.xmult, 1 + card.ability.extra.xmult * JoyousSpring.count_materials_in_graveyard({ { is_extra_deck = true } }) } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -138,15 +136,17 @@ SMODS.Joker({
     key = "yokai_ash",
     atlas = 'GhostGirls',
     pos = { x = 2, y = 0 },
+    joy_alt_pos = { { x = 0, y = 2 } },
     rarity = 4,
     discovered = true,
     blueprint_compat = false,
     eternal_compat = true,
     cost = 12,
     loc_vars = function(self, info_queue, card)
-        return { vars = { G.GAME.probabilities.normal or 1, card.ability.extra.odds, card.ability.extra.base_xmult, card.ability.extra.xmult } }
+        local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.odds,
+            self.key)
+        return { vars = { numerator, denominator, card.ability.extra.base_xmult, card.ability.extra.xmult } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -198,6 +198,7 @@ SMODS.Joker({
     key = "yokai_belle",
     atlas = 'GhostGirls',
     pos = { x = 0, y = 1 },
+    joy_alt_pos = { { x = 1, y = 2 } },
     rarity = 4,
     discovered = true,
     blueprint_compat = false,
@@ -209,7 +210,6 @@ SMODS.Joker({
         end
         return { vars = { card.ability.extra.base_xmult, card.ability.extra.xmult } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -271,7 +271,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.base_xmult, card.ability.extra.xmult } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -290,9 +289,9 @@ SMODS.Joker({
             if not context.blueprint_card and not context.retrigger_joker then
                 if context.setting_blind and context.main_eval then
                     local eval = function(card)
-                        return (card.ability.extra.consumable_count == 0) and not G
-                            .RESET_JIGGLES and
+                        return not G.RESET_JIGGLES and
                             card.config.center.key == "j_joy_yokai_sister" -- for transformations
+                            and (card.ability.extra.consumable_count == 0)
                     end
                     juice_card_until(card, eval, true)
                 end
@@ -353,7 +352,6 @@ SMODS.Joker({
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.base_xmult, card.ability.extra.xmult } }
     end,
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -385,7 +383,7 @@ SMODS.Joker({
         end
     end,
     joy_apply_to_jokers_added = function(card, added_card)
-        if not card.debuff and added_card.config.center.rarity == 1 or added_card.config.center.rarity == 2 then
+        if not card.debuff and (added_card:is_rarity(1) or added_card:is_rarity(2)) then
             SMODS.debuff_card(added_card, true, "j_joy_yokai_mourner")
         end
     end,

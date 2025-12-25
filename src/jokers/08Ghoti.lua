@@ -6,13 +6,6 @@ SMODS.Atlas({
     py = 95
 })
 
-SMODS.Atlas({
-    key = "Ghoti02",
-    path = "08Ghoti02.png",
-    px = 71,
-    py = 95
-})
-
 -- Keaf, Murk of the Ghoti
 SMODS.Joker({
     key = "fish_keaf",
@@ -33,7 +26,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_fish_depths", properties = { { monster_archetypes = { "Ghoti" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -48,14 +40,14 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval then
+                context.joy_post_round_eval then
                 local func = function(c)
                     for i = 1, c.ability.extra.revives do
                         JoyousSpring.revive_pseudorandom(
                             {
-                                { is_extra_deck = true, monster_archetypes = { "Ghoti" } },
+                                { summon_type = "SYNCHRO" },
                             },
-                            pseudoseed("j_joy_fish_keaf"),
+                            'j_joy_fish_keaf',
                             true
                         )
                     end
@@ -85,7 +77,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_fish_depths", properties = { { monster_archetypes = { "Ghoti" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -101,7 +92,7 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval then
+                context.joy_post_round_eval then
                 JoyousSpring.banish(card, "blind_selected")
             end
             if context.joker_main then
@@ -111,6 +102,16 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "chips", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.CHIPS },
+        }
+    end
 })
 
 -- Shif, Fairy of the Ghoti
@@ -132,7 +133,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_fish_depths", properties = { { monster_archetypes = { "Ghoti" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -148,7 +148,7 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval then
+                context.joy_post_round_eval then
                 JoyousSpring.banish(card, "blind_selected")
             end
             if context.joker_main then
@@ -158,6 +158,16 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+        }
+    end
 })
 
 -- Zep, Ruby of the Ghoti
@@ -181,7 +191,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_fish_depths", properties = { { monster_archetypes = { "Ghoti" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -197,12 +206,12 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval then
+                context.joy_post_round_eval then
                 local func = function(c)
                     for i = 1, c.ability.extra.revives do
                         JoyousSpring.revive_pseudorandom(
                             { { is_main_deck = true, monster_archetypes = { "Ghoti" } } },
-                            pseudoseed("j_joy_fish_zep"),
+                            'j_joy_fish_zep',
                             true
                         )
                     end
@@ -233,7 +242,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_fish_depths", properties = { { monster_archetypes = { "Ghoti" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -248,12 +256,12 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval then
+                context.joy_post_round_eval then
                 local func = function(c)
                     for i = 1, c.ability.extra.cards_to_create do
                         JoyousSpring.create_pseudorandom(
                             { { monster_archetypes = { "Ghoti" }, is_main_deck = true, exclude_keys = { "j_joy_fish_ixeep" } } },
-                            pseudoseed("j_joy_fish_ixeep"), true)
+                            'j_joy_fish_ixeep', true)
                     end
                 end
                 JoyousSpring.banish(card, "boss_selected", func)
@@ -281,7 +289,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_fish_depths", properties = { { monster_archetypes = { "Ghoti" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -298,7 +305,7 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval then
+                context.joy_post_round_eval then
                 JoyousSpring.banish(card, "blind_selected")
             end
             if not context.blueprint_card and not context.retrigger_joker and
@@ -309,7 +316,7 @@ SMODS.Joker({
                     local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Ghoti" }, is_extra_deck = true } })
 
                     for i = 1, card.ability.extra.cards_to_create do
-                        local key_to_add, _ = pseudorandom_element(choices, pseudoseed("j_joy_fish_eanoc"))
+                        local key_to_add, _ = pseudorandom_element(choices, 'j_joy_fish_eanoc')
                         if key_to_add and #JoyousSpring.extra_deck_area.cards < JoyousSpring.extra_deck_area.config.card_limit then
                             JoyousSpring.add_to_extra_deck(key_to_add)
                         end
@@ -318,6 +325,18 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            reminder_text = {
+                { text = "(" },
+                { ref_table = "card.ability.extra", ref_value = "returned" },
+                { text = "/" },
+                { ref_table = "card.ability.extra", ref_value = "times" },
+                { text = ")" },
+            },
+        }
+    end
 })
 
 -- Psiics, Moonlight of the Ghoti
@@ -340,7 +359,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_fish_depths", properties = { { monster_archetypes = { "Ghoti" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -355,14 +373,14 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval then
+                context.joy_post_round_eval then
                 local func = function(c)
                     for i = 1, c.ability.extra.revives do
                         JoyousSpring.revive_pseudorandom(
                             {
                                 { is_tuner = true },
                             },
-                            pseudoseed("j_joy_fish_psiics"),
+                            'j_joy_fish_psiics',
                             false,
                             { negative = true }
                         )
@@ -394,7 +412,6 @@ SMODS.Joker({
         { "j_joy_fish_depths", name = "k_joy_adds" },
         { "j_joy_fish_depths", properties = { { monster_archetypes = { "Ghoti" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -411,7 +428,7 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval then
+                context.joy_post_round_eval then
                 JoyousSpring.banish(card, "blind_selected")
                 local choices = {}
                 for _, consumable in ipairs(G.consumeables.cards) do
@@ -419,7 +436,7 @@ SMODS.Joker({
                 end
                 for i = 1, card.ability.extra.banishes do
                     if #choices > 0 then
-                        local to_banish, pos = pseudorandom_element(choices, pseudoseed("j_joy_fish_snopios"))
+                        local to_banish, pos = pseudorandom_element(choices, 'j_joy_fish_snopios')
                         if to_banish then
                             JoyousSpring.banish(to_banish, "blind_selected")
                         end
@@ -440,6 +457,18 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        ---@type JDJokerDefinition
+        return {
+            reminder_text = {
+                { text = "(" },
+                { ref_table = "card.ability.extra", ref_value = "returned" },
+                { text = "/" },
+                { ref_table = "card.ability.extra", ref_value = "times" },
+                { text = ")" },
+            },
+        }
+    end
 })
 
 -- Arionpos, Serpent of the Ghoti
@@ -461,7 +490,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_fish_depths", properties = { { monster_archetypes = { "Ghoti" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -487,12 +515,12 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval then
+                context.joy_post_round_eval then
                 local func = function(c)
                     local choices = JoyousSpring.get_materials_in_collection({ { monster_archetypes = { "Ghoti" }, is_extra_deck = true } })
 
                     for i = 1, c.ability.extra.cards_to_create do
-                        local key_to_add, _ = pseudorandom_element(choices, pseudoseed("j_joy_fish_arionpos"))
+                        local key_to_add, _ = pseudorandom_element(choices, 'j_joy_fish_arionpos')
                         if key_to_add and #JoyousSpring.extra_deck_area.cards < JoyousSpring.extra_deck_area.config.card_limit then
                             JoyousSpring.add_to_extra_deck(key_to_add)
                         end
@@ -507,6 +535,18 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "chips", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.CHIPS },
+            calc_function = function(card)
+                card.joker_display_values.chips = card.ability.extra.chips * (G.GAME.joy_cards_banished or 0)
+            end
+        }
+    end
 })
 
 -- Askaan, the Bicorned Ghoti
@@ -528,7 +568,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_fish_depths", properties = { { monster_archetypes = { "Ghoti" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -553,11 +592,11 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval then
+                context.joy_post_round_eval then
                 JoyousSpring.banish(card, "blind_selected")
 
                 local choices = JoyousSpring.get_materials_owned({ { exclude_monster_archetypes = { "Ghoti" } } })
-                local to_banish = pseudorandom_element(choices, pseudoseed("j_joy_fish_askaan"))
+                local to_banish = pseudorandom_element(choices, 'j_joy_fish_askaan')
                 if to_banish then
                     JoyousSpring.banish(to_banish, "blind_selected")
                 end
@@ -569,6 +608,18 @@ SMODS.Joker({
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.joker_display_values", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+            calc_function = function(card)
+                card.joker_display_values.mult = card.ability.extra.mult * (G.GAME.joy_cards_banished or 0)
+            end
+        }
+    end
 })
 
 -- Guoglim, Spear of the Ghoti
@@ -591,7 +642,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_fish_depths", properties = { { monster_archetypes = { "Ghoti" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -616,7 +666,7 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval then
+                context.joy_post_round_eval then
                 JoyousSpring.banish(card, "blind_selected")
             end
             if context.joker_main then
@@ -628,22 +678,37 @@ SMODS.Joker({
     end,
     add_to_deck = function(self, card, from_debuff)
         if not from_debuff and not card.debuff then
-            if (#G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit - ((card.edition and card.edition.negative) and 0 or 1)) then
+            if #G.jokers.cards + G.GAME.joker_buffer + JoyousSpring.get_card_limit(card) <= G.jokers.config.card_limit then
                 local revive_fish = JoyousSpring.revive_pseudorandom(
                     { { monster_type = "Fish" } },
-                    pseudoseed("j_joy_fish_guoglim"),
+                    'j_joy_fish_guoglim',
                     true
                 )
-                while revive_fish and (#G.jokers.cards + G.GAME.joker_buffer < G.jokers.config.card_limit - ((card.edition and card.edition.negative) and 0 or 1)) do
+                while revive_fish and #G.jokers.cards + G.GAME.joker_buffer + JoyousSpring.get_card_limit(card) <= G.jokers.config.card_limit do
                     revive_fish = JoyousSpring.revive_pseudorandom(
                         { { monster_type = "Fish" } },
-                        pseudoseed("j_joy_fish_guoglim"),
+                        'j_joy_fish_guoglim',
                         true
                     )
                 end
             end
         end
     end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xmult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                card.joker_display_values.xmult = 1 + (card.ability.extra.xmult * (G.GAME.joy_cards_banished or 0))
+            end
+        }
+    end
 })
 
 -- Ghoti of the Deep Beyond
@@ -665,7 +730,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_fish_depths", properties = { { monster_archetypes = { "Ghoti" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -690,7 +754,7 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card and not context.retrigger_joker and
-                context.end_of_round and context.game_over == false and context.main_eval then
+                context.joy_post_round_eval then
                 JoyousSpring.banish(card, "blind_selected")
                 local choices = JoyousSpring.get_materials_owned({ { exclude_monster_archetypes = { "Ghoti" } } })
                 for _, joker in ipairs(choices) do
@@ -701,11 +765,11 @@ SMODS.Joker({
     end,
 })
 
--- Ghoti02
+-- The Most Distant, Deepest Depths
 SMODS.Joker({
     key = "fish_depths",
-    atlas = 'Ghoti02',
-    pos = { x = 0, y = 0 },
+    atlas = 'Ghoti',
+    pos = { x = 0, y = 3 },
     rarity = 3,
     discovered = true,
     blueprint_compat = false,
@@ -721,7 +785,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_fish_depths", properties = { { monster_archetypes = { "Ghoti" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {

@@ -21,7 +21,7 @@ local get_weighted_pool = function(starting_pool, default_key, _append, allow_du
         v.mod = G.GAME[tostring(v.key):lower() .. "_mod"] or 1
 
         if SMODS.Rarities[v.key] and SMODS.Rarities[v.key].get_weight and type(SMODS.Rarities[v.key].get_weight) == "function" then
-            v.weight = SMODS.Rarities[v.key]:get_weight(v.weight, SMODS.ObjectTypes[_pool_key])
+            v.weight = SMODS.Rarities[v.key]:get_weight(v.weight, SMODS.ObjectTypes[default_key])
         end
         v.weight = v.weight * v.mod
         rarity_weight = rarity_weight + v.weight
@@ -32,15 +32,13 @@ local get_weighted_pool = function(starting_pool, default_key, _append, allow_du
     end
 
     for k, card in ipairs(_starting_pool) do
-        local v = type(card) == "string" and G.P_CENTERS[card] or card
+        -- most of this is so vscode doesnt annoy me
+        local v = (type(card) == "string" and G.P_CENTERS[card]) or (type(card) == "table" and card) or {}
 
         local add = nil
-        local in_pool, pool_opts
-        if v.in_pool and type(v.in_pool) == 'function' then
-            in_pool, pool_opts = v:in_pool({ source = _append })
-        end
+        local in_pool, pool_opts = SMODS.add_to_pool(v, { source = _append })
         pool_opts = pool_opts or {}
-        if not (G.GAME.used_jokers[v.key] and not pool_opts.allow_duplicates and not allow_duplicates and not next(find_joker("Showman"))) and
+        if not (G.GAME.used_jokers[v.key] and not pool_opts.allow_duplicates and not allow_duplicates and not SMODS.showman(v.key)) and
             (v.unlocked ~= false or v.rarity == 4) then
             if v.enhancement_gate then
                 add = nil
@@ -52,7 +50,7 @@ local get_weighted_pool = function(starting_pool, default_key, _append, allow_du
             else
                 add = true
             end
-            if v.name == 'Black Hole' or v.name == 'The Soul' or v.hidden then
+            if v.hidden then
                 add = false
             end
         end
@@ -60,9 +58,8 @@ local get_weighted_pool = function(starting_pool, default_key, _append, allow_du
         if v.no_pool_flag and G.GAME.pool_flags[v.no_pool_flag] then add = nil end
         if v.yes_pool_flag and not G.GAME.pool_flags[v.yes_pool_flag] then add = nil end
 
-        if v.in_pool and type(v.in_pool) == 'function' then
-            add = in_pool and (add or pool_opts.override_base_checks)
-        end
+        add = in_pool and (add or pool_opts.override_base_checks)
+
         if add and not G.GAME.banned_keys[v.key] then
             local weight = 0.75
 
@@ -95,7 +92,7 @@ end
 ---@param allow_duplicates boolean?
 ---@return string
 local get_weighted_card = function(starting_pool, default_key, key_append, allow_duplicates)
-    local poll = pseudorandom(pseudoseed('JoyousSpring' .. G.GAME.round_resets.ante .. (key_append or '')))
+    local poll = pseudorandom('JoyousSpring' .. G.GAME.round_resets.ante .. (key_append or ''))
     local pool = get_weighted_pool(starting_pool, default_key, key_append, allow_duplicates)
     local weight_i = 0
     for _, v in ipairs(pool) do
@@ -162,4 +159,15 @@ function SMODS.create_card(t)
     end
 
     return smods_create_card_ref(t)
+end
+
+-- Prevent field spells from being spawned by vanilla cards
+local smods_add_to_pool_ref = SMODS.add_to_pool
+function SMODS.add_to_pool(prototype_obj, args)
+    if args and (args.source == 'jud' or args.source == 'sou' or args.source == 'wra' or args.source == 'rif') and
+        prototype_obj.set == "Joker" and
+        JoyousSpring.is_material_center(prototype_obj.key, { is_field_spell = true }) then
+        return false
+    end
+    return smods_add_to_pool_ref(prototype_obj, args)
 end

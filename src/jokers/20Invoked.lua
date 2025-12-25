@@ -7,8 +7,10 @@ SMODS.Atlas({
 })
 
 local aleister_transform = function(card, tribute)
-    local attribute = JoyousSpring.is_monster_card(tribute) and tribute.ability.extra.joyous_spring.attribute or
-        pseudorandom_element({ "LIGHT", "DARK", "WATER", "FIRE", "EARTH", "WIND" }, pseudoseed(card.config.center.key))
+    local attribute = JoyousSpring.is_monster_card(tribute) and JoyousSpring.get_attribute(tribute)
+    if not attribute or attribute == true then
+        attribute = pseudorandom_element({ "LIGHT", "DARK", "WATER", "FIRE", "EARTH", "WIND" }, card.config.center.key)
+    end
 
     local key_to_transform = "j_joy_invoked_mage"
 
@@ -43,6 +45,7 @@ SMODS.Joker({
     key = "invoked_aleister",
     atlas = 'invoked',
     pos = { x = 0, y = 0 },
+    joy_alt_pos = { { x = 0, y = 3 } },
     rarity = 2,
     discovered = true,
     blueprint_compat = false,
@@ -59,7 +62,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_invoked_meltdown", properties = { { monster_archetypes = { "Aleister" } }, { monster_archetypes = { "Invoked" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -78,7 +80,7 @@ SMODS.Joker({
                 if context.joy_activate_effect and context.joy_activated_card == card then
                     local materials = {}
                     for i, joker in ipairs(G.jokers.cards) do
-                        if joker ~= card and not joker.ability.eternal then
+                        if joker ~= card and not SMODS.is_eternal(joker, card) then
                             materials[#materials + 1] = joker
                         end
                     end
@@ -96,7 +98,7 @@ SMODS.Joker({
     end,
     joy_can_activate = function(card)
         for i, joker in ipairs(G.jokers.cards) do
-            if joker ~= card and not joker.ability.eternal then
+            if joker ~= card and not SMODS.is_eternal(joker, card) then
                 return true
             end
         end
@@ -115,7 +117,7 @@ SMODS.Joker({
     joy_transfer_config = function(self, other_card)
         return { chips = 50 }
     end,
-    joy_transfer_loc_vars = function(self, info_queue, card, config)
+    joy_transfer_loc_vars = function(self, info_queue, other_card, config)
         return { vars = { config.chips, config.chips * JoyousSpring.get_summoned_count("FUSION") } }
     end
 })
@@ -141,7 +143,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_invoked_meltdown", properties = { { monster_archetypes = { "Aleister" } }, { monster_archetypes = { "Invoked" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -175,7 +176,7 @@ SMODS.Joker({
                 if context.joy_activate_effect and context.joy_activated_card == card then
                     local materials = {}
                     for i, joker in ipairs(G.jokers.cards) do
-                        if joker ~= card and not joker.ability.eternal then
+                        if joker ~= card and not SMODS.is_eternal(joker, card) then
                             materials[#materials + 1] = joker
                         end
                     end
@@ -199,7 +200,7 @@ SMODS.Joker({
     end,
     joy_can_activate = function(card)
         for i, joker in ipairs(G.jokers.cards) do
-            if joker ~= card and not joker.ability.eternal then
+            if joker ~= card and not SMODS.is_eternal(joker, card) then
                 return true
             end
         end
@@ -218,7 +219,7 @@ SMODS.Joker({
     joy_transfer_config = function(self, other_card)
         return { mult = 15 }
     end,
-    joy_transfer_loc_vars = function(self, info_queue, card, config)
+    joy_transfer_loc_vars = function(self, info_queue, other_card, config)
         return { vars = { config.mult, config.mult * JoyousSpring.get_summoned_count("FUSION") } }
     end
 })
@@ -233,8 +234,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 8,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
@@ -243,7 +246,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_invoked_meltdown", properties = { { monster_archetypes = { "Aleister" } }, { monster_archetypes = { "Invoked" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -261,10 +263,10 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card then
-                if context.joy_activate_effect and context.joy_activated_card == card and not card.ability.eternal then
+                if context.joy_activate_effect and context.joy_activated_card == card and not SMODS.is_eternal(card, card) then
                     local materials = {}
                     for i, joker in ipairs(G.jokers.cards) do
-                        if joker ~= card and not joker.ability.eternal then
+                        if joker ~= card and not SMODS.is_eternal(joker, card) then
                             materials[#materials + 1] = joker
                         end
                     end
@@ -287,7 +289,7 @@ SMODS.Joker({
     end,
     joy_can_activate = function(card)
         for i, joker in ipairs(G.jokers.cards) do
-            if joker ~= card and not joker.ability.eternal then
+            if joker ~= card and not SMODS.is_eternal(joker, card) then
                 return true
             end
         end
@@ -322,8 +324,24 @@ SMODS.Joker({
             reduces = 2
         }
     end,
-    joy_transfer_loc_vars = function(self, info_queue, card, config)
+    joy_transfer_loc_vars = function(self, info_queue, other_card, config)
         return { vars = { config.xmult, config.xmult * JoyousSpring.count_set_tributed("Joker", true), config.reduces } }
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xmult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                card.joker_display_values.xmult = 1 +
+                    card.ability.extra.xmult * JoyousSpring.count_set_tributed("Joker", true)
+            end
+        }
     end
 })
 
@@ -337,8 +355,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 8,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
@@ -347,7 +367,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_invoked_meltdown", properties = { { monster_archetypes = { "Aleister" } }, { monster_archetypes = { "Invoked" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -365,10 +384,10 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card then
-                if context.joy_activate_effect and context.joy_activated_card == card and not card.ability.eternal then
+                if context.joy_activate_effect and context.joy_activated_card == card and not SMODS.is_eternal(card, card) then
                     local materials = {}
                     for i, joker in ipairs(G.jokers.cards) do
-                        if joker ~= card and not joker.ability.eternal then
+                        if joker ~= card and not SMODS.is_eternal(joker, card) then
                             materials[#materials + 1] = joker
                         end
                     end
@@ -390,7 +409,7 @@ SMODS.Joker({
                         table.insert(cards, joker)
                     end
                 end
-                local card_to_flip = pseudorandom_element(cards, pseudoseed("j_joy_invoked_raidjin"))
+                local card_to_flip = pseudorandom_element(cards, 'j_joy_invoked_raidjin')
                 if card_to_flip then card_to_flip:flip() end
             end
             if context.joker_main then
@@ -402,7 +421,7 @@ SMODS.Joker({
     end,
     joy_can_activate = function(card)
         for i, joker in ipairs(G.jokers.cards) do
-            if joker ~= card and not joker.ability.eternal then
+            if joker ~= card and not SMODS.is_eternal(joker, card) then
                 return true
             end
         end
@@ -429,7 +448,7 @@ SMODS.Joker({
                         table.insert(cards, joker)
                     end
                 end
-                local card_to_flip = pseudorandom_element(cards, pseudoseed("j_joy_invoked_raidjin"))
+                local card_to_flip = pseudorandom_element(cards, 'j_joy_invoked_raidjin')
                 if card_to_flip then card_to_flip:flip() end
             end
         end
@@ -440,8 +459,24 @@ SMODS.Joker({
             flips = 1
         }
     end,
-    joy_transfer_loc_vars = function(self, info_queue, card, config)
+    joy_transfer_loc_vars = function(self, info_queue, other_card, config)
         return { vars = { config.xmult, 1 + config.xmult * JoyousSpring.get_flipped_count("Joker"), config.flips } }
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xmult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                card.joker_display_values.xmult = 1 +
+                    card.ability.extra.xmult * JoyousSpring.get_flipped_count("Joker")
+            end
+        }
     end
 })
 
@@ -455,8 +490,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 8,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
@@ -465,7 +502,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_invoked_meltdown", properties = { { monster_archetypes = { "Aleister" } }, { monster_archetypes = { "Invoked" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -482,10 +518,10 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card then
-                if context.joy_activate_effect and context.joy_activated_card == card and not card.ability.eternal then
+                if context.joy_activate_effect and context.joy_activated_card == card and not SMODS.is_eternal(card, card) then
                     local materials = {}
                     for i, joker in ipairs(G.jokers.cards) do
-                        if joker ~= card and not joker.ability.eternal then
+                        if joker ~= card and not SMODS.is_eternal(joker, card) then
                             materials[#materials + 1] = joker
                         end
                     end
@@ -510,7 +546,7 @@ SMODS.Joker({
     end,
     joy_can_activate = function(card)
         for i, joker in ipairs(G.jokers.cards) do
-            if joker ~= card and not joker.ability.eternal then
+            if joker ~= card and not SMODS.is_eternal(joker, card) then
                 return true
             end
         end
@@ -545,7 +581,7 @@ SMODS.Joker({
             percent = 0.1
         }
     end,
-    joy_transfer_loc_vars = function(self, info_queue, card, config)
+    joy_transfer_loc_vars = function(self, info_queue, other_card, config)
         return { vars = { config.percent * 100 } }
     end
 })
@@ -560,8 +596,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 8,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
@@ -570,7 +608,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_invoked_meltdown", properties = { { monster_archetypes = { "Aleister" } }, { monster_archetypes = { "Invoked" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -587,10 +624,10 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card then
-                if context.joy_activate_effect and context.joy_activated_card == card and not card.ability.eternal then
+                if context.joy_activate_effect and context.joy_activated_card == card and not SMODS.is_eternal(card, card) then
                     local materials = {}
                     for i, joker in ipairs(G.jokers.cards) do
-                        if joker ~= card and not joker.ability.eternal then
+                        if joker ~= card and not SMODS.is_eternal(joker, card) then
                             materials[#materials + 1] = joker
                         end
                     end
@@ -614,7 +651,7 @@ SMODS.Joker({
     end,
     joy_can_activate = function(card)
         for i, joker in ipairs(G.jokers.cards) do
-            if joker ~= card and not joker.ability.eternal then
+            if joker ~= card and not SMODS.is_eternal(joker, card) then
                 return true
             end
         end
@@ -639,8 +676,18 @@ SMODS.Joker({
             xmult = 2,
         }
     end,
-    joy_transfer_loc_vars = function(self, info_queue, card, config)
+    joy_transfer_loc_vars = function(self, info_queue, other_card, config)
         return { vars = { config.xmult } }
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            mod_function = function(card, mod_joker)
+                return {
+                    x_mult = card.facing == "front" and JoyousSpring.is_summon_type(card, "FUSION") and
+                        mod_joker.ability.extra.xmult ^ JokerDisplay.calculate_joker_triggers(mod_joker) or nil
+                }
+            end
+        }
     end
 })
 
@@ -654,8 +701,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 8,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
@@ -664,7 +713,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_invoked_meltdown", properties = { { monster_archetypes = { "Aleister" } }, { monster_archetypes = { "Invoked" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -675,16 +723,16 @@ SMODS.Joker({
                 monster_archetypes = { ["Invoked"] = true }
             },
             tributes = 1,
-            mult = 100
+            mult = 50
         },
     },
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card then
-                if context.joy_activate_effect and context.joy_activated_card == card and not card.ability.eternal then
+                if context.joy_activate_effect and context.joy_activated_card == card and not SMODS.is_eternal(card, card) then
                     local materials = {}
                     for i, joker in ipairs(G.jokers.cards) do
-                        if joker ~= card and not joker.ability.eternal then
+                        if joker ~= card and not SMODS.is_eternal(joker, card) then
                             materials[#materials + 1] = joker
                         end
                     end
@@ -707,7 +755,7 @@ SMODS.Joker({
     end,
     joy_can_activate = function(card)
         for i, joker in ipairs(G.jokers.cards) do
-            if joker ~= card and not joker.ability.eternal then
+            if joker ~= card and not SMODS.is_eternal(joker, card) then
                 return true
             end
         end
@@ -731,8 +779,17 @@ SMODS.Joker({
             mult = 100,
         }
     end,
-    joy_transfer_loc_vars = function(self, info_queue, card, config)
+    joy_transfer_loc_vars = function(self, info_queue, other_card, config)
         return { vars = { config.mult } }
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                { text = "+" },
+                { ref_table = "card.ability.extra", ref_value = "mult", retrigger_type = "mult" }
+            },
+            text_config = { colour = G.C.MULT },
+        }
     end
 })
 
@@ -741,13 +798,16 @@ SMODS.Joker({
     key = "invoked_mechaba",
     atlas = 'invoked',
     pos = { x = 3, y = 1 },
+    joy_alt_pos = { { x = 3, y = 2 } },
     rarity = 2,
     discovered = true,
     blueprint_compat = false,
     eternal_compat = true,
     cost = 8,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
@@ -756,7 +816,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_invoked_meltdown", properties = { { monster_archetypes = { "Aleister" } }, { monster_archetypes = { "Invoked" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -775,10 +834,10 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card then
-                if context.joy_activate_effect and context.joy_activated_card == card and not card.ability.eternal then
+                if context.joy_activate_effect and context.joy_activated_card == card and not SMODS.is_eternal(card, card) then
                     local materials = {}
                     for i, joker in ipairs(G.jokers.cards) do
-                        if joker ~= card and not joker.ability.eternal then
+                        if joker ~= card and not SMODS.is_eternal(joker, card) then
                             materials[#materials + 1] = joker
                         end
                     end
@@ -808,7 +867,7 @@ SMODS.Joker({
     end,
     joy_can_activate = function(card)
         for i, joker in ipairs(G.jokers.cards) do
-            if joker ~= card and not joker.ability.eternal then
+            if joker ~= card and not SMODS.is_eternal(joker, card) then
                 return true
             end
         end
@@ -822,7 +881,7 @@ SMODS.Joker({
     end,
     joy_transfer_ability_calculate = function(self, other_card, context, config)
         if JoyousSpring.can_use_abilities(other_card) then
-            if context.selling_card and context.card ~= card then
+            if context.selling_card and context.card ~= other_card then
                 config.sold = config.sold + 1
                 if not config.activated and config.sold >= config.sell then
                     config.activated = true
@@ -843,7 +902,7 @@ SMODS.Joker({
             activated = false
         }
     end,
-    joy_transfer_loc_vars = function(self, info_queue, card, config)
+    joy_transfer_loc_vars = function(self, info_queue, other_card, config)
         return { vars = { config.sell, config.sold } }
     end
 })
@@ -858,8 +917,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 10,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
@@ -868,7 +929,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_invoked_meltdown", properties = { { monster_archetypes = { "Aleister" } }, { monster_archetypes = { "Invoked" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -886,10 +946,10 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card then
-                if context.joy_activate_effect and context.joy_activated_card == card and not card.ability.eternal then
+                if context.joy_activate_effect and context.joy_activated_card == card and not SMODS.is_eternal(card, card) then
                     local materials = {}
                     for i, joker in ipairs(G.jokers.cards) do
-                        if joker ~= card and not joker.ability.eternal then
+                        if joker ~= card and not SMODS.is_eternal(joker, card) then
                             materials[#materials + 1] = joker
                         end
                     end
@@ -904,11 +964,9 @@ SMODS.Joker({
                 end
             end
             if context.setting_blind and context.main_eval then
-                local choices = JoyousSpring.get_materials_in_collection({ { summon_type = "FUSION", exclude_monster_archetypes = { "Invoked" } } })
-
-                for i = 1, card.ability.extra.mills do
-                    JoyousSpring.send_to_graveyard(pseudorandom_element(choices, pseudoseed("j_joy_invoked_augo")))
-                end
+                JoyousSpring.send_to_graveyard_pseudorandom(
+                    { { summon_type = "FUSION", exclude_monster_archetypes = { "Invoked" } } },
+                    card.config.center.key, card.ability.extra.mills)
                 return { message = localize("k_joy_mill") }
             end
             if context.joker_main then
@@ -922,7 +980,7 @@ SMODS.Joker({
     end,
     joy_can_activate = function(card)
         for i, joker in ipairs(G.jokers.cards) do
-            if joker ~= card and not joker.ability.eternal then
+            if joker ~= card and not SMODS.is_eternal(joker, card) then
                 return true
             end
         end
@@ -944,11 +1002,9 @@ SMODS.Joker({
                 }
             end
             if context.setting_blind and context.main_eval then
-                local choices = JoyousSpring.get_materials_in_collection({ { summon_type = "FUSION", exclude_monster_archetypes = { "Invoked" } } })
-
-                for i = 1, config.mills do
-                    JoyousSpring.send_to_graveyard(pseudorandom_element(choices, pseudoseed("j_joy_invoked_augo")))
-                end
+                JoyousSpring.send_to_graveyard_pseudorandom(
+                    { { summon_type = "FUSION", exclude_monster_archetypes = { "Invoked" } } },
+                    other_card.config.center.key .. "i_nvoked_augo", config.mills)
                 return { message = localize("k_joy_mill") }
             end
         end
@@ -959,11 +1015,28 @@ SMODS.Joker({
             mills = 1
         }
     end,
-    joy_transfer_loc_vars = function(self, info_queue, card, config)
+    joy_transfer_loc_vars = function(self, info_queue, other_card, config)
         return {
             vars = { config.xmult, 1 +
             config.xmult *
             JoyousSpring.count_materials_in_graveyard({ { summon_type = "FUSION" } }), config.mills }
+        }
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xmult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                card.joker_display_values.xmult = 1 +
+                    card.ability.extra.xmult *
+                    JoyousSpring.count_materials_in_graveyard({ { summon_type = "FUSION" } })
+            end
         }
     end
 })
@@ -978,8 +1051,10 @@ SMODS.Joker({
     blueprint_compat = false,
     eternal_compat = true,
     cost = 12,
+    joy_no_shop = true,
     loc_vars = function(self, info_queue, card)
         if not JoyousSpring.config.disable_tooltips and not card.fake_card and not card.debuff then
+            info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_no_shop" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_tribute" }
             info_queue[#info_queue + 1] = { set = "Other", key = "joy_tooltip_transform" }
         end
@@ -988,7 +1063,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_invoked_meltdown", properties = { { monster_archetypes = { "Aleister" } }, { monster_archetypes = { "Invoked" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -1006,10 +1080,10 @@ SMODS.Joker({
     calculate = function(self, card, context)
         if JoyousSpring.can_use_abilities(card) then
             if not context.blueprint_card then
-                if context.joy_activate_effect and context.joy_activated_card == card and not card.ability.eternal then
+                if context.joy_activate_effect and context.joy_activated_card == card and not SMODS.is_eternal(card, card) then
                     local materials = {}
                     for i, joker in ipairs(G.jokers.cards) do
-                        if joker ~= card and not joker.ability.eternal then
+                        if joker ~= card and not SMODS.is_eternal(joker, card) then
                             materials[#materials + 1] = joker
                         end
                     end
@@ -1037,7 +1111,7 @@ SMODS.Joker({
     end,
     joy_can_activate = function(card)
         for i, joker in ipairs(G.jokers.cards) do
-            if joker ~= card and not joker.ability.eternal then
+            if joker ~= card and not SMODS.is_eternal(joker, card) then
                 return true
             end
         end
@@ -1067,7 +1141,6 @@ SMODS.Joker({
     joy_desc_cards = {
         { "j_joy_invoked_meltdown", properties = { { monster_archetypes = { "Aleister" } }, { monster_archetypes = { "Invoked" } } }, name = "k_joy_archetype" },
     },
-    generate_ui = JoyousSpring.generate_info_ui,
     set_sprites = JoyousSpring.set_back_sprite,
     config = {
         extra = {
@@ -1128,6 +1201,22 @@ SMODS.Joker({
     end,
     joy_prevent_flip = function(card, other_card)
         return JoyousSpring.is_summon_type(other_card, "FUSION")
+    end,
+    joker_display_def = function(JokerDisplay)
+        return {
+            text = {
+                {
+                    border_nodes = {
+                        { text = "X" },
+                        { ref_table = "card.joker_display_values", ref_value = "xmult", retrigger_type = "exp" }
+                    }
+                }
+            },
+            calc_function = function(card)
+                card.joker_display_values.xmult = 1 +
+                    card.ability.extra.xmult * JoyousSpring.get_summoned_count("FUSION")
+            end
+        }
     end
 })
 
